@@ -31,9 +31,20 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await authService.login(email, password);
-      Alert.alert('Logeado', '.');
+      router.push('/home');
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginGoogle = async () => {
+    try {
+      await authService.googleLogin();
+      router.push('/home');
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
     } finally {
       setLoading(false);
     }
@@ -41,19 +52,20 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={globalStyles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          
           {/* Logo Container */}
           <View style={styles.logoContainer}>
             <View style={styles.logoPlaceholder}>
               <Ionicons name="watch-outline" size={80} color={Colors.primary} />
             </View>
             <Text style={styles.brandName}>HEALTHWATCH</Text>
-            <Text style={styles.brandSlogan}>Cuidado y Salud para el Adulto Mayor</Text>
+            <Text style={styles.brandSlogan}>
+              Cuidado y Salud para el Adulto Mayor
+            </Text>
           </View>
 
           <View style={globalStyles.form}>
@@ -75,7 +87,9 @@ export default function LoginScreen() {
                   />
                 </View>
               </View>
-              <Text style={globalStyles.helperText}>Ingrese un correo válido</Text>
+              <Text style={globalStyles.helperText}>
+                Ingrese un correo válido
+              </Text>
             </View>
 
             {/* Input Contraseña */}
@@ -97,14 +111,14 @@ export default function LoginScreen() {
             </View>
 
             {/* Botón Ingresar */}
-            <TouchableOpacity 
-              style={[globalStyles.button, loading && { opacity: 0.7 }]} 
+            <TouchableOpacity
+              style={[globalStyles.button, loading && { opacity: 0.7 }]}
               activeOpacity={0.8}
               onPress={handleLogin}
               disabled={loading}
             >
               <Text style={globalStyles.buttonText}>
-                {loading ? 'Cargando...' : 'Ingresar'}
+                {loading ? "Cargando..." : "Ingresar"}
               </Text>
             </TouchableOpacity>
 
@@ -112,10 +126,23 @@ export default function LoginScreen() {
             <Link href="/register" asChild>
               <TouchableOpacity style={globalStyles.linkContainer}>
                 <Text style={globalStyles.linkText}>
-                  ¿No tiene cuenta? <Text style={globalStyles.linkTextBold}>Crear una nueva.</Text>
+                  ¿No tiene cuenta?{" "}
+                  <Text style={globalStyles.linkTextBold}>
+                    Crear una nueva.
+                  </Text>
                 </Text>
               </TouchableOpacity>
             </Link>
+
+            <TouchableOpacity
+              style={globalStyles.linkContainer}
+              onPress={handleLoginGoogle}
+            >
+              <Text style={globalStyles.linkText}>
+                Ingresar con Google{" "}
+                <Text style={globalStyles.linkTextBold}>aquí.</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
