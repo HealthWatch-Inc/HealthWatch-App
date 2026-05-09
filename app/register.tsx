@@ -53,7 +53,7 @@ export default function RegisterScreen() {
              <Ionicons name="arrow-back" size={24} color={Colors.primary} />
           </TouchableOpacity>
 
-          <Text style={globalStyles.title}>Crear cuenta</Text>
+          <Text style={[globalStyles.title, styles.centerText]}>Crear cuenta</Text>
 
           <View style={globalStyles.form}>
             {/* Email */}
@@ -130,5 +130,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     justifyContent: 'center',
+  },
+  centerText: {
+    textAlign: 'center',
   },
 });

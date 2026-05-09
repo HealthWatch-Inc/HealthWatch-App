@@ -5,6 +5,7 @@ import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -69,7 +70,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={globalStyles.form}>
-            <Text style={globalStyles.title}>Iniciar sesión</Text>
+            <Text style={[globalStyles.title, styles.centerText]}>Iniciar Sesión</Text>
 
             {/* Input Correo */}
             <View style={globalStyles.inputWrapper}>
@@ -126,23 +127,28 @@ export default function LoginScreen() {
             <Link href="/register" asChild>
               <TouchableOpacity style={globalStyles.linkContainer}>
                 <Text style={globalStyles.linkText}>
-                  ¿No tiene cuenta?{" "}
+                  ¿No tienes una cuenta?{" "}
                   <Text style={globalStyles.linkTextBold}>
-                    Crear una nueva.
+                    Crea una nueva.
                   </Text>
                 </Text>
               </TouchableOpacity>
             </Link>
-
-            <TouchableOpacity
-              style={globalStyles.linkContainer}
-              onPress={handleLoginGoogle}
-            >
-              <Text style={globalStyles.linkText}>
-                Ingresar con Google{" "}
-                <Text style={globalStyles.linkTextBold}>aquí.</Text>
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.googleLoginWrapper}>
+              <TouchableOpacity
+                style={[styles.googleButton, loading && { opacity: 0.7 }]}
+                onPress={handleLoginGoogle}
+                activeOpacity={0.8}
+                disabled={loading}
+              >
+                <Image
+                  source={require('../assets/logos/google.png')}
+                  style={styles.googleLogo}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              <Text style={styles.googleLabel}>Inicia sesión con Google</Text>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -178,5 +184,38 @@ const styles = StyleSheet.create({
   brandSlogan: {
     fontSize: 12,
     color: '#888',
+  },
+  googleLoginWrapper: {
+    alignItems: 'center',
+    marginTop: 25,
+  },
+  googleButton: {
+    width: 64,
+    height: 64,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  googleLogo: {
+    width: 48,
+    height: 48,
+  },
+  googleLabel: {
+    marginTop: 10,
+    color: Colors.textMain,
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  centerText: {
+    textAlign: 'center',
   },
 });
