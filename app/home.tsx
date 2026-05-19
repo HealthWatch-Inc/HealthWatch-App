@@ -4,10 +4,7 @@ import {
   Text, 
   Appbar, 
   Avatar, 
-  Card, 
-  IconButton, 
-  MD3Colors, 
-  useTheme, 
+  Card,
   Provider as PaperProvider 
 } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
