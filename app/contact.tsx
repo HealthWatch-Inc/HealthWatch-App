@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, Divider, PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { FooterNav } from './footernav';
 
 const CONTACTS = [
      { id: '1', name: 'Elizabeth García', phone: '912345678', relation: 'Hija' },
@@ -47,6 +48,8 @@ export default function EmergencyContactsScreen() {
                          )}
                     />
                </View>
+
+               <FooterNav activeTab="inicio" />
           </PaperProvider>
      );
 }

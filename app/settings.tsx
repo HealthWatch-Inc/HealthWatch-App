@@ -9,6 +9,8 @@ import {
   Provider as PaperProvider, 
   MD3LightTheme 
 } from 'react-native-paper';
+import { FooterNav } from './footernav';
+import { useRouter } from 'expo-router';
 
 // Definición de tipos para las filas de datos
 interface SettingRowProps {
@@ -26,12 +28,13 @@ const SettingRow = ({ label, value }: SettingRowProps) => (
 );
 
 export default function AjustesScreen() {
+  const router = useRouter();
+  
   return (
     <PaperProvider theme={MD3LightTheme}>
-      <Appbar.Header>
-        <Appbar.Action icon="menu" onPress={() => {}} />
-        <Appbar.Content title="HealthWatch" />
-        <Appbar.Action icon="account-circle" iconColor="#F2714D" onPress={() => {}} />
+      <Appbar.Header style={styles.header}>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title="Atrás" />
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.container}>
@@ -63,17 +66,21 @@ export default function AjustesScreen() {
           mode="contained" 
           buttonColor="#E42C2C" 
           style={styles.logoutButton}
-          onPress={() => console.log('Cerrar sesión')}
+          onPress={() => router.push('/')}
         >
           Cerrar Sesión
         </Button>
       </ScrollView>
+
+      <FooterNav activeTab="datos" />
     </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: '#FEF7FF' },
+  header: { backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between',
+  },
   mainTitle: { fontWeight: 'bold', marginBottom: 20 },
   sectionHeader: { marginBottom: 15, fontWeight: '600' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 8 },

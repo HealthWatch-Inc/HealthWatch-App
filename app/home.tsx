@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     textAlign: 'center',
     fontWeight: '400',
+    color: '#1a1a1a'
   },
   avatar: {
     backgroundColor: '#ff8a65',
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: 'bold',
     marginBottom: 12,
-    color: "#000000"
+    color: '#1a1a1a'
   },
   grid: {
     flexDirection: 'row',
