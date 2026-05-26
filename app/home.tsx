@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { 
   Text, 
   Appbar, 
@@ -7,9 +7,12 @@ import {
   Card,
   Provider as PaperProvider 
 } from 'react-native-paper';
+import { useRouter } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const App = () => {
+  const router = useRouter();
+  
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
@@ -17,7 +20,17 @@ const App = () => {
         <Appbar.Header style={styles.header}>
           <Appbar.Action icon="menu" onPress={() => {}} />
           <Appbar.Content title="HealthWatch" titleStyle={styles.headerTitle} />
-          <Avatar.Icon size={40} icon="account" style={styles.avatar} color="white" />
+          <TouchableOpacity 
+            onPress={() => router.push('/settings')}
+            activeOpacity={0.7}
+          >
+            <Avatar.Icon 
+              size={40} 
+              icon="account" 
+              style={styles.avatar} 
+              color="white"
+            />
+          </TouchableOpacity>
         </Appbar.Header>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -33,7 +46,7 @@ const App = () => {
           
           <View style={styles.grid}>
             {/* Tarjeta Signos Vitales */}
-            <Card style={[styles.card, { backgroundColor: '#801a1a' }]}>
+            <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push('/vital_signs')}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Signos vitales</Text>
@@ -42,7 +55,7 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Actividad física */}
-            <Card style={[styles.card, { backgroundColor: '#7a6200' }]}>
+            <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/fisica')}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Actividad física</Text>
@@ -51,7 +64,7 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Alertas */}
-            <Card style={[styles.card, { backgroundColor: '#003e5c' }]}>
+            <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push('/alerts')}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Alertas y Notificaciones</Text>
@@ -59,7 +72,7 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Contacto */}
-            <Card style={[styles.card, { backgroundColor: '#6a0050' }]}>
+            <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push('/contact')}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-ring-outline" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Contacto de emergencia</Text>
