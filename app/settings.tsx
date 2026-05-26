@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
-import { 
-  Appbar, 
-  Text, 
-  Button, 
-  Divider, 
-  Surface, 
-  Provider as PaperProvider, 
-  MD3LightTheme 
+import {
+  Appbar,
+  Text,
+  Button,
+  Divider,
+  Surface,
+  Provider as PaperProvider,
+  MD3LightTheme
 } from 'react-native-paper';
 import { FooterNav } from './footernav';
 import { useRouter } from 'expo-router';
@@ -29,7 +29,7 @@ const SettingRow = ({ label, value }: SettingRowProps) => (
 
 export default function AjustesScreen() {
   const router = useRouter();
-  
+
   return (
     <PaperProvider theme={MD3LightTheme}>
       <Appbar.Header style={styles.header}>
@@ -62,9 +62,9 @@ export default function AjustesScreen() {
         <Divider style={styles.divider} />
 
         {/* Botón Acción */}
-        <Button 
-          mode="contained" 
-          buttonColor="#E42C2C" 
+        <Button
+          mode="contained"
+          buttonColor="#E42C2C"
           style={styles.logoutButton}
           onPress={() => router.push('/')}
         >
@@ -79,7 +79,8 @@ export default function AjustesScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: '#FEF7FF' },
-  header: { backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between',
+  header: {
+    backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between',
   },
   mainTitle: { fontWeight: 'bold', marginBottom: 20 },
   sectionHeader: { marginBottom: 15, fontWeight: '600' },

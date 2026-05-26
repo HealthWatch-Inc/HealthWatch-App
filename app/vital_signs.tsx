@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff' },
   scrollContent: { padding: 16, paddingBottom: 100 },
   header: { backgroundColor: '#ffffff', elevation: 0, shadowOpacity: 0 },
-  title: { fontWeight: '500', marginBottom: 20, color: '#000' },
+  title: { fontWeight: 'bold', marginBottom: 20, color: '#000' },
   vitalsCard: { backgroundColor: '#690909', borderRadius: 28, marginBottom: 24, paddingVertical: 8 },
   cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4 },
   whiteChartBackground: { backgroundColor: '#ffffff', borderRadius: 16, padding: 12, height: 140, justifyContent: 'center' },

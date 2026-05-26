@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   title: {
-    fontWeight: '500',
+    fontWeight: 'bold',
     marginBottom: 20,
     color: '#000',
   },

@@ -37,7 +37,7 @@ const App = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Bienvenida */}
           <Text variant="headlineMedium" style={styles.welcomeText}>
-            Bienvenido, Usuario
+            Bienvenido
           </Text>
 
           {/* Sección: Panel del usuario */}

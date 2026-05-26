@@ -18,6 +18,9 @@ export const authService = {
         email,
         password,
       );
+      
+      console.log(userCredential.user);
+      
       return userCredential.user;
     } catch (error) {
       throw error;
