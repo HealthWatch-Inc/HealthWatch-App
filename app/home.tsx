@@ -9,6 +9,7 @@ import {
 } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { FooterNav } from './footernav'; 
 
 const App = () => {
   const router = useRouter();
@@ -96,16 +97,7 @@ const App = () => {
           </Card>
         </ScrollView>
 
-        {/* Bottom Navigation (Simulada con estilo Material 3) */}
-        <View style={styles.bottomNav}>
-          <View style={styles.navItem}>
-            <Text style={styles.navTextActive}>Inicio</Text>
-            <View style={styles.activeIndicator} />
-          </View>
-          <View style={styles.navItem}>
-            <Text style={styles.navText}>Mis Datos</Text>
-          </View>
-        </View>
+        <FooterNav activeTab="inicio" />
       </SafeAreaView>
     </PaperProvider>
   );
@@ -140,6 +132,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: 'bold',
     marginBottom: 12,
+    color: "#000000"
   },
   grid: {
     flexDirection: 'row',
