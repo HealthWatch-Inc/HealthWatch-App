@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
 interface FooterNavProps {
-  activeTab: 'inicio' | 'datos';
+  activeTab: 'inicio' | 'datos' | 'pacientes';
 }
 
 export const FooterNav = ({ activeTab }: FooterNavProps) => {
@@ -15,6 +15,11 @@ export const FooterNav = ({ activeTab }: FooterNavProps) => {
       <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
         <Text style={activeTab === 'inicio' ? styles.navTextActive : styles.navText}>Inicio</Text>
         {activeTab === 'inicio' && <View style={styles.activeIndicator} />}
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/mis_pacientes')}>
+        <Text style={activeTab === 'pacientes' ? styles.navTextActive : styles.navText}>Pacientes</Text>
+        {activeTab === 'pacientes' && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.navItem} onPress={() => router.push('/settings')}>

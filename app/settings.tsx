@@ -9,7 +9,6 @@ import {
   Provider as PaperProvider,
   MD3LightTheme
 } from 'react-native-paper';
-import { FooterNav } from './footernav';
 import { useRouter } from 'expo-router';
 
 // Definición de tipos para las filas de datos
@@ -71,8 +70,6 @@ export default function AjustesScreen() {
           Cerrar Sesión
         </Button>
       </ScrollView>
-
-      <FooterNav activeTab="datos" />
     </PaperProvider>
   );
 }

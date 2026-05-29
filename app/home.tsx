@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { 
   Text, 
@@ -10,9 +10,36 @@ import {
 import { useRouter } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { FooterNav } from './footernav'; 
+import { apiService } from '@/services/apiService';
+import { auth } from '@/config/firebase';
 
 const App = () => {
   const router = useRouter();
+  const [paciente, setPaciente] = useState<any>(null);
+
+  useEffect(() => {
+    const cargarPaciente = async () => {
+      try {
+        const lista = await apiService.get('/api/pacientes/');
+        const primerPaciente = lista.pacientes?.[0];
+        if(!primerPaciente) return;
+
+        const pacienteId = primerPaciente.id;
+        const detalle = await apiService.get(`/api/pacientes/${pacienteId}`)
+
+        console.log(pacienteId);
+        console.log(detalle);
+
+        setPaciente(detalle.paciente);
+      } catch (error) {
+        console.log("Error cargando paciente", error);
+      }
+    };
+
+    if (auth.currentUser) {
+      cargarPaciente();
+    }
+  }, []);
   
   return (
     <PaperProvider>
@@ -37,7 +64,7 @@ const App = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Bienvenida */}
           <Text variant="headlineMedium" style={styles.welcomeText}>
-            Bienvenido
+            Paciente: Nombre
           </Text>
 
           {/* Sección: Panel del usuario */}

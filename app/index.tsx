@@ -32,7 +32,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await authService.login(email, password);
-      router.push('/home');
+      router.push('/mis_pacientes');
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
@@ -43,7 +43,7 @@ export default function LoginScreen() {
   const handleLoginGoogle = async () => {
     try {
       await authService.googleLogin();
-      router.push('/home');
+      router.push('/mis_pacientes');
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
