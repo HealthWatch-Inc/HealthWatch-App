@@ -10,7 +10,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-01 |
 | **Nombre** | Autenticación Segura y Acceso al Sistema |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 10 |
 | **Esfuerzo** | Alta |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
@@ -28,7 +28,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-02 |
 | **Nombre** | Visualización de Signos Vitales en Tiempo Real |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 10 |
 | **Esfuerzo** | Alta |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
@@ -46,7 +46,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-03 |
 | **Nombre** | Sistema de Alertas Inteligentes y Notificaciones Push |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 10 |
 | **Esfuerzo** | Alta |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
@@ -64,7 +64,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-04 |
 | **Nombre** | Seguimiento Histórico y Reportes Estadísticos |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 9 |
 | **Esfuerzo** | Media |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
@@ -82,7 +82,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-05 |
 | **Nombre** | Gestión y Control de Medicación |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 9 |
 | **Esfuerzo** | Media |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
@@ -100,7 +100,7 @@ Este documento contiene la especificación de las Historias de Usuario (HUs) del
 | :--- | :--- |
 | **Código** | HU-06 |
 | **Nombre** | Validación Integral del Ecosistema e Informe Técnico |
-| **Owner** | Jorge Gamarra |
+| **Owner** | Casa de Reposo - Luz de Guadalupe |
 | **Prioridad** | 10 |
 | **Esfuerzo** | Alta |
 | **Proyecto** | SmartWatch Inteligente de Atención Geriátrica |
