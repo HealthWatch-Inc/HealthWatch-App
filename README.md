@@ -1,50 +1,50 @@
-# Welcome to your Expo app 👋
+# HealtWatch - SmartWatch Inteligente de Atención Geriátrica
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Descripción General
 
-## Get started
+Esta plataforma IoT está diseñada para el monitoreo continuo de adultos mayores, mejorando la calidad de vida y optimizando la respuesta médica en centros especializados. El sistema integra hardware IoT (ESP32 con sensores biométricos y de movimiento), una capa de ingesta de datos en tiempo real, un backend con análisis de Machine Learning y una aplicación móvil para cuidadores.
 
-1. Install dependencies
+Esta organización centraliza los componentes críticos del sistema:
 
-   ```bash
-   npm install
-   ```
+- **App Móvil**: React Native (Expo) para el monitoreo y gestión de medicación.
+- **IoT Firmware**: Lógica de control para ESP32.
+- **Backend**: FastAPI para gestión de datos, usuarios y alertas.
+- **Machine Learning**: Modelos predictivos para detección de anomalías y estabilidad.
 
-2. Start the app
+## Repositorios del Proyecto
 
-   ```bash
-   npx expo start
-   ```
+- [IoT Firmware](https://github.com/HealthWatch-Inc/HealthWatch-IoT)
+- [Backend API](https://github.com/HealthWatch-Inc/HealthWatch-Backend)
+- [Modelos ML](https://github.com/HealthWatch-Inc/HealthWatch-ML)
 
-In the output, you'll find options to open the app in a
+## Estructura del proyecto
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- `README.md`: Este archivo.
+- `docs/`:
+  - `architecture.puml`: Diagrama general del sistema.
+  - `hardware-connections.json`: Esquema de conexiones de sensores al ESP32 (Wokwi).
+  - `user-stories.md`: Requerimientos funcionales del sistema.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Componentes Teconológicos
 
-## Get a fresh project
+- **Hardware**: ESP32, MAX30100 (HR/$SpO_2$), MPU6050 (Caídas), SSD1306 (OLED).
+- **Infraestructura**: Mosquitto (Broker MQTT), Telegraf (Ingesta), InfluxDB 3 (Timeseries), Firebase (OAuth & Firestore).
+- **Backend**: Python/FastAPI para lógica de negocio y consumo de modelos ML.
+- **Frontend**: React Native + Expo para interfaz de usuario.
+- **Visualización**: Grafana para analítica de administradores.
 
-When you're ready, run:
+## Uso
 
-```bash
-npm run reset-project
-```
+1. **IoT**: Flashear firmware desde el repositorio IoT Firmware.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **Backend**: Ejecutar uvicorn main:app --reload tras configurar las variables de entorno de InfluxDB y Firebase.
 
-## Learn more
+3. **App**: Correr npx expo start para visualizar la app en el emulador o dispositivo físico.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Autores
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Chavez Ccahuana Alvaro Andres
+- Montenegro Cajahuaman Carlos Andres
+- Obando Salinas Enmanuel Jose
+- Torres Rivera Richard Maycol
+- Vera Alva Miguel Angel

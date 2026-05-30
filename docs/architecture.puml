@@ -1,0 +1,34 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(elder, "Adulto Mayor")
+Person(caregiver, "Cuidador/Familiar")
+
+System_Boundary(iot_layer, "Capa de Percepción") {
+    Container(esp32, "ESP32", "Firmware C++", "Monitoreo biométrico y de movimiento")
+}
+
+System_Boundary(net_layer, "Capa de Red") {
+    Container(mqtt, "Mosquitto", "Broker MQTT", "Transporte de mensajes")
+    Container(telegraf, "Telegraf", "Agente de Ingesta", "Procesamiento de datos")
+}
+
+System_Boundary(cloud_layer, "Backend & Services") {
+    ContainerDb(influx, "InfluxDB 3", "Base de datos Time Series", "Almacenamiento de telemetría")
+    Container(fastapi, "FastAPI", "Python", "Lógica de negocio y ML")
+    Container(firebase, "Firebase", "Auth + Firestore", "OAuth y control de medicación")
+}
+
+Container(mobile, "App Móvil", "React Native", "Notificaciones y monitoreo")
+Container(grafana, "Grafana", "Dashboard", "Analítica y visualización")
+
+Rel(elder, esp32, "Usa")
+Rel(caregiver, mobile, "Monitorea")
+Rel(esp32, mqtt, "Publica JSON", "MQTT")
+Rel(mqtt, telegraf, "Suscripción", "MQTT")
+Rel(telegraf, influx, "Persistencia")
+Rel(fastapi, influx, "Consulta")
+Rel(fastapi, firebase, "Autenticación y control")
+Rel(mobile, fastapi, "REST API", "HTTPS")
+Rel(grafana, influx, "Consultas")
+@enduml
