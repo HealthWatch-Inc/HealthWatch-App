@@ -4,7 +4,7 @@ import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 're
 import { useRouter } from 'expo-router';
 import Svg, { Circle, G } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { FooterNav } from './footernav'; // Asegúrate de que la ruta sea correcta
+import FooterNav from './footernav'; // Asegúrate de que la ruta sea correcta
 
 // --- INTERFAZ PARA LAS PROPIEDADES DEL ANILLO ---
 interface ProgressRingProps {

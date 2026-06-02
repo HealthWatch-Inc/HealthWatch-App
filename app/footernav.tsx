@@ -7,7 +7,7 @@ interface FooterNavProps {
   activeTab: 'inicio' | 'datos' | 'pacientes';
 }
 
-export const FooterNav = ({ activeTab }: FooterNavProps) => {
+const FooterNav = ({ activeTab }: FooterNavProps) => {
   const router = useRouter();
 
   return (
@@ -47,3 +47,5 @@ const styles = StyleSheet.create({
   navTextActive: { color: 'white', fontWeight: 'bold' },
   activeIndicator: { height: 3, width: 30, backgroundColor: 'white', marginTop: 4, borderRadius: 2 },
 });
+
+export default FooterNav;

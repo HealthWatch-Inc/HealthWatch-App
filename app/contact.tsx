@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, Divider, PaperProvider, MD3LightTheme } from 'react-native-paper';
-import { FooterNav } from './footernav';
+import FooterNav from './footernav';
 
 const CONTACTS = [
-     { id: '1', name: 'Elizabeth García', phone: '912345678', relation: 'Hija' },
-     { id: '2', name: 'Alberto Fernandez', phone: '1234567', relation: 'Vecino cercano' },
+     { id: '1', name: 'Elizabeth García', phone: '912 345 678', relation: 'Hija' },
+     { id: '2', name: 'Alberto Fernandez', phone: '927 883 542', relation: 'Vecino cercano' },
 ];
 
 export default function EmergencyContactsScreen() {

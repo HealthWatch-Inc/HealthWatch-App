@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme } from 'react-native-paper';
-import { FooterNav } from './footernav';
+import FooterNav from './footernav';
 
 const DATA = [
   { id: '1', time: '3:20 pm', date: '12/04/2026' },

@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import Svg, { Path, Circle, Line } from 'react-native-svg';
-import { FooterNav } from './footernav'; // Asegúrate de que la ruta sea correcta
+import FooterNav from './footernav'; // Asegúrate de que la ruta sea correcta
 
 const theme = {
   ...MD3LightTheme,

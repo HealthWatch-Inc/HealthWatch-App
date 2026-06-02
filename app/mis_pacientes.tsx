@@ -1,22 +1,35 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView, Dimensions, SafeAreaView, StatusBar } from 'react-native';
-import { Appbar, Text, Avatar, Surface, TouchableRipple, useTheme, MD3LightTheme } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, ScrollView, Dimensions, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
+import { Appbar, Text, Avatar, Surface, TouchableRipple, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
-
-// Datos simulados de los pacientes según la imagen
-const pacientes = [
-  { id: '1', nombre: 'PACIENTE 1' },
-  { id: '2', nombre: 'PACIENTE 2' },
-  { id: '6', nombre: 'PACIENTE 6' },
-  { id: '10', nombre: 'PACIENTE 10' },
-  { id: '11', nombre: 'PACIENTE 11' },
-  { id: '12', nombre: 'PACIENTE 12' },
-];
+import { apiService } from '@/services/apiService';
+import { auth } from '@/config/firebase';
 
 export default function PacientesScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const [pacientes, setPacientes] = useState<any[]>([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    const cargarPacientes = async () => {
+      try {
+        if (!auth.currentUser) return;
+        const lista = await apiService.get('/api/pacientes/');
+        // console.log('Cuidador UID:', auth.currentUser?.uid);
+        // console.log('Cantidad de pacientes:', lista.cantidad);
+        // console.log('Pacientes recibidos:', lista.pacientes);
+        setPacientes(lista.pacientes ?? []);
+      } catch (error) {
+        console.log('Error cargando pacientes', error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarPacientes();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -24,16 +37,31 @@ export default function PacientesScreen() {
       
       {/* Navbar / Appbar superior */}
       <Appbar.Header style={styles.header}>
-        <Appbar.Action icon="menu" onPress={() => {}} size={28} />
-        <Appbar.Content 
-          title="HealthWatch" 
-          titleStyle={styles.headerTitle} 
+      <Appbar.Action icon="menu" onPress={() => {}} />
+
+      <Appbar.Content
+        title="HealthWatch"
+        titleStyle={styles.headerTitle}
+      />
+
+      <TouchableOpacity
+        onPress={() => router.push('/settings')}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Ir a configuración de cuenta"
+      >
+        <Avatar.Icon
+          size={40}
+          icon="account"
+          style={{
+            backgroundColor: '#ff8a65',
+            marginRight: 16,
+          }}
+          // Le indicamos que el avatar interno es puramente decorativo
+          importantForAccessibility="no" 
         />
-        <Appbar.Action 
-          icon={() => <Avatar.Icon size={36} icon="account" style={{backgroundColor:"#ff8a65"}} />} 
-          onPress={() => {}} 
-        />
-      </Appbar.Header>
+      </TouchableOpacity>
+    </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Sección de Bienvenida */}
@@ -48,31 +76,52 @@ export default function PacientesScreen() {
 
         {/* Grid de Pacientes */}
         <View style={styles.gridContainer}>
-          {pacientes.map((paciente) => (
-            <Surface 
-              key={paciente.id} 
-              style={styles.card} 
-              elevation={1} // MD3 usa niveles de elevación sutiles
-            >
-              <TouchableRipple
-                onPress={() => router.push('/home')}
-                style={styles.ripple}
-                accessibilityRole="button"
-                accessibilityLabel={`Ver expediente de ${paciente.nombre}`}
-                borderless
+          {cargando ? (
+            <Text variant="bodyLarge" style={styles.loadingText}>
+              Cargando tus pacientes...
+            </Text>
+          ) : pacientes.length === 0 ? (
+            <Text variant="bodyLarge" style={styles.loadingText}>
+              No se encontraron pacientes registrados.
+            </Text>
+          ) : (
+            pacientes.map((paciente) => (
+              <Surface 
+                key={paciente.id} 
+                style={styles.card} 
+                elevation={1} // MD3 usa niveles de elevación sutiles
               >
-                <View style={styles.cardContent}>
-                  {/* Icono de usuario en un círculo blanco */}
-                  <View style={styles.iconContainer}>
-                    <MaterialCommunityIcons name="account" size={60} color="#00506b" />
+                <TouchableRipple
+                  onPress={() => 
+                    router.push({
+                      pathname: '/home',
+                      params: { 
+                        pacienteId: paciente.id,
+                        nombre: paciente.nombre_completo || 'Paciente desconocido' 
+                      }
+                    })
+                  }
+                  style={styles.ripple}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Ver expediente de ${paciente.nombre_completo || 'paciente'}`}
+                  borderless
+                >
+                  <View style={styles.cardContent}>
+                    {/* Icono de usuario en un círculo blanco */}
+                    <View style={styles.iconContainer}>
+                      <MaterialCommunityIcons name="account" size={60} color="#00506b" />
+                    </View>
+                    <Text variant="labelLarge" style={styles.patientName}>
+                      {paciente.nombre_completo || 'Paciente desconocido'}
+                    </Text>
+                    <Text variant="labelLarge" style={styles.patientName}>
+                      Edad: {paciente.edad} años
+                    </Text>
                   </View>
-                  <Text variant="labelLarge" style={styles.patientName}>
-                    {paciente.nombre}
-                  </Text>
-                </View>
-              </TouchableRipple>
-            </Surface>
-          ))}
+                </TouchableRipple>
+              </Surface>
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -114,17 +163,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1d1b20',
   },
+  loadingText: {
+    width: '100%',
+    textAlign: 'center',
+    color: '#1d1b20',
+    marginVertical: 20,
+  },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 8,
+    aspectRatio: 1,
   },
   card: {
-    width: cardWidth,
-    height: cardWidth * 1.02, // Ligeramente rectangular vertical como la imagen
-    backgroundColor: '#00506b', // Color azul oscuro/verdoso del diseño original
-    borderRadius: 28, // Bordes muy redondeados característicos de MD3 (Extra Large)
+    width: '48%',
+    aspectRatio: 1,
+    backgroundColor: '#00506b',
+    borderRadius: 28,
     marginBottom: 16,
     overflow: 'hidden',
   },

@@ -7,40 +7,75 @@ import {
   Card,
   Provider as PaperProvider 
 } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { FooterNav } from './footernav'; 
+import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
-import { auth } from '@/config/firebase';
+
+interface Telemetria {
+  heart_rate: number;
+  spo2: number;
+  battery: number;
+  ax: number;
+  ay: number;
+  az: number;
+}
 
 const App = () => {
   const router = useRouter();
-  const [paciente, setPaciente] = useState<any>(null);
+  const { pacienteId, nombre } = useLocalSearchParams();
 
+  const [telemetrias, setTelemetrias] = useState<Telemetria[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Cargar telemetrías desde la API
   useEffect(() => {
-    const cargarPaciente = async () => {
+    const cargarTelemetria = async () => {
       try {
-        const lista = await apiService.get('/api/pacientes/');
-        const primerPaciente = lista.pacientes?.[0];
-        if(!primerPaciente) return;
+        if (!pacienteId) return;
 
-        const pacienteId = primerPaciente.id;
-        const detalle = await apiService.get(`/api/pacientes/${pacienteId}`)
+        const response = await apiService.get(
+          `/api/pacientes/${pacienteId}/telemetria`
+        );
 
-        console.log(pacienteId);
-        console.log(detalle);
+        setTelemetrias(response.telemetria ?? []);
 
-        setPaciente(detalle.paciente);
+        // console.log(
+        //   'Telemetría del paciente:',
+        //   response.telemetria
+        // );
+
+        // console.log(
+        //   'Total de registros de telemetría:',
+        //   response.total_registros
+        // );
       } catch (error) {
-        console.log("Error cargando paciente", error);
+        console.log('Error cargando telemetría', error);
       }
     };
 
-    if (auth.currentUser) {
-      cargarPaciente();
-    }
-  }, []);
-  
+    cargarTelemetria();
+  }, [pacienteId]);
+
+  // Simulación de tiempo real
+  useEffect(() => {
+    if (telemetrias.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) =>
+        (prev + 1) % telemetrias.length
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [telemetrias]);
+
+  // Registro actual mostrado en pantalla
+  const telemetriaActual =
+    telemetrias.length > 0
+      ? telemetrias[currentIndex]
+      : null;
+
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
@@ -64,7 +99,7 @@ const App = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Bienvenida */}
           <Text variant="headlineMedium" style={styles.welcomeText}>
-            Paciente: Nombre
+            Paciente: {nombre || 'Paciente'}
           </Text>
 
           {/* Sección: Panel del usuario */}
@@ -78,7 +113,7 @@ const App = () => {
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Signos vitales</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>+ 2.9</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate ?? '--'}</Text>
               </Card.Content>
             </Card>
 
@@ -118,7 +153,7 @@ const App = () => {
               <MaterialCommunityIcons name="battery-70" size={24} color="white" />
               <View style={{ marginLeft: 12 }}>
                 <Text variant="labelLarge" style={styles.cardLabel}>Batería del reloj</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>70%</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.battery || 0}%</Text>
               </View>
             </Card.Content>
           </Card>
