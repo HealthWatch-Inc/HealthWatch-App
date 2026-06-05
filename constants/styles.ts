@@ -47,7 +47,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     marginTop: 2,
-    minHeight: Platform.OS === 'ios' ? 24 : 30,
+    minHeight: Platform.OS === 'android' ? 24 : 30,
   },
   helperText: {
     fontSize: 11,
@@ -63,11 +63,6 @@ export const globalStyles = StyleSheet.create({
     marginTop: 10,
     ...Platform.select({
       android: { elevation: 3 },
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-      },
     }),
   },
   buttonText: {

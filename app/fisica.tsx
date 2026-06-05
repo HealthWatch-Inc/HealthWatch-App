@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#ffffff',
     elevation: 0,
-    shadowOpacity: 0,
+    // shadowOpacity: 0,
   },
   title: {
     fontWeight: 'bold',

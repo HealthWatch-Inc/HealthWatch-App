@@ -41,11 +41,13 @@ export default function NotificationsScreen() {
         <Text variant="headlineSmall" style={styles.title}>Alertas y Notificaciones</Text>
 
         {/* Recordatorio de Medicamento */}
+        <Text variant="titleMedium" style={styles.sectionTitle}>Recordatorio de Medicamentos</Text>
+
         <Card style={styles.medCard}>
           <Card.Content style={styles.medContent}>
             <IconButton icon="pill" iconColor="white" size={24} />
-            <View>
-              <Text style={styles.medTitle}>Recordatorio de Medicamento</Text>
+            <View >
+              <Text style={styles.medTitle}>Aspirina</Text>
               <Text style={styles.medTime}>12:00 pm, 20:00pm</Text>
             </View>
           </Card.Content>
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
   medContent: { flexDirection: 'row', alignItems: 'center' },
   medTitle: { color: 'white', fontWeight: 'bold' },
   medTime: { color: 'white' },
-  sectionTitle: { marginBottom: 16 },
+  sectionTitle: { marginBottom: 16, fontWeight: 'bold' },
   fallItem: {
     flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#CAC4D0'
   },
@@ -137,7 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16
   },
   inputLabel: {
-    fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 4
+    fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10
   },
   input: {
     backgroundColor: '#F4EFF4', marginBottom: 8,

@@ -17,9 +17,6 @@ export default function PacientesScreen() {
       try {
         if (!auth.currentUser) return;
         const lista = await apiService.get('/api/pacientes/');
-        // console.log('Cuidador UID:', auth.currentUser?.uid);
-        // console.log('Cantidad de pacientes:', lista.cantidad);
-        // console.log('Pacientes recibidos:', lista.pacientes);
         setPacientes(lista.pacientes ?? []);
       } catch (error) {
         console.log('Error cargando pacientes', error);

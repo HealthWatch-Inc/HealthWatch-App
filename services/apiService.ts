@@ -6,12 +6,17 @@ export const apiService = {
   // GET
   get: async (endpoint: string) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      // Forzar renovación del token (forceRefresh: true)
+      const token = await auth.currentUser.getIdToken(true);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -25,12 +30,16 @@ export const apiService = {
   // POST
   post: async (endpoint: string, data: any) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const token = await auth.currentUser.getIdToken(true);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -45,12 +54,16 @@ export const apiService = {
   // PUT
   put: async (endpoint: string, data: any) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const token = await auth.currentUser.getIdToken(true);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -65,12 +78,16 @@ export const apiService = {
   // DELETE
   delete: async (endpoint: string) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      if (!auth.currentUser) {
+        throw new Error('Usuario no autenticado');
+      }
+      
+      const token = await auth.currentUser.getIdToken(true);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${token}`,
         },
       });
 
