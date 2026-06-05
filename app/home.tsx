@@ -40,10 +40,10 @@ const App = () => {
 
         setTelemetrias(response.telemetria ?? []);
 
-        // console.log(
-        //   'Telemetría del paciente:',
-        //   response.telemetria
-        // );
+        console.log(
+          'Telemetría del paciente:',
+          response.telemetria
+        );
 
         // console.log(
         //   'Total de registros de telemetría:',
@@ -109,7 +109,10 @@ const App = () => {
           
           <View style={styles.grid}>
             {/* Tarjeta Signos Vitales */}
-            <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push('/vital_signs')}>
+            <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push({
+              pathname: '/vital_signs',
+              params: { pacienteId, nombre }
+            })}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Signos vitales</Text>

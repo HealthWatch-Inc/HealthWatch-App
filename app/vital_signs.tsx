@@ -1,9 +1,19 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Svg, { Path, Circle, Line } from 'react-native-svg';
-import FooterNav from './footernav'; // Asegúrate de que la ruta sea correcta
+import FooterNav from './footernav';
+import { apiService } from '@/services/apiService';
+
+interface Telemetria {
+  heart_rate: number;
+  spo2: number;
+  battery: number;
+  ax: number;
+  ay: number;
+  az: number;
+}
 
 const theme = {
   ...MD3LightTheme,
@@ -47,6 +57,43 @@ const CustomChart = () => {
 export default function SignosVitalesScreen() {
   const router = useRouter();
 
+  const { pacienteId } = useLocalSearchParams();
+
+  const [telemetrias, setTelemetrias] = useState<Telemetria[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // 3. EFECTO: Cargar las telemetrías desde la API para este paciente
+  useEffect(() => {
+    const cargarTelemetria = async () => {
+      try {
+        if (!pacienteId) return;
+
+        const response = await apiService.get(
+          `/api/pacientes/${pacienteId}/telemetria`
+        );
+        setTelemetrias(response.telemetria ?? []);
+      } catch (error) {
+        console.log('Error cargando telemetría en vital_signs', error);
+      }
+    };
+
+    cargarTelemetria();
+  }, [pacienteId]);
+
+  // 4. EFECTO: Simulación de tiempo real (cambia cada 2 segundos)
+  useEffect(() => {
+    if (telemetrias.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % telemetrias.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [telemetrias]);
+
+  // 5. Registro actual que se pintará en los componentes
+  const telemetriaActual = telemetrias.length > 0 ? telemetrias[currentIndex] : null;
+
   return (
     <PaperProvider theme={theme}>
       <SafeAreaView style={styles.container}>
@@ -61,18 +108,19 @@ export default function SignosVitalesScreen() {
           <Card style={styles.vitalsCard}>
             <Card.Content>
               <Text variant="titleMedium" style={styles.cardTitle}>Frecuencia Cardiaca</Text>
-              <View style={styles.whiteChartBackground}>
-                <CustomChart />
-              </View>
+
+              <Text variant="titleMedium" style={styles.cardData}>
+                {telemetriaActual?.heart_rate ? `${telemetriaActual.heart_rate} BPM` : '-- BPM'}
+              </Text>
             </Card.Content>
           </Card>
 
           <Card style={styles.vitalsCard}>
             <Card.Content>
               <Text variant="titleMedium" style={styles.cardTitle}>Nivel de Oxígeno</Text>
-              <View style={styles.whiteChartBackground}>
-                <CustomChart />
-              </View>
+              <Text variant="titleMedium" style={styles.cardData}>
+                {telemetriaActual?.spo2 ? `${telemetriaActual.spo2}%` : '--%'}
+              </Text>
             </Card.Content>
           </Card>
         </ScrollView>
@@ -92,6 +140,7 @@ const styles = StyleSheet.create({
   title: { fontWeight: 'bold', marginBottom: 20, color: '#000' },
   vitalsCard: { backgroundColor: '#690909', borderRadius: 28, marginBottom: 24, paddingVertical: 8 },
   cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4 },
+  cardData: { color: '#ffffff', fontSize: 24, fontWeight: 'bold', marginBottom: 12, marginLeft: 4 },
   whiteChartBackground: { backgroundColor: '#ffffff', borderRadius: 16, padding: 12, height: 140, justifyContent: 'center' },
   chartContainer: { flexDirection: 'row', alignItems: 'center' },
   yAxis: { justifyContent: 'space-between', height: 90, paddingRight: 8, borderRightWidth: 1, borderRightColor: '#E0E0E0' },

@@ -41,7 +41,7 @@ export default function AjustesScreen() {
 
         {/* Sección Perfil */}
         <Text variant="titleMedium" style={styles.sectionHeader}>Perfil</Text>
-        <SettingRow label="Usuario" value="Elizabeth García" />
+        <SettingRow label="Usuario" value="José García" />
         <SettingRow label="Rol" value="Cuidador" />
         <SettingRow label="Num o correo" value="example@email.com" />
         <Divider style={styles.divider} />

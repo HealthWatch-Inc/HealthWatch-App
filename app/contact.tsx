@@ -5,7 +5,7 @@ import { Appbar, Text, Button, Divider, PaperProvider, MD3LightTheme } from 'rea
 import FooterNav from './footernav';
 
 const CONTACTS = [
-     { id: '1', name: 'Elizabeth García', phone: '912 345 678', relation: 'Hija' },
+     { id: '1', name: 'José García', phone: '912 345 678', relation: 'Hijo' },
      { id: '2', name: 'Alberto Fernandez', phone: '927 883 542', relation: 'Vecino cercano' },
 ];
 

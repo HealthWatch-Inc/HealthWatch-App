@@ -42,7 +42,11 @@ export default function PacientesScreen() {
       />
 
       <TouchableOpacity
-        onPress={() => router.push('/settings')}
+        onPress={() => {
+          setTimeout(() => {
+            router.push('/settings');
+          }, 1);
+        }}
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel="Ir a configuración de cuenta"
