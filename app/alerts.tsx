@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
 
@@ -12,12 +11,11 @@ const DATA = [
   { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
 ];
 
-const STORAGE_KEY = '@medicamentos_list';
-
 interface Medication {
   id: string;
-  name: string;
-  hours: string[];
+  nombre: string;
+  horas: string[];
+  frecuencia: string;
 }
 
 interface FallEvent {
@@ -33,7 +31,7 @@ export default function NotificationsScreen() {
   const [falls, setFalls] = useState<FallEvent[]>(DATA);
   const [visible, setVisible] = useState(false);
   const [medName, setMedName] = useState('');
-  const [hours, setHours] = useState(['08:00 am', '02:00 pm']);
+  const [hour, setHour] = useState('08:00 am');
 
   useEffect(() => {
     loadMedications();
@@ -104,15 +102,13 @@ export default function NotificationsScreen() {
   };
 
   const loadMedications = async () => {
+    if (!pacienteId) return;
+
     try {
-      const storedMeds = await AsyncStorage.getItem(STORAGE_KEY);
-      if (storedMeds !== null) {
-        setMedications(JSON.parse(storedMeds));
-      } else {
-        const initialMeds = [{ id: 'default_1', name: 'Aspirina', hours: ['12:00 pm', '8:00 pm'] }];
-        setMedications(initialMeds);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initialMeds));
-      }
+      const response = await apiService.get(`/api/medicamentos/${pacienteId}`);
+
+      console.log(response)
+      setMedications(response ?? []);
     } catch (error) {
       console.error("Error cargando los medicamentos:", error);
     }
@@ -123,30 +119,20 @@ export default function NotificationsScreen() {
   const hideModal = () => {
     setVisible(false);
     setMedName('');
-    setHours(['08:00 am', '02:00 pm']);
-  };
-
-  const addHourSlot = () => setHours([...hours, '']);
-  const removeHourSlot = (index: number) => setHours(hours.filter((_, i) => i !== index));
-  const updateHourText = (text: string, index: number) => {
-    const updatedHours = [...hours];
-    updatedHours[index] = text;
-    setHours(updatedHours);
+    setHour('08:00 am');
   };
 
   const saveMedication = async () => {
-    if (!medName.trim()) return;
-    const filteredHours = hours.filter(h => h.trim() !== '');
-    const newMed = {
-      id: Date.now().toString(),
-      name: medName,
-      hours: filteredHours
+    if (!pacienteId || !medName.trim()) return;
+    const medicamento = {
+      nombre: medName,
+      horas: [hour],
+      frecuencia: 'Diario',
     };
 
     try {
-      const updatedList = [...medications, newMed];
-      setMedications(updatedList);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      await apiService.post(`/api/medicamentos/${pacienteId}`, medicamento);
+      await loadMedications();
       hideModal();
     } catch (error) {
       console.error("Error al guardar el medicamento:", error);
@@ -182,10 +168,11 @@ export default function NotificationsScreen() {
 
   // Aislamos la lógica de actualización para no repetir código
   const ejecutarEliminacion = async (id: string) => {
+    if (!pacienteId) return;
+
     try {
-      const updatedList = medications.filter(med => med.id !== id);
-      setMedications(updatedList);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      await apiService.delete(`/api/medicamentos/${pacienteId}/${id}`);
+      setMedications((prevMeds) => prevMeds.filter((med) => med.id !== id));
     } catch (error) {
       console.error("Error al eliminar el medicamento:", error);
     }
@@ -205,15 +192,15 @@ export default function NotificationsScreen() {
             <Card.Content style={styles.medContent}>
               <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
               <View style={styles.medTextWrapper}>
-                <Text style={styles.medTitle}>{item.name}</Text>
-                <Text style={styles.medTime}>{item.hours.join(', ')}</Text>
+                <Text style={styles.medTitle}>{item.nombre}</Text>
+                <Text style={styles.medTime}>{item.horas.join(', ')}</Text>
               </View>
               {/* Botón para eliminar */}
               <IconButton 
                 icon="delete" 
                 iconColor="#FF8A8A" 
                 size={22} 
-                onPress={() => deleteMedication(item.id, item.name)} 
+                onPress={() => deleteMedication(item.id, item.nombre)} 
                 style={styles.deleteMedBtn}
               />
             </Card.Content>
@@ -266,15 +253,9 @@ export default function NotificationsScreen() {
               <Text style={styles.inputLabel}>Nombre del Medicamento</Text>
               <TextInput placeholder='Ej. Paracetamol' value={medName} onChangeText={setMedName} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' />
 
-              <Text style={styles.inputLabel}>Horarios de Recordatorios</Text>
-              <Button mode="contained" icon='plus' onPress={addHourSlot} style={styles.addHourButton} contentStyle={{ flexDirection: 'row' }}> Agregar Hora</Button>
+              <Text style={styles.inputLabel}>Horario de Recordatorio</Text>
 
-              {hours.map((hour, index) => (
-                <View key={index} style={styles.hourRow}>
-                  <TextInput value={hour} onChangeText={(text) => updateHourText(text, index)} mode='outlined' placeholder='00:00 am' style={[styles.input, { flex: 1, marginBottom: 0 }]} outlineColor='#CAC4D0' activeOutlineColor='#004A60' />
-                  <IconButton icon='delete-outline' iconColor='#757575' onPress={() => removeHourSlot(index)} />
-                </View>
-              ))}
+              <TextInput value={hour} onChangeText={setHour} mode="outlined" placeholder="08:00 am" style={styles.input} outlineColor="#CAC4D0" activeOutlineColor="#004A60"/>
 
               <Text style={styles.inputLabel}>Frecuencia</Text>
               <TextInput value='Diario' mode='outlined' editable={false} right={<TextInput.Icon icon='chevron-down' />} style={styles.input} outlineColor='#CAC4D0' />

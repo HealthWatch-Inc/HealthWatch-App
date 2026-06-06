@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import Svg, { Path, Circle, Line } from 'react-native-svg';
 import FooterNav from './footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 
@@ -22,36 +21,6 @@ const theme = {
     primary: '#005b70',
     surfaceVariant: '#690909',
   },
-};
-
-const CustomChart = () => {
-  const points = "M10,60 L25,50 L40,70 L55,55 L70,75 L85,45 L100,55 L115,35 L130,80 L145,40 L160,78 L175,78 L190,42 L205,65 L220,38 L235,52 L250,75 L265,30 L280,68 L295,25 L310,50 L325,48 L340,32 L355,20 L370,10";
-  return (
-    <View style={styles.chartContainer}>
-      <View style={styles.yAxis}>
-        <Text style={styles.axisText}>1</Text>
-        <Text style={styles.axisText}>0.5</Text>
-        <Text style={styles.axisText}>0</Text>
-      </View>
-      <View style={{ flex: 1 }}>
-        <Svg height="100" width="100%">
-          <Line x1="0" y1="10" x2="380" y2="10" stroke="#E0E0E0" strokeWidth="1" />
-          <Line x1="0" y1="50" x2="380" y2="50" stroke="#E0E0E0" strokeWidth="1" />
-          <Line x1="0" y1="90" x2="380" y2="90" stroke="#E0E0E0" strokeWidth="1" />
-          <Path d={points} fill="none" stroke="#D32F2F" strokeWidth="2" />
-          <Circle cx="370" cy="10" r="3" fill="#D32F2F" />
-          <Circle cx="355" cy="20" r="3" fill="#D32F2F" />
-        </Svg>
-        <View style={styles.xAxis}>
-          <Text style={styles.axisText}>18:00</Text>
-          <Text style={styles.axisText}>18:30</Text>
-          <Text style={styles.axisText}>19:00</Text>
-          <Text style={styles.axisText}>19:30</Text>
-          <Text style={styles.axisText}>20:00</Text>
-        </View>
-      </View>
-    </View>
-  );
 };
 
 export default function SignosVitalesScreen() {

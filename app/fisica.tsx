@@ -2,66 +2,7 @@ import React from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import Svg, { Circle, G } from 'react-native-svg';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FooterNav from './footernav'; // Asegúrate de que la ruta sea correcta
-
-// --- INTERFAZ PARA LAS PROPIEDADES DEL ANILLO ---
-interface ProgressRingProps {
-  current: number;
-  target: number;
-  size?: number;
-  strokeWidth?: number;
-}
-
-// --- COMPONENTE: Anillo de Progreso Circular ---
-const ProgressRing: React.FC<ProgressRingProps> = ({ 
-  current, 
-  target, 
-  size = 120, 
-  strokeWidth = 14 
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  
-  // Cálculo del porcentaje de pasos (Máximo 100%)
-  const percentage = Math.min(current / target, 1);
-  const strokeDashoffset = circumference - percentage * circumference;
-
-  return (
-    <View style={styles.ringContainer}>
-      <Svg width={size} height={size}>
-        <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
-          {/* Círculo de fondo (Color rosa/fucsia de la imagen) */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#FF4081"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-          />
-          {/* Círculo de progreso activo (Color verde menta de la imagen) */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#00E676"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-          />
-        </G>
-      </Svg>
-      {/* Icono del monito corriendo centrado en el anillo */}
-      <View style={[StyleSheet.absoluteFillObject, styles.centerIcon]}>
-        <MaterialCommunityIcons name="run" size={44} color="#000000" />
-      </View>
-    </View>
-  );
-};
+import FooterNav from './footernav';
 
 // --- PANTALLA PRINCIPAL: Actividad Física ---
 export default function ActividadFisicaScreen() {
@@ -94,11 +35,6 @@ export default function ActividadFisicaScreen() {
               </Text>
               
               <View style={styles.cardFlexContainer}>
-                {/* Lado Izquierdo: El anillo gráfico sin errores de tipo */}
-                <View style={styles.whiteRingBackground}>
-                  <ProgressRing current={pasosActuales} target={pasosObjetivo} />
-                </View>
-                
                 {/* Lado Derecho: Textos Informativos */}
                 <View style={styles.textContainer}>
                   <Text variant="bodyLarge" style={styles.infoText}>
