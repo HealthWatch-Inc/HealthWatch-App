@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Appbar,
   Text,
@@ -28,6 +29,22 @@ const SettingRow = ({ label, value }: SettingRowProps) => (
 
 export default function AjustesScreen() {
   const router = useRouter();
+  const [usuario, setUsuario] = useState('');
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('@user_credential');
+        if (saved) {
+          setUsuario(saved);
+        }
+      } catch (error) {
+        console.error('Error cargando usuario en settings:', error);
+      }
+    };
+
+    cargarUsuario();
+  }, []);
 
   return (
     <PaperProvider theme={MD3LightTheme}>
@@ -43,7 +60,7 @@ export default function AjustesScreen() {
         <Text variant="titleMedium" style={styles.sectionHeader}>Perfil</Text>
         <SettingRow label="Usuario" value="José García" />
         <SettingRow label="Rol" value="Cuidador" />
-        <SettingRow label="Num o correo" value="example@email.com" />
+        <SettingRow label="Num o correo" value={usuario || 'No registrado'} />
         <Divider style={styles.divider} />
 
         {/* Sección Seguridad */}

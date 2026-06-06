@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FooterNav from './footernav';
+import { apiService } from '@/services/apiService';
 
 const DATA = [
-  { id: '1', time: '3:20 pm', date: '12/04/2026' },
-  { id: '2', time: '6:07 pm', date: '2/03/2026' },
-  { id: '3', time: '12:01 am', date: '9/01/2026' },
+  { id: '1', time: '3:20 p. m.', date: '12/4/2026' },
+  { id: '2', time: '6:07 a. m.', date: '2/3/2026' },
+  { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
 ];
 
 const STORAGE_KEY = '@medicamentos_list';
@@ -19,16 +20,88 @@ interface Medication {
   hours: string[];
 }
 
+interface FallEvent {
+  id: string;
+  time: string;
+  date: string;
+}
+
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { pacienteId } = useLocalSearchParams();
   const [medications, setMedications] = useState<Medication[]>([]);
+  const [falls, setFalls] = useState<FallEvent[]>(DATA);
   const [visible, setVisible] = useState(false);
   const [medName, setMedName] = useState('');
   const [hours, setHours] = useState(['08:00 am', '02:00 pm']);
 
   useEffect(() => {
     loadMedications();
-  }, []);
+    cargarCaidasDetectadas();
+
+    const interval = setInterval(() => {
+      cargarCaidasDetectadas();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [pacienteId]);
+
+  const cargarCaidasDetectadas = async () => {
+    if (!pacienteId) return;
+
+    try {
+      const response = await apiService.get(
+        `/api/pacientes/${pacienteId}/telemetria?limite=50`
+      );
+      const telemetrias = response.telemetria ?? [];
+
+      const nuevasCaidas = telemetrias
+        .filter((item: any) => {
+          const ax = Number(item.ax ?? 0);
+          const ay = Number(item.ay ?? 0);
+          const az = Number(item.az ?? 0);
+
+          return (
+            Math.abs(ax) >= 20 ||
+            Math.abs(ay) >= 20 ||
+            Math.abs(az) <= 6
+          );
+        })
+        .map((item: any) => {
+          const rawTime = String(item.time ?? '');
+          const timestamp = new Date(rawTime.replace(' ', 'T'));
+          const time = isNaN(timestamp.getTime())
+            ? rawTime
+            : timestamp.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              });
+          const date = isNaN(timestamp.getTime())
+            ? rawTime
+            : timestamp.toLocaleDateString('es-ES');
+
+          return {
+            id: rawTime || `${item.ax}-${item.ay}-${item.az}`,
+            time,
+            date,
+          };
+        });
+
+      if (nuevasCaidas.length > 0) {
+        setFalls((prevFalls) => {
+          const combined = [...nuevasCaidas, ...prevFalls];
+          const unique = combined.filter(
+            (item, index, self) =>
+              index === self.findIndex((other) => other.id === item.id)
+          );
+          return unique;
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando caídas detectadas:', error);
+    }
+  };
 
   const loadMedications = async () => {
     try {
@@ -36,7 +109,7 @@ export default function NotificationsScreen() {
       if (storedMeds !== null) {
         setMedications(JSON.parse(storedMeds));
       } else {
-        const initialMeds = [{ id: 'default_1', name: 'Aspirina', hours: ['12:00 pm', '20:00 pm'] }];
+        const initialMeds = [{ id: 'default_1', name: 'Aspirina', hours: ['12:00 pm', '8:00 pm'] }];
         setMedications(initialMeds);
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initialMeds));
       }
@@ -162,7 +235,7 @@ export default function NotificationsScreen() {
 
       <View style={styles.container}>
         <FlatList
-          data={DATA}
+          data={falls}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={RenderHeader}
           showsVerticalScrollIndicator={false}
@@ -171,6 +244,11 @@ export default function NotificationsScreen() {
             <View style={styles.fallItem}>
               <Text variant="bodyLarge">{item.time}</Text>
               <Text variant="bodyLarge">{item.date}</Text>
+            </View>
+          )}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text variant="bodyMedium">Aún no se han detectado caídas.</Text>
             </View>
           )}
         />
@@ -235,6 +313,10 @@ const styles = StyleSheet.create({
   sectionTitle: { marginBottom: 16, fontWeight: 'bold', marginTop: 8 },
   fallItem: {
     flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#CAC4D0'
+  },
+  emptyContainer: {
+    paddingVertical: 24,
+    alignItems: 'center',
   },
   fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#004A60', borderRadius: 50, zIndex: 10 },
   modalContainer: {

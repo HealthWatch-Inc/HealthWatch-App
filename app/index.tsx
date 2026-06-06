@@ -16,6 +16,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -32,6 +33,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await authService.login(email, password);
+      await AsyncStorage.setItem('@user_credential', email);
       router.push('/mis_pacientes');
     } catch (error: any) {
       Alert.alert("Error", error.message);
@@ -42,7 +44,10 @@ export default function LoginScreen() {
 
   const handleLoginGoogle = async () => {
     try {
-      await authService.googleLogin();
+      const user = await authService.googleLogin();
+      if (user?.email) {
+        await AsyncStorage.setItem('@user_credential', user.email);
+      }
       router.push('/mis_pacientes');
     } catch (error: any) {
       Alert.alert("Error", error.message);

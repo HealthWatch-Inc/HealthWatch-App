@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { 
   Text, 
@@ -10,7 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FooterNav from './footernav';
-import { apiService } from '@/services/apiService';
+import { useTelemetria } from '../context/TelemetriaContext';
 
 interface Telemetria {
   heart_rate: number;
@@ -24,57 +24,11 @@ interface Telemetria {
 const App = () => {
   const router = useRouter();
   const { pacienteId, nombre } = useLocalSearchParams();
+  const { telemetriaActual, setPacienteId } = useTelemetria();
 
-  const [telemetrias, setTelemetrias] = useState<Telemetria[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Cargar telemetrías desde la API
   useEffect(() => {
-    const cargarTelemetria = async () => {
-      try {
-        if (!pacienteId) return;
-
-        const response = await apiService.get(
-          `/api/pacientes/${pacienteId}/telemetria`
-        );
-
-        setTelemetrias(response.telemetria ?? []);
-
-        console.log(
-          'Telemetría del paciente:',
-          response.telemetria
-        );
-
-        // console.log(
-        //   'Total de registros de telemetría:',
-        //   response.total_registros
-        // );
-      } catch (error) {
-        console.log('Error cargando telemetría', error);
-      }
-    };
-
-    cargarTelemetria();
-  }, [pacienteId]);
-
-  // Simulación de tiempo real
-  useEffect(() => {
-    if (telemetrias.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) =>
-        (prev + 1) % telemetrias.length
-      );
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [telemetrias]);
-
-  // Registro actual mostrado en pantalla
-  const telemetriaActual =
-    telemetrias.length > 0
-      ? telemetrias[currentIndex]
-      : null;
+    setPacienteId(pacienteId as string | undefined);
+  }, [pacienteId, setPacienteId]);
 
   return (
     <PaperProvider>
@@ -130,7 +84,10 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Alertas */}
-            <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push('/alerts')}>
+            <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push({
+              pathname: '/alerts',
+              params: { pacienteId, nombre }
+            })}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Alertas y Notificaciones</Text>

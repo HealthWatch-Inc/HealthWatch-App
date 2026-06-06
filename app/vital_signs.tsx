@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Svg, { Path, Circle, Line } from 'react-native-svg';
 import FooterNav from './footernav';
-import { apiService } from '@/services/apiService';
+import { useTelemetria } from '../context/TelemetriaContext';
 
 interface Telemetria {
   heart_rate: number;
@@ -58,41 +58,11 @@ export default function SignosVitalesScreen() {
   const router = useRouter();
 
   const { pacienteId } = useLocalSearchParams();
+  const { telemetriaActual, setPacienteId } = useTelemetria();
 
-  const [telemetrias, setTelemetrias] = useState<Telemetria[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // 3. EFECTO: Cargar las telemetrías desde la API para este paciente
   useEffect(() => {
-    const cargarTelemetria = async () => {
-      try {
-        if (!pacienteId) return;
-
-        const response = await apiService.get(
-          `/api/pacientes/${pacienteId}/telemetria`
-        );
-        setTelemetrias(response.telemetria ?? []);
-      } catch (error) {
-        console.log('Error cargando telemetría en vital_signs', error);
-      }
-    };
-
-    cargarTelemetria();
-  }, [pacienteId]);
-
-  // 4. EFECTO: Simulación de tiempo real (cambia cada 2 segundos)
-  useEffect(() => {
-    if (telemetrias.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % telemetrias.length);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [telemetrias]);
-
-  // 5. Registro actual que se pintará en los componentes
-  const telemetriaActual = telemetrias.length > 0 ? telemetrias[currentIndex] : null;
+    setPacienteId(pacienteId as string | undefined);
+  }, [pacienteId, setPacienteId]);
 
   return (
     <PaperProvider theme={theme}>
