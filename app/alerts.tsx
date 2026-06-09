@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button } from 'react-native-paper';
 import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
+import { useNotificationBanner } from '@/context/NotificationContext';
 
 const DATA = [
   { id: '1', time: '3:20 p. m.', date: '12/4/2026' },
@@ -32,6 +33,7 @@ export default function NotificationsScreen() {
   const [visible, setVisible] = useState(false);
   const [medName, setMedName] = useState('');
   const [hour, setHour] = useState('08:00 am');
+  const { actualizarMedicamentos } = useNotificationBanner();
 
   useEffect(() => {
     loadMedications();
@@ -71,10 +73,10 @@ export default function NotificationsScreen() {
           const time = isNaN(timestamp.getTime())
             ? rawTime
             : timestamp.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              });
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            });
           const date = isNaN(timestamp.getTime())
             ? rawTime
             : timestamp.toLocaleDateString('es-ES');
@@ -108,7 +110,12 @@ export default function NotificationsScreen() {
       const response = await apiService.get(`/api/medicamentos/${pacienteId}`);
 
       console.log(response)
-      setMedications(response ?? []);
+      
+      const meds = response ?? [];
+
+      setMedications(meds);
+      actualizarMedicamentos(meds);
+
     } catch (error) {
       console.error("Error cargando los medicamentos:", error);
     }
@@ -156,8 +163,8 @@ export default function NotificationsScreen() {
         mensaje,
         [
           { text: "Cancelar", style: "cancel" },
-          { 
-            text: "Eliminar", 
+          {
+            text: "Eliminar",
             style: "destructive",
             onPress: () => ejecutarEliminacion(id)
           }
@@ -196,11 +203,11 @@ export default function NotificationsScreen() {
                 <Text style={styles.medTime}>{item.horas.join(', ')}</Text>
               </View>
               {/* Botón para eliminar */}
-              <IconButton 
-                icon="delete" 
-                iconColor="#FF8A8A" 
-                size={22} 
-                onPress={() => deleteMedication(item.id, item.nombre)} 
+              <IconButton
+                icon="delete"
+                iconColor="#FF8A8A"
+                size={22}
+                onPress={() => deleteMedication(item.id, item.nombre)}
                 style={styles.deleteMedBtn}
               />
             </Card.Content>
@@ -255,7 +262,7 @@ export default function NotificationsScreen() {
 
               <Text style={styles.inputLabel}>Horario de Recordatorio</Text>
 
-              <TextInput value={hour} onChangeText={setHour} mode="outlined" placeholder="08:00 am" style={styles.input} outlineColor="#CAC4D0" activeOutlineColor="#004A60"/>
+              <TextInput value={hour} onChangeText={setHour} mode="outlined" placeholder="08:00 am" style={styles.input} outlineColor="#CAC4D0" activeOutlineColor="#004A60" />
 
               <Text style={styles.inputLabel}>Frecuencia</Text>
               <TextInput value='Diario' mode='outlined' editable={false} right={<TextInput.Icon icon='chevron-down' />} style={styles.input} outlineColor='#CAC4D0' />
@@ -279,11 +286,7 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 16, backgroundColor: '#FEF7FF' },
-  header: {
-    backgroundColor: 'transparent',
-    elevation: 0,
-    justifyContent: 'space-between',
-  },
+  header: { backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between', },
   title: { marginBottom: 20, fontWeight: 'bold' },
   medsContainer: { marginBottom: 16 },
   medCard: { backgroundColor: '#004A60', marginBottom: 12, width: '100%' },
@@ -292,41 +295,18 @@ const styles = StyleSheet.create({
   medTitle: { color: 'white', fontWeight: 'bold', fontSize: 16 },
   medTime: { color: 'white', fontSize: 14 },
   sectionTitle: { marginBottom: 16, fontWeight: 'bold', marginTop: 8 },
-  fallItem: {
-    flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#CAC4D0'
-  },
-  emptyContainer: {
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
+  fallItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#CAC4D0' },
+  emptyContainer: { paddingVertical: 24, alignItems: 'center' },
   fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#004A60', borderRadius: 50, zIndex: 10 },
-  modalContainer: {
-    backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 28, maxHeight: '80%'
-  },
-  modalTitle: {
-    fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16
-  },
-  inputLabel: {
-    fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10
-  },
-  input: {
-    backgroundColor: '#F4EFF4', marginBottom: 8,
-  },
-  addHourButton: {
-    backgroundColor: '#004A60', alignSelf: 'flex-start', borderRadius: 20, marginBottom: 12,
-  },
-  hourRow: {
-    flexDirection: 'row', alignItems: 'center', marginBottom: 8,
-  },
-  modalActions: {
-    flexDirection: 'row', justifyContent: 'space-between', marginTop: 24,
-  },
-  cancelButton: {
-    flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20,
-  },
-  saveButton: {
-    flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20,
-  },
+  modalContainer: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 28, maxHeight: '80%' },
+  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16 },
+  inputLabel: { fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10 },
+  input: { backgroundColor: '#F4EFF4', marginBottom: 8, },
+  addHourButton: { backgroundColor: '#004A60', alignSelf: 'flex-start', borderRadius: 20, marginBottom: 12, },
+  hourRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, },
+  modalActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24, },
+  cancelButton: { flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20, },
+  saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
   medTextWrapper: { marginLeft: 4, flex: 1 },
   deleteMedBtn: { margin: 0, padding: 0 }
 });
