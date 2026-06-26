@@ -1,18 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
+import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import FooterNav from './footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
-
-interface Telemetria {
-  heart_rate: number;
-  spo2: number;
-  battery: number;
-  ax: number;
-  ay: number;
-  az: number;
-}
 
 const theme = {
   ...MD3LightTheme,
@@ -23,11 +15,80 @@ const theme = {
   },
 };
 
+const chartConfig = {
+  backgroundGradientFrom: "#1E2923",
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientTo: "#08130D",
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => `rgba(256, 256, 256, ${opacity})`,
+  strokeWidth: 2, // optional, default 3
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false,
+  fontFamily: 'Arial Black',
+  propsForLabels: {
+    fontFamily: 'Arial Black',
+  }
+};
+
+interface ChartData {
+  labels: string[],
+  datasets: {
+    data: number[],
+  }[];
+}
+
+type TelemetriaKey = "heart_rate" | "spo2";
+
+const initialChartState: ChartData = {
+  labels: [],
+  datasets: [{data: []}],
+};
+
 export default function SignosVitalesScreen() {
   const router = useRouter();
 
   const { pacienteId } = useLocalSearchParams();
   const { telemetriaActual, setPacienteId } = useTelemetria();
+
+  // Estados por cada gráfico
+  const [heartRateData, setHeartRateData] = useState<ChartData>(initialChartState);
+  const [spo2Data, setSpo2Data] = useState<ChartData>(initialChartState);
+
+
+  const actualizarGrafico = (
+    tipo: TelemetriaKey, 
+    setChartState: React.Dispatch<React.SetStateAction<ChartData>>
+  ) => {
+    if (!telemetriaActual) return;
+
+    const nuevoValor = telemetriaActual[tipo];
+    const nuevaHora = telemetriaActual.time.slice(11, 19);
+
+    setChartState((prev) => {
+      const newLabels = [...prev.labels, nuevaHora];
+      const newData = [...prev.datasets[0].data, nuevoValor];
+
+      // Mantiene los últimos 4 puntos (ajusta según tu necesidad, tu comentario decía 20)
+      if (newLabels.length > 4) {
+        newLabels.shift();
+        newData.shift();
+      }
+
+      return {
+        labels: newLabels,
+        datasets: [{ data: newData }],
+      };
+    });
+  };
+
+  // Un Effect dispara los 2 gráficos
+  useEffect(() => {
+    if (telemetriaActual) {
+      actualizarGrafico('heart_rate', setHeartRateData);
+      actualizarGrafico('spo2', setSpo2Data);
+    }
+  }, [telemetriaActual]);
+  
 
   useEffect(() => {
     setPacienteId(pacienteId as string | undefined);
@@ -49,8 +110,18 @@ export default function SignosVitalesScreen() {
               <Text variant="titleMedium" style={styles.cardTitle}>Frecuencia Cardiaca</Text>
 
               <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.heart_rate ? `${telemetriaActual.heart_rate} BPM` : '-- BPM'}
+                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate} BPM` : '-- BPM'}
               </Text>
+
+              {heartRateData.labels.length > 0 && (
+                <LineChart data={heartRateData}
+                width={350}
+                height={300}
+                verticalLabelRotation={30}
+                chartConfig={chartConfig}
+                bezier
+                />
+              )}
             </Card.Content>
           </Card>
 
@@ -60,6 +131,16 @@ export default function SignosVitalesScreen() {
               <Text variant="titleMedium" style={styles.cardData}>
                 {telemetriaActual?.spo2 ? `${telemetriaActual.spo2}%` : '--%'}
               </Text>
+
+              {spo2Data.labels.length > 0 && (
+                <LineChart data={spo2Data}
+                width={350}
+                height={300}
+                verticalLabelRotation={30}
+                chartConfig={chartConfig}
+                bezier
+                />
+              )}
             </Card.Content>
           </Card>
         </ScrollView>

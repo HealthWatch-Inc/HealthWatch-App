@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { apiService } from '@/services/apiService';
 
 export interface Telemetria {
+  time: string;
   heart_rate: number;
   spo2: number;
   battery: number;
