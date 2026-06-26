@@ -9,6 +9,9 @@ export interface Telemetria {
   ax: number;
   ay: number;
   az: number;
+  gx: number;
+  gy: number;
+  gz: number;
 }
 
 interface TelemetriaContextValue {
@@ -37,7 +40,7 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
         const response = await apiService.get(
           `/api/pacientes/${pacienteId}/telemetria`
         );
-
+        // console.log(response.telemetria);
         setTelemetrias(response.telemetria ?? []);
       } catch (error) {
         console.log('Error cargando telemetría en TelemetriaProvider', error);

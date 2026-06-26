@@ -7,9 +7,9 @@ import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
 
 const DATA = [
-  { id: '1', time: '3:20 p. m.', date: '12/4/2026' },
-  { id: '2', time: '6:07 a. m.', date: '2/3/2026' },
-  { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
+  { id: '1', time: '03:20 p. m.', date: '12/4/2026' },
+  { id: '2', time: '06:07 a. m.', date: '2/3/2026' },
+  { id: '3', time: '012:01 p. m.', date: '9/1/2026' },
 ];
 
 interface Medication {

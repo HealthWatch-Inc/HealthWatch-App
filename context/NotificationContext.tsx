@@ -4,28 +4,28 @@ import messaging from '@react-native-firebase/messaging';
 import { apiService } from '@/services/apiService';
 
 interface Medication {
-  id: string;
-  nombre: string;
-  horas: string[];
-  frecuencia: string;
+     id: string;
+     nombre: string;
+     horas: string[];
+     frecuencia: string;
 }
 
 
 interface NotificationContextType {
-  mostrarBanner: (mensaje: string) => void;
-  actualizarMedicamentos: (meds: Medication[]) => void;
+     mostrarBanner: (mensaje: string) => void;
+     actualizarMedicamentos: (meds: Medication[]) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export const useNotificationBanner = () => {
-  const context = useContext(NotificationContext);
+     const context = useContext(NotificationContext);
 
-  if (!context) {
-    throw new Error('useNotificationBanner debe usarse dentro de NotificationProvider');
-  }
+     if (!context) {
+          throw new Error('useNotificationBanner debe usarse dentro de NotificationProvider');
+     }
 
-  return context;
+     return context;
 };
 
 interface NotificationContextProps {
@@ -56,7 +56,7 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
           verificarRecordatorios();
 
           const interval = setInterval(() => {
-          verificarRecordatorios();
+               verificarRecordatorios();
           }, 60000);
 
           return () => clearInterval(interval);
@@ -71,7 +71,7 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
                })
                .toLowerCase();
 
-               medications.forEach((med) => {
+          medications.forEach((med) => {
                const clave = `${med.id}-${horaActual}`;
 
                if (
@@ -80,21 +80,21 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
                ) {
 
                     if (
-                    Platform.OS === 'web' &&
-                    Notification.permission === 'granted'
+                         Platform.OS === 'web' &&
+                         Notification.permission === 'granted'
                     ) {
-                    new Notification('Recordatorio de Medicamento', {
-                         body: `Es hora de administrar ${med.nombre}`,
-                    });
+                         new Notification('Recordatorio de Medicamento', {
+                              body: `Es hora de administrar ${med.nombre}`,
+                         });
                     }
 
                     mostrarBanner(
-                    `Es hora de administrar ${med.nombre}`
+                         `Es hora de administrar ${med.nombre}`
                     );
 
                     setNotificacionesMostradas(prev => [...prev, clave]);
                }
-               });
+          });
      }
 
      // Obtiene el token (para móvil)
@@ -148,7 +148,7 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
      }, []);
 
      return (
-          <NotificationContext.Provider value={{mostrarBanner, actualizarMedicamentos}}>
+          <NotificationContext.Provider value={{ mostrarBanner, actualizarMedicamentos }}>
                {children}
 
                {bannerVisible && (
@@ -159,25 +159,25 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
                     </View>
                )}
           </NotificationContext.Provider>
-     );   
+     );
 }
 
 const styles = StyleSheet.create({
-  banner: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    right: 20,
-    backgroundColor: '#004A60',
-    padding: 16,
-    borderRadius: 12,
-    elevation: 5,
-    zIndex: 999,
-  },
+     banner: {
+          position: 'absolute',
+          top: 50,
+          left: 20,
+          right: 20,
+          backgroundColor: '#004A60',
+          padding: 16,
+          borderRadius: 12,
+          elevation: 5,
+          zIndex: 999,
+     },
 
-  bannerText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+     bannerText: {
+          color: 'white',
+          fontWeight: 'bold',
+          textAlign: 'center',
+     },
 });

@@ -1,21 +1,212 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
+import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput } from 'react-native-paper';
+import { ProgressChart } from 'react-native-chart-kit';
 import { useRouter } from 'expo-router';
 import FooterNav from './footernav';
+import { useTelemetria } from '../context/TelemetriaContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// --- PANTALLA PRINCIPAL: Actividad Física ---
+/*
+  Simulación de pasos para actividad física:
+  Modelo matemático para procesamiento de señales y suavizar datos, eliminar ruido de alta frecuencia y que pasen las frecuencias por un límite establecido (frecuencia de corte)
+
+  Filtro utilizado: Filtro Exponencial (IIR de un polo)
+  Sistema procesador de señales recursivo, depende del valor de entrada como de salida, por un único polo en el plano Z
+
+  Ventaja: Bajo costo computacional, consume menos recursos.
+
+  \(y[n] = \alpha \cdot x[n] + (1 - \alpha)\cdot y[n-1]\)
+  
+  y[n]: Valor filtrado actual (salida).
+  x[n]: Valor crudo o medido actual (entrada).
+  y[n-1]: Valor filtrado anterior.
+  α: Factor de suavizado (un valor entre 0 y 1).
+
+  Un α cercano a 0 (ej. 0.05) genera un filtrado muy fuerte y lento (ideal para eliminar mucho ruido).
+  
+  Un α cercano a 1 (ej. 0.8) genera un filtrado rápido que reacciona casi de inmediato a los cambios (ideal para señales dinámicas).
+*/
+
+const chartConfig = {
+  backgroundGradientFrom: "#1E2923",
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientTo: "#08130D",
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => `rgba(256, 256, 256, ${opacity})`,
+  strokeWidth: 2, // optional, default 3
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false,
+  fontFamily: 'Arial Black',
+  propsForLabels: {
+    fontFamily: 'Arial Black',
+  }
+};
+
 export default function ActividadFisicaScreen() {
   const router = useRouter();
+  const { telemetriaActual } = useTelemetria();
+  const [pasosConteo, setPasosConteo] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [objetivo, setObjetivo] = useState('');
+  const [objetivoTemporal, setObjetivoTemporal] = useState('');
+  
+  // Estado de ProgressChart
+  const [dataChart, setDataChart] = useState([0]);
 
-  // Datos reflejados en la imagen
-  const pasosActuales = 2500;
-  const pasosObjetivo = 4300;
+  //Constante para el Filtro de Aceleración y Giroscopio
+  const UMBRAL_SUBIDA = 1.2;
+  const UMBRAL_BAJADA = 0.6;
+  // const UMBRAL_GIRO = 20;
+  const TIEMPO_MINIMO = 300;
+  const GRAVEDAD = 9.81;
+
+  // Estado del filtro
+  const acelAnterior = useRef(0);
+  const giroAnterior = useRef(0);
+  const ultimoPaso = useRef(0); // Último paso detectado
+  const arribaUmbral = useRef(false); //Para detectar el cruce del umbral
+
+  // Cargar datos al iniciar la pantalla
+  useEffect(() => {
+    const cargarDatosPersistidos = async () => {
+      try{
+        const pasosGuardados = await AsyncStorage.getItem('@pasos_conteo');
+        const objetivoGuardado = await AsyncStorage.getItem('@objetivo_pasos');
+
+        if (pasosGuardados !== null) setPasosConteo(parseInt(pasosGuardados, 10));
+        if (objetivoGuardado !== null) setObjetivo(objetivoGuardado);
+      } catch (e) {
+        console.error("Error al cargar los datos locales", e);
+      }
+    }
+
+    cargarDatosPersistidos();
+  }, []);
+
+  // Guardar pasos automáticamente cuando cambien
+  useEffect(() => {
+    const guardarPasos = async () => {
+      try {
+        await AsyncStorage.setItem('@pasos_conteo', pasosConteo.toString());
+      } catch (e) {
+        console.error("Error al guardar pasos", e);
+      }
+    };
+
+    if (pasosConteo > 0) {
+      guardarPasos();
+    }
+  }, [pasosConteo]);
+
+  // Para el Progress Chart
+  /*
+    Convertir el objetivo en 100%
+    Convertir la cantidad de pasos desde 1/Objetivo 
+  */
+
+  const filtroExponencial = (valor: number, ref: React.MutableRefObject<number>, alpha = 0.3) => {
+    ref.current = alpha * valor + (1 - alpha) * ref.current;
+    return ref.current;
+  }
+
+  useEffect(() => {
+    if (!telemetriaActual) return;
+
+    const { ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0 } = telemetriaActual;
+
+    // Magnitud de aceleración y giro
+    const aceleracion = Math.sqrt(ax * ax + ay * ay + az * az);
+
+    // Eliminar gravedad
+    const movimiento = Math.abs(aceleracion - GRAVEDAD);
+
+    // Magnitud de giroscopio
+    const giro = Math.sqrt(gx * gx + gy * gy + gz * gz);
+
+    // Filtrado
+    const acelFiltrada = filtroExponencial(movimiento, acelAnterior, 0.3);
+
+    const giroFiltrado = filtroExponencial(giro, giroAnterior, 0.3);
+
+    // Calibración
+    console.log({
+      acel: aceleracion.toFixed(2),
+      movimiento: acelFiltrada.toFixed(2),
+      giro: giroFiltrado.toFixed(2),
+      pasos: pasosConteo
+    })
+
+    const ahora = Date.now();
+
+    // Detectar inicio del pico
+    if (!arribaUmbral.current && acelFiltrada > UMBRAL_SUBIDA) {
+      arribaUmbral.current = true;
+
+      if (ahora - ultimoPaso.current > TIEMPO_MINIMO) {
+        ultimoPaso.current = ahora;
+        console.log("Paso detectado")
+        setPasosConteo((prev) => prev + 1);
+      }
+    }
+
+    // Reiniciar al bajar el pico
+    if (acelFiltrada < UMBRAL_BAJADA) {
+      arribaUmbral.current = false;
+    }
+
+  }, [telemetriaActual]);
+
+  const showModal = () => {
+    setObjetivoTemporal(objetivo);
+    setVisible(true);
+  };
+
+  const hideModal = () => {
+    setVisible(false);
+  };
+
+  const saveObjetivo = async () => {
+    try {
+      await AsyncStorage.setItem('@objetivo_pasos', objetivoTemporal);
+      setObjetivo(objetivoTemporal);
+      hideModal();
+    } catch (e) {
+      console.error("Error al guardar el objetivo", e);
+    }
+  };
+
+  useEffect(() => {
+    const objNum = parseInt(objetivo, 10);
+    if (!isNaN(objNum) && objNum > 0) {
+      // Porcentaje de progreso
+      const progreso = pasosConteo / objNum;
+      setDataChart([Math.min(progreso, 1)])
+    } else {
+      setDataChart([0]);
+    }
+  }, [pasosConteo, objetivo]);
+
+  const reiniciarPasos = async () => {
+    try {
+      setPasosConteo(0);
+      await AsyncStorage.setItem('@pasos_conteo', '0');
+      console.log("Conteo de pasos reiniciado con éxito");
+    } catch (e) {
+      console.error("Error al iniciar los pasos localmente", e)
+    }
+  }
+
+  const handleTextChange = (text: string) => {
+    // Solo dígitos de 0 a 9
+    const cleanNumber = text.replace(/[^0-9]/g, '');
+    setObjetivoTemporal(cleanNumber);
+  }
 
   return (
     <PaperProvider theme={MD3LightTheme}>
       <SafeAreaView style={styles.safeArea}>
-        
+
         {/* Barra Superior con botón para regresar */}
         <Appbar.Header style={styles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
@@ -33,23 +224,42 @@ export default function ActividadFisicaScreen() {
               <Text variant="titleMedium" style={styles.cardTitle}>
                 Pasos
               </Text>
-              
-              <View style={styles.cardFlexContainer}>
-                {/* Lado Derecho: Textos Informativos */}
-                <View style={styles.textContainer}>
-                  <Text variant="bodyLarge" style={styles.infoText}>
-                    Actual: <Text style={styles.boldText}>{pasosActuales}</Text>
-                  </Text>
-                  <Text variant="bodyLarge" style={styles.infoText}>
-                    Objetivo: <Text style={styles.boldText}>{pasosObjetivo}</Text>
-                  </Text>
-                </View>
-              </View>
 
+              <Text variant='titleMedium' style={styles.infoText}>Actual: {pasosConteo}</Text>
+              <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
+
+              <ProgressChart data={dataChart} width={350} height={210} strokeWidth={16} radius={82} chartConfig={chartConfig} hideLegend={false}/>
             </Card.Content>
           </Card>
+
+          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: '#ffffff' }}> Reiniciar conteo de pasos</Button>
         </ScrollView>
-        
+
+        <FAB icon="plus" style={styles.fab} color='white' onPress={showModal} />
+
+        <Portal>
+          <Modal
+            visible={visible}
+            onDismiss={hideModal}
+            contentContainerStyle={styles.modalContainer}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalTitle}>Nuevo objetivo</Text>
+
+              <Text style={styles.inputLabel}>Cantidad de pasos final</Text>
+              <TextInput keyboardType='numeric' placeholder='Ej. 1000' mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
+
+              <View style={styles.modalActions}>
+                <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
+                  Cancelar
+                </Button>
+                <Button mode='contained' onPress={saveObjetivo} style={styles.saveButton}>
+                  Guardar
+                </Button>
+              </View>
+            </ScrollView>
+          </Modal>
+        </Portal>
+
         <FooterNav activeTab="inicio" />
       </SafeAreaView>
     </PaperProvider>
@@ -58,71 +268,88 @@ export default function ActividadFisicaScreen() {
 
 // --- ESTILOS ---
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#ffffff',
+  safeArea: { flex: 1, backgroundColor: '#ffffff',},
+  container: { flex: 1, backgroundColor: '#ffffff',},
+  scrollContent: { padding: 16, },
+  header: { backgroundColor: '#ffffff', elevation: 0,},
+  title: { fontWeight: 'bold', marginBottom: 20, color: '#000',},
+  activityCard: { backgroundColor: '#665200', borderRadius: 28, paddingVertical: 8,},
+  cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4, },
+  cardFlexContainer: {flexDirection: 'row',alignItems: 'center',
   },
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  scrollContent: {
-    padding: 16,
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    elevation: 0,
-    // shadowOpacity: 0,
-  },
-  title: {
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#000',
-  },
-  activityCard: {
-    backgroundColor: '#665200', // Tono ocre / marrón verdoso exacto de tu captura
-    borderRadius: 28, // Curvatura estándar Material Design 3
-    paddingVertical: 8,
-  },
-  cardTitle: {
-    color: '#ffffff',
-    fontWeight: '500',
-    marginBottom: 16,
-    marginLeft: 4,
-  },
-  cardFlexContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  whiteRingBackground: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 8,
-    width: 140,
-    height: 140,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ringContainer: {
-    position: 'relative',
-    width: 120,
-    height: 120,
-  },
-  centerIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textContainer: {
-    marginLeft: 20,
-    justifyContent: 'center',
-  },
-  infoText: {
-    color: '#ffffff',
-    fontSize: 18,
-    marginVertical: 4,
-  },
-  boldText: {
-    fontWeight: 'bold',
-    color: '#ffffff'
-  },
+  textContainer: { marginLeft: 20, justifyContent: 'center', },
+  infoText: { color: '#ffffff', fontSize: 22, marginLeft: 4, fontWeight: 'bold', marginBottom: 13},
+  fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#665200', borderRadius: 50, zIndex: 10 },
+  modalContainer: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 28, maxHeight: '80%' },
+  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16 },
+  inputLabel: { fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10 },
+  input: { backgroundColor: '#F4EFF4', marginBottom: 8, },
+  modalActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24, },
+  cancelButton: { flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20 },
+  restartButton: { flex: 1, marginRight: 8, backgroundColor: '#665200', borderRadius: 20, color: '#ffffff', marginTop: 13 },
+  saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
 });
+
+// const UMBRAL = 0.1;  // Ajustar para datos reales
+  // const TIEMPO_MINIMO = 300;  // Tiempo mínimo entre pasos (ms)
+  // const GRAVEDAD = 9.81 // Gravedad
+  // const acelFiltrada = useRef(0); // Filtro exponencial
+
+  // // Tres últimas muestras filtradas
+  // const muestra1 = useRef(0);
+  // const muestra2 = useRef(0);
+  // const muestra3 = useRef(0);
+
+  // // Último paso
+  // const ultimoPaso = useRef(0);
+
+  // const filtroExponencial = (valor: number, ref: React.MutableRefObject<number>, alpha = 0.3) => {
+  //   ref.current = alpha * valor + (1 - alpha) * ref.current;
+  //   return ref.current;
+  // }
+
+  // useEffect(() => {
+  //   if (!telemetriaActual) return;
+
+  //   const { ax = 0, ay = 0, az = 0 } = telemetriaActual;
+
+  //   // Magnitud de aceleración y giro
+  //   const aceleracion = Math.sqrt(ax * ax + ay * ay + az * az);
+
+  //   // Eliminar gravedad
+  //   const movimiento = Math.abs(aceleracion - GRAVEDAD);
+
+  //   // Filtrado
+  //   const filtrada = filtroExponencial(movimiento, acelFiltrada, 0.3);
+
+  //   // Desplazar muestras
+  //   muestra1.current = muestra2.current;
+  //   muestra2.current = muestra3.current;
+  //   muestra3.current = filtrada;
+
+  //   const ahora = Date.now();
+
+  //   // Detectar máximo local
+  //   const esPico = 
+  //     muestra2.current > muestra1.current &&
+  //     muestra2.current > muestra3.current &&
+  //     muestra2.current > UMBRAL;
+
+  //   if ( esPico && ahora - ultimoPaso.current > TIEMPO_MINIMO) {
+  //     ultimoPaso.current = ahora;
+  //     setPasosConteo(prev => prev + 1);
+  //     console.log("Paso detectado");
+  //   } else{ console.log("No paso")}
+
+  //   console.log({
+  //     acel: aceleracion.toFixed(2),
+  //     mov: movimiento.toFixed(2),
+  //     filtrada: filtrada.toFixed(2),
+  //     m1: muestra1.current.toFixed(2),
+  //     m2: muestra2.current.toFixed(2),
+  //     m3: muestra3.current.toFixed(2),
+  //     pico: esPico,
+  //     pasos: pasosConteo
+  //   });
+
+  // }, [telemetriaActual]);
