@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { 
   Text, 
@@ -7,28 +7,51 @@ import {
   Card,
   Provider as PaperProvider 
 } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FooterNav from './footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
-
-interface Telemetria {
-  heart_rate: number;
-  spo2: number;
-  battery: number;
-  ax: number;
-  ay: number;
-  az: number;
-}
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const router = useRouter();
   const { pacienteId, nombre } = useLocalSearchParams();
   const { telemetriaActual, setPacienteId } = useTelemetria();
 
+  // Estado para objetivo y pasos en la pantalla Home
+  const [objetivoHome, setObjetivoHome] = useState('Por definir');
+  const [pasosHome, setPasosHome] = useState(0);
+
   useEffect(() => {
     setPacienteId(pacienteId as string | undefined);
   }, [pacienteId, setPacienteId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const obtenerDatosPersistidos = async () => {
+        try{
+          const objGuardado = await AsyncStorage.getItem('@objetivo_pasos');
+          const pasosGuardados = await AsyncStorage.getItem('@pasos_conteo');
+
+          if (objGuardado !== null && objGuardado !== '') {
+            setObjetivoHome(objGuardado);
+          } else {
+            setObjetivoHome('Por definir');
+          }
+
+          if (pasosGuardados !== null) {
+            setPasosHome(parseInt(pasosGuardados, 10));
+          } else {
+            setPasosHome(0);
+          }
+        } catch (e) {
+          console.error("Error al leer AsyncStorage en Home", e);
+        }
+      };
+
+      obtenerDatosPersistidos();
+    }, [])
+  );
 
   return (
     <PaperProvider>
@@ -79,7 +102,7 @@ const App = () => {
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Actividad física</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>+ 500</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>Meta: {objetivoHome} </Text>
               </Card.Content>
             </Card>
 

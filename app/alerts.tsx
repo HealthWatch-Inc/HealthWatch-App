@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button } from 'react-native-paper';
+import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator } from 'react-native-paper';
 import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
@@ -33,6 +33,7 @@ export default function NotificationsScreen() {
   const [visible, setVisible] = useState(false);
   const [medName, setMedName] = useState('');
   const [hour, setHour] = useState('08:00 am');
+  const [loadingMeds, setLoadingMeds] = useState(true);
   const { actualizarMedicamentos } = useNotificationBanner();
 
   useEffect(() => {
@@ -107,17 +108,16 @@ export default function NotificationsScreen() {
     if (!pacienteId) return;
 
     try {
+      setLoadingMeds(true);
       const response = await apiService.get(`/api/medicamentos/${pacienteId}`);
 
-      console.log(response)
-      
       const meds = response ?? [];
-
       setMedications(meds);
       actualizarMedicamentos(meds);
-
     } catch (error) {
       console.error("Error cargando los medicamentos:", error);
+    } finally {
+      setLoadingMeds(false);
     }
   };
 
@@ -194,7 +194,18 @@ export default function NotificationsScreen() {
       <Text variant="titleMedium" style={styles.sectionTitle}>Recordatorio de Medicamentos</Text>
 
       <View style={styles.medsContainer}>
-        {medications.map((item) => (
+        {loadingMeds ? (
+          // Sesión Loading Activada
+          <View>
+            <ActivityIndicator animating={true} color='#004A60' size='small' />
+          </View>
+        ) : medications.length === 0 ? (
+          // Si no hay medicamentos
+          <View>
+            <Text variant='bodyMedium'>No hay medicamentos programados</Text>
+          </View>
+        ) : (
+          medications.map((item) => (
           <Card key={item.id} style={styles.medCard}>
             <Card.Content style={styles.medContent}>
               <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
@@ -212,7 +223,8 @@ export default function NotificationsScreen() {
               />
             </Card.Content>
           </Card>
-        ))}
+          ))
+        )}
       </View>
 
       {/* Título de la sección inferior */}
@@ -308,5 +320,7 @@ const styles = StyleSheet.create({
   cancelButton: { flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20, },
   saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
   medTextWrapper: { marginLeft: 4, flex: 1 },
-  deleteMedBtn: { margin: 0, padding: 0 }
+  deleteMedBtn: { margin: 0, padding: 0 },
+  loadingContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, backgroundColor: '#f7f7f7', borderRadius: 12},
+  loadingText: { marginLeft: 10, color: '#49454f', alignItems: 'center'}
 });
