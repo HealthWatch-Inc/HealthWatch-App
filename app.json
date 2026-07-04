@@ -20,7 +20,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.healthwatchapp"
+      "package": "com.company.healtwatch",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
@@ -40,8 +41,7 @@
           }
         }
       ],
-      "@react-native-firebase/app",
-      "@react-native-firebase/messaging"
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

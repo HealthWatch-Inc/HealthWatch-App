@@ -5,7 +5,6 @@ import {
   initializeAuth,
   Persistence,
   ReactNativeAsyncStorage,
-  getAuth,
 } from 'firebase/auth';
 
 declare module "firebase/auth" {
@@ -26,6 +25,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth();
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
 export { auth };

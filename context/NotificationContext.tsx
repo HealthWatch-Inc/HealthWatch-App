@@ -1,7 +1,19 @@
 import { useEffect, useState, useContext, createContext } from 'react';
 import { StyleSheet, Platform, Alert, View, Text } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
 import { apiService } from '@/services/apiService';
+import { auth } from '@/config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
+Notifications.setNotificationHandler({
+     handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+     }),
+});
 
 interface Medication {
      id: string;
@@ -9,7 +21,6 @@ interface Medication {
      horas: string[];
      frecuencia: string;
 }
-
 
 interface NotificationContextType {
      mostrarBanner: (mensaje: string) => void;
@@ -99,9 +110,13 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
 
      // Obtiene el token (para móvil)
      useEffect(() => {
-          if (Platform.OS !== 'web') {
-               obtenerToken();
-          }
+          const unsubscribe = onAuthStateChanged(auth, async (user) => {
+               if (user && Platform.OS !== "web") {
+                    await obtenerToken();
+               }
+          })
+
+          return unsubscribe;
      }, []);
 
      // Obtener el token desde la API del navegador
@@ -112,39 +127,56 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
      }, []);
 
      const obtenerToken = async () => {
-          await messaging().requestPermission();
+          if (!Device.isDevice) {
+               console.log("Las modificaciones push requieren un dispositivo físico.");
+               return;
+          }
 
-          const token = await messaging().getToken();
+          const { status: existingStatus } = 
+               await Notifications.getPermissionsAsync();
+          
+          let finalStatus = existingStatus;
 
-          console.log("Token:", token);
+          if (existingStatus !== "granted") {
+               const { status } = await Notifications.requestPermissionsAsync();
+               finalStatus = status;
+          }
 
-          // Enviar a backend
-          await apiService.put(`/api/usuarios/fcm-token`, {
-               fcm_token: token
+          if (finalStatus !== "granted") {
+               console.log("Permiso denegado");
+               return;
+          }
+
+          const token = (await Notifications.getExpoPushTokenAsync()).data;
+
+          console.log("Expo Token: ", token);
+
+          await apiService.put("/api/usuarios/expo-token", {
+               expo_token: token,
           });
      };
 
      // Escuchar notificaciones cuando la app está abierta
      useEffect(() => {
-          if (Platform.OS !== 'web') {
-               const unsubscribe = messaging().onMessage(async remoteMessage => {
+          const subscription = 
+               Notifications.addNotificationReceivedListener(notification => {
                     Alert.alert(
-                         remoteMessage.notification?.title ?? '',
-                         remoteMessage.notification?.body ?? ''
+                         notification.request.content.title ?? "",
+                         notification.request.content.body ?? ""
                     );
                });
-
-               return unsubscribe;
-          }
-     }, []);
+          
+          return () => subscription.remove();
+     })
 
      // Detectar cuando el usuario toca la notificación
      useEffect(() => {
-          if (Platform.OS !== 'web') {
-               messaging().onNotificationOpenedApp(remoteMessage => {
-                    console.log('Usuario abrió la notificación');
+          const subscription = 
+               Notifications.addNotificationResponseReceivedListener(response => {
+                    console.log("Usuario abrió la notificación");
                });
-          }
+          
+          return () => subscription.remove();
      }, []);
 
      return (
