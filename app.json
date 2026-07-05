@@ -46,6 +46,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a2a2f721-8b31-4bfe-a69a-ad19556bfdab"
+      }
+    },
+    "owner": "acherplus"
   }
 }

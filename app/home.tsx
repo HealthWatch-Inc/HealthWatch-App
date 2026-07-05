@@ -93,7 +93,7 @@ const App = () => {
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Signos vitales</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate ?? '--'}</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate.toFixed(2) ?? '--'}</Text>
               </Card.Content>
             </Card>
 

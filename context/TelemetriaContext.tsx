@@ -45,6 +45,8 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
           `/api/pacientes/${pacienteId}/telemetria`
         );
 
+        console.log(response.telemetria);
+
         setTelemetrias(response.telemetria ?? []);
       } catch (error) {
         console.log('Error cargando telemetría en TelemetriaProvider', error);
@@ -138,11 +140,11 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
     const acelFiltrada = filtroExponencial(movimiento, acelAnterior, 0.3);
 
     // Calibración
-    console.log({
-      acel: aceleracion.toFixed(2),
-      movimiento: acelFiltrada.toFixed(2),
-      pasos: pasosConteo
-    })
+    // console.log({
+    //   acel: aceleracion.toFixed(2),
+    //   movimiento: acelFiltrada.toFixed(2),
+    //   pasos: pasosConteo
+    // })
 
     const ahora = Date.now();
 
@@ -162,10 +164,10 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
       arribaUmbral.current = false;
     }
 
-    console.log({
-      acelFiltrada,
-      arriba: arribaUmbral.current
-    });
+    // console.log({
+    //   acelFiltrada,
+    //   arriba: arribaUmbral.current
+    // });
 
   }, [telemetriaActual]);
 

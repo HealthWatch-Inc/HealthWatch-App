@@ -110,7 +110,7 @@ export default function SignosVitalesScreen() {
               <Text variant="titleMedium" style={styles.cardTitle}>Frecuencia Cardiaca</Text>
 
               <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate} BPM` : '-- BPM'}
+                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate.toFixed(2)} BPM` : '-- BPM'}
               </Text>
 
               {heartRateData.labels.length > 0 && (

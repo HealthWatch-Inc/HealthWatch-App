@@ -5,11 +5,12 @@ import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightThem
 import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const DATA = [
-  { id: '1', time: '03:20 p. m.', date: '12/4/2026' },
-  { id: '2', time: '06:07 a. m.', date: '2/3/2026' },
-  { id: '3', time: '012:01 p. m.', date: '9/1/2026' },
+  { id: '1', time: '3:20 p. m.', date: '12/4/2026' },
+  { id: '2', time: '6:07 a. m.', date: '2/3/2026' },
+  { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
 ];
 
 interface Medication {
@@ -35,6 +36,8 @@ export default function NotificationsScreen() {
   const [hour, setHour] = useState('08:00 am');
   const [loadingMeds, setLoadingMeds] = useState(true);
   const { actualizarMedicamentos } = useNotificationBanner();
+  const [time, setTime] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
     loadMedications();
@@ -46,6 +49,14 @@ export default function NotificationsScreen() {
 
     return () => clearInterval(interval);
   }, [pacienteId]);
+
+  const onChangeTime = (_: any, selectedTime?: Date) => {
+    setShowPicker(false);
+
+    if (selectedTime) {
+      setTime(selectedTime);
+    }
+  };
 
   const cargarCaidasDetectadas = async () => {
     if (!pacienteId) return;
@@ -129,11 +140,17 @@ export default function NotificationsScreen() {
     setHour('08:00 am');
   };
 
+  const formatHour = (date: Date) => {
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    return `${h}:${m}`;
+  }
+
   const saveMedication = async () => {
     if (!pacienteId || !medName.trim()) return;
     const medicamento = {
       nombre: medName,
-      horas: [hour],
+      horas: [formatHour(time)],
       frecuencia: 'Diario',
     };
 
@@ -206,23 +223,23 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           medications.map((item) => (
-          <Card key={item.id} style={styles.medCard}>
-            <Card.Content style={styles.medContent}>
-              <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
-              <View style={styles.medTextWrapper}>
-                <Text style={styles.medTitle}>{item.nombre}</Text>
-                <Text style={styles.medTime}>{item.horas.join(', ')}</Text>
-              </View>
-              {/* Botón para eliminar */}
-              <IconButton
-                icon="delete"
-                iconColor="#FF8A8A"
-                size={22}
-                onPress={() => deleteMedication(item.id, item.nombre)}
-                style={styles.deleteMedBtn}
-              />
-            </Card.Content>
-          </Card>
+            <Card key={item.id} style={styles.medCard}>
+              <Card.Content style={styles.medContent}>
+                <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
+                <View style={styles.medTextWrapper}>
+                  <Text style={styles.medTitle}>{item.nombre}</Text>
+                  <Text style={styles.medTime}>{item.horas.join(', ')}</Text>
+                </View>
+                {/* Botón para eliminar */}
+                <IconButton
+                  icon="delete"
+                  iconColor="#FF8A8A"
+                  size={22}
+                  onPress={() => deleteMedication(item.id, item.nombre)}
+                  style={styles.deleteMedBtn}
+                />
+              </Card.Content>
+            </Card>
           ))
         )}
       </View>
@@ -274,7 +291,25 @@ export default function NotificationsScreen() {
 
               <Text style={styles.inputLabel}>Horario de Recordatorio</Text>
 
-              <TextInput value={hour} onChangeText={setHour} mode="outlined" placeholder="08:00 am" style={styles.input} outlineColor="#CAC4D0" activeOutlineColor="#004A60" />
+              <Button
+                mode="outlined"
+                onPress={() => setShowPicker(true)}
+              >
+                {time.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Button>
+
+              {showPicker && (
+                <DateTimePicker
+                  value={time}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onChangeTime}
+                />
+              )}
 
               <Text style={styles.inputLabel}>Frecuencia</Text>
               <TextInput value='Diario' mode='outlined' editable={false} right={<TextInput.Icon icon='chevron-down' />} style={styles.input} outlineColor='#CAC4D0' />
@@ -321,6 +356,6 @@ const styles = StyleSheet.create({
   saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
   medTextWrapper: { marginLeft: 4, flex: 1 },
   deleteMedBtn: { margin: 0, padding: 0 },
-  loadingContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, backgroundColor: '#f7f7f7', borderRadius: 12},
-  loadingText: { marginLeft: 10, color: '#49454f', alignItems: 'center'}
+  loadingContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, backgroundColor: '#f7f7f7', borderRadius: 12 },
+  loadingText: { marginLeft: 10, color: '#49454f', alignItems: 'center' }
 });

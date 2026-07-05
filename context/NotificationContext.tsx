@@ -5,6 +5,7 @@ import { auth } from '@/config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 
 Notifications.setNotificationHandler({
      handleNotification: async () => ({
@@ -74,16 +75,18 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
      }, [medications, notificacionesMostradas]);
 
      const verificarRecordatorios = () => {
-          const horaActual = new Date()
-               .toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-               })
-               .toLowerCase();
+          const now = new Date();
+
+          const horaActual = `${now.getHours().toString().padStart(2, '0')}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`;
 
           medications.forEach((med) => {
                const clave = `${med.id}-${horaActual}`;
+
+               console.log("horaActual:", horaActual);
+               console.log("med.horas:", med.horas);
 
                if (
                     med.horas.includes(horaActual) &&
@@ -147,7 +150,19 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
                return;
           }
 
-          const token = (await Notifications.getExpoPushTokenAsync()).data;
+          const projectId =
+               Constants.expoConfig?.extra?.eas?.projectId ??
+               Constants.easConfig?.projectId;
+
+          if (!projectId) {
+               throw new Error("No se encontró el projectId de Expo.");
+          }
+
+          const token = (
+               await Notifications.getExpoPushTokenAsync({
+                    projectId,
+               })
+          ).data;
 
           console.log("Expo Token: ", token);
 

@@ -1,16 +1,29 @@
 import React from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, Alert, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, Divider, PaperProvider, MD3LightTheme } from 'react-native-paper';
 import FooterNav from './footernav';
 
 const CONTACTS = [
-     { id: '1', name: 'José García', phone: '912 345 678', relation: 'Hijo' },
+     { id: '1', name: 'Alan García', phone: '970 464 752', relation: 'Hijo' },
      { id: '2', name: 'Alberto Fernandez', phone: '927 883 542', relation: 'Vecino cercano' },
 ];
 
 export default function EmergencyContactsScreen() {
      const router = useRouter();
+     
+     const makeCall = async (phone: string) => {
+          try {
+               const phoneNumber = phone.replace(/\s/g, '');
+               console.log(`tel:${phoneNumber}`);
+
+               await Linking.openURL(`tel:${phoneNumber}`);
+          } catch (e) {
+               console.error(e);
+               Alert.alert('Error', JSON.stringify(e));
+          };
+     };
+     
      return (
           <PaperProvider theme={MD3LightTheme}>
                {/* Header */}
@@ -36,7 +49,7 @@ export default function EmergencyContactsScreen() {
                                         <Text variant="bodyMedium" style={styles.relation}>{item.relation}</Text>
                                         <Button
                                              mode="contained"
-                                             onPress={() => console.log('Llamando a', item.phone)}
+                                             onPress={() => makeCall(item.phone)}
                                              buttonColor="#B3261E" // Color rojo de error/emergencia M3
                                              style={styles.callButton}
                                         >
