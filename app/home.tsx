@@ -118,7 +118,10 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Contacto */}
-            <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push('/contact')}>
+            <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push({
+              pathname: '/contact',
+              params: { pacienteId }
+            })}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-ring-outline" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Contacto de emergencia</Text>

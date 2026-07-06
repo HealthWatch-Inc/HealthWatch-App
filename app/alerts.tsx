@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator } from 'react-native-paper';
+import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
 import FooterNav from './footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
@@ -16,7 +16,7 @@ const DATA = [
 interface Medication {
   id: string;
   nombre: string;
-  horas: string[];
+  horas: string;
   frecuencia: string;
 }
 
@@ -29,15 +29,17 @@ interface FallEvent {
 export default function NotificationsScreen() {
   const router = useRouter();
   const { pacienteId } = useLocalSearchParams();
+  const { actualizarMedicamentos } = useNotificationBanner();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [falls, setFalls] = useState<FallEvent[]>(DATA);
   const [visible, setVisible] = useState(false);
   const [medName, setMedName] = useState('');
-  const [hour, setHour] = useState('08:00 am');
   const [loadingMeds, setLoadingMeds] = useState(true);
-  const { actualizarMedicamentos } = useNotificationBanner();
   const [time, setTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [frecuencia, setFrecuencia] = useState("Diario");
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [medicamentoEditado, setMedicamentoEditado] = useState<Medication | null>(null);
 
   useEffect(() => {
     loadMedications();
@@ -137,7 +139,7 @@ export default function NotificationsScreen() {
   const hideModal = () => {
     setVisible(false);
     setMedName('');
-    setHour('08:00 am');
+    // setHour('08:00 am');
   };
 
   const formatHour = (date: Date) => {
@@ -146,12 +148,12 @@ export default function NotificationsScreen() {
     return `${h}:${m}`;
   }
 
-  const saveMedication = async () => {
+  const createMedication = async () => {
     if (!pacienteId || !medName.trim()) return;
     const medicamento = {
       nombre: medName,
       horas: [formatHour(time)],
-      frecuencia: 'Diario',
+      frecuencia: frecuencia,
     };
 
     try {
@@ -163,31 +165,44 @@ export default function NotificationsScreen() {
     }
   };
 
+  const editMedication = (medication: Medication) => {
+    setMedicamentoEditado(medication);
+    setMedName(medication.nombre);
+
+    if (medication.horas.length > 0) {
+        const [hour, minute] = medication.horas[0].split(":").map(Number);
+
+        const date = new Date();
+        date.setHours(hour, minute, 0, 0);
+
+        setTime(date);
+    }
+    setFrecuencia(medication.frecuencia);
+    setVisible(true);
+  };
+
+  const updateMedication = async () => {
+    if (!medicamentoEditado) return;
+
+    // Se edita el medicamento
+  }
+
   // Función para eliminar un medicamento con confirmación previa
   const deleteMedication = (id: string, name: string) => {
     const mensaje = `¿Estás seguro de que deseas eliminar los recordatorios para "${name}"?`;
 
-    // Ejecución si estás en Web
-    if (Platform.OS === 'web') {
-      const respuestaWeb = window.confirm(mensaje);
-      if (respuestaWeb) {
-        ejecutarEliminacion(id);
-      }
-    } else {
-      // Ejecución si estás en Móvil (iOS / Android)
-      Alert.alert(
-        "Eliminar medicamento",
-        mensaje,
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Eliminar",
-            style: "destructive",
-            onPress: () => ejecutarEliminacion(id)
-          }
-        ]
-      );
-    }
+    Alert.alert(
+      "Eliminar medicamento",
+      mensaje,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => ejecutarEliminacion(id)
+        }
+      ]
+    );
   };
 
   // Aislamos la lógica de actualización para no repetir código
@@ -228,9 +243,17 @@ export default function NotificationsScreen() {
                 <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
                 <View style={styles.medTextWrapper}>
                   <Text style={styles.medTitle}>{item.nombre}</Text>
-                  <Text style={styles.medTime}>{item.horas.join(', ')}</Text>
+                  <Text style={styles.medTime}>{item.frecuencia}</Text>
+                  <Text style={styles.medTime}>{item.horas}</Text>
                 </View>
                 {/* Botón para eliminar */}
+                <IconButton
+                  icon="pencil"
+                  iconColor="#ffffff"
+                  size={22}
+                  onPress={() => editMedication(item)}
+                />
+                
                 <IconButton
                   icon="delete"
                   iconColor="#FF8A8A"
@@ -284,7 +307,7 @@ export default function NotificationsScreen() {
             onDismiss={hideModal}
             contentContainerStyle={styles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>Nuevo medicamento</Text>
+              <Text style={styles.modalTitle}>{medicamentoEditado ? "Editar medicamento":"Agregar medicamento"}</Text>
 
               <Text style={styles.inputLabel}>Nombre del Medicamento</Text>
               <TextInput placeholder='Ej. Paracetamol' value={medName} onChangeText={setMedName} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' />
@@ -311,14 +334,50 @@ export default function NotificationsScreen() {
                 />
               )}
 
-              <Text style={styles.inputLabel}>Frecuencia</Text>
-              <TextInput value='Diario' mode='outlined' editable={false} right={<TextInput.Icon icon='chevron-down' />} style={styles.input} outlineColor='#CAC4D0' />
+              <Text style={styles.inputLabel}>Frecuencia de medicamento</Text>
+
+              <Menu
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              anchor={
+                <Button
+                mode='outlined'
+                onPress={()=> setMenuVisible(true)}
+                contentStyle={{justifyContent: "space-between"}}>
+                  {frecuencia}
+                </Button>
+              }>
+                <Menu.Item
+                onPress={() => {
+                    setFrecuencia("Diario");
+                    setMenuVisible(false);
+                }}
+                title="Diario" />
+
+                <Menu.Item
+                onPress={() => {
+                      setFrecuencia("Semanal");
+                      setMenuVisible(false);
+                }}
+                
+                title="Semanal"
+                />
+
+                <Menu.Item
+                onPress={() => {
+                      setFrecuencia("Mensual");
+                      setMenuVisible(false);
+                }}
+                
+                title="Mensual"
+                />
+              </Menu>
 
               <View style={styles.modalActions}>
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   Cancelar
                 </Button>
-                <Button mode='contained' onPress={saveMedication} style={styles.saveButton}>
+                <Button mode='contained' onPress={createMedication} style={styles.saveButton}>
                   Guardar
                 </Button>
               </View>

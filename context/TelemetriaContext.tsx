@@ -45,7 +45,7 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
           `/api/pacientes/${pacienteId}/telemetria`
         );
 
-        console.log(response.telemetria);
+        // console.log(response.telemetria);
 
         setTelemetrias(response.telemetria ?? []);
       } catch (error) {

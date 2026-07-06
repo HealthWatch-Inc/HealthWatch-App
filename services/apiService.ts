@@ -5,25 +5,35 @@ const API_BASE_URL = 'https://healthwatch-backend.onrender.com';
 export const apiService = {
   // GET
   get: async (endpoint: string) => {
+    if (!auth.currentUser) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const token = await auth.currentUser.getIdToken(true);
+
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 20000);
+
     try {
-      if (!auth.currentUser) {
-        throw new Error('Usuario no autenticado');
-      }
-      
-      // Forzar renovación del token (forceRefresh: true)
-      const token = await auth.currentUser.getIdToken(true);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
 
+      clearTimeout(timeout);
+
       if (!response.ok) throw new Error(`Error: ${response.status}`);
+
       return await response.json();
-    } catch (error) {
-      throw error;
+    } finally {
+      clearTimeout(timeout);
     }
   },
 
