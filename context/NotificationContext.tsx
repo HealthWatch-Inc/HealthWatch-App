@@ -7,8 +7,10 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 
+// Propiedades nativas para las notificaciones
 Notifications.setNotificationHandler({
      handleNotification: async () => ({
+          shouldShowAlert: true,
           shouldShowBanner: true,
           shouldShowList: true,
           shouldPlaySound: true,
@@ -25,7 +27,7 @@ interface Medication {
 
 interface NotificationContextType {
      mostrarBanner: (mensaje: string) => void;
-     actualizarMedicamentos: (meds: Medication[]) => void;
+     actualizarMedicamentos: (meds: Medication[]) => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -36,7 +38,6 @@ export const useNotificationBanner = () => {
      if (!context) {
           throw new Error('useNotificationBanner debe usarse dentro de NotificationProvider');
      }
-
      return context;
 };
 
@@ -48,73 +49,55 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
      // Variables para el banner de notificación
      const [bannerVisible, setBannerVisible] = useState(false);
      const [bannerText, setBannerText] = useState('');
-     const [medications, setMedications] = useState<Medication[]>([]);
+     const [, setMedications] = useState<Medication[]>([]);
      const [notificacionesMostradas, setNotificacionesMostradas] = useState<string[]>([]);
 
      const mostrarBanner = (mensaje: string) => {
           setBannerText(mensaje);
           setBannerVisible(true);
-
-          setTimeout(() => {
-               setBannerVisible(false);
-          }, 5000);
+          setTimeout(() => setBannerVisible(false), 5000);
      };
 
-     const actualizarMedicamentos = (meds: Medication[]) => {
-          setMedications(meds);
-     }
+     const programarAlarmasNativas = async (meds: Medication[]) => {
+          await Notifications.cancelAllScheduledNotificationsAsync();
 
-     useEffect(() => {
-          verificarRecordatorios();
+          for (const med of meds) {
+               for (const horaStr of med.horas ?? []) {
+                    const [horas, minutos] = horaStr.split(':').map(Number);
 
-          const interval = setInterval(() => {
-               verificarRecordatorios();
-          }, 60000);
-
-          return () => clearInterval(interval);
-     }, [medications, notificacionesMostradas]);
-
-     const verificarRecordatorios = () => {
-          const now = new Date();
-
-          const horaActual = `${now.getHours().toString().padStart(2, '0')}:${now
-          .getMinutes()
-          .toString()
-          .padStart(2, '0')}`;
-
-          medications.forEach((med) => {
-               const clave = `${med.id}-${horaActual}`;
-
-               console.log("horaActual:", horaActual);
-               console.log("med.horas:", med.horas);
-
-               if (
-                    med.horas.includes(horaActual) &&
-                    !notificacionesMostradas.includes(clave)
-               ) {
-
-                    if (
-                         Platform.OS === 'web' &&
-                         Notification.permission === 'granted'
-                    ) {
-                         new Notification('Recordatorio de Medicamento', {
-                              body: `Es hora de administrar ${med.nombre}`,
-                         });
+                    if (Number.isNaN(horas) || Number.isNaN(minutos)) {
+                         continue;
                     }
 
-                    mostrarBanner(
-                         `Es hora de administrar ${med.nombre}`
-                    );
-
-                    setNotificacionesMostradas(prev => [...prev, clave]);
+                    await Notifications.scheduleNotificationAsync({
+                         content: {
+                              title: "Recordatorio de Medicamento",
+                              body: `Es hora de administrar ${med.nombre}`,
+                              sound: true,
+                         },
+                         trigger: {
+                              type: Notifications.SchedulableTriggerInputTypes.DAILY,
+                              hour: horas,
+                              minute: minutos,
+                              channelId: 'medicamentos'
+                         },
+                    });
                }
-          });
-     }
+          }
+     };
 
+     // Mandar las alarmas nativas
+     const actualizarMedicamentos = async (meds: Medication[]) => {
+          setMedications(meds);
+          await programarAlarmasNativas(meds);
+     };
+     
+     
      // Obtiene el token (para móvil)
      useEffect(() => {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
-               if (user && Platform.OS !== "web") {
+               if (user) {
+                    await configurarCanalAndroid();
                     await obtenerToken();
                }
           })
@@ -122,12 +105,16 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
           return unsubscribe;
      }, []);
 
-     // Obtener el token desde la API del navegador
-     useEffect(() => {
-          if (Platform.OS === 'web' && 'Notification' in window) {
-               Notification.requestPermission();
+     const configurarCanalAndroid = async () => {
+          if (Platform.OS === 'android') {
+               await Notifications.setNotificationChannelAsync('medicamentos', {
+                    name: 'Recordatorios de Medicamentos',
+                    importance: Notifications.AndroidImportance.MAX,
+                    vibrationPattern:[0, 250, 250, 250],
+                    lightColor: '#004a60'
+               });
           }
-     }, []);
+     }
 
      const obtenerToken = async () => {
           if (!Device.isDevice) {
@@ -135,9 +122,9 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
                return;
           }
 
-          const { status: existingStatus } = 
+          const { status: existingStatus } =
                await Notifications.getPermissionsAsync();
-          
+
           let finalStatus = existingStatus;
 
           if (existingStatus !== "granted") {
@@ -173,31 +160,29 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
 
      // Escuchar notificaciones cuando la app está abierta
      useEffect(() => {
-          const subscription = 
+          const subscription =
                Notifications.addNotificationReceivedListener(notification => {
-                    Alert.alert(
-                         notification.request.content.title ?? "",
-                         notification.request.content.body ?? ""
-                    );
+                    console.log("Notificación recibida en primer plano:", notification.request.content.body)
                });
-          
+
           return () => subscription.remove();
      })
 
      // Detectar cuando el usuario toca la notificación
      useEffect(() => {
-          const subscription = 
+          const subscription =
                Notifications.addNotificationResponseReceivedListener(response => {
-                    console.log("Usuario abrió la notificación");
+                    console.log("El usuario abrió la app tocando la notificación móvil");
+
+                    // router.push(/contactosScreen)
                });
-          
+
           return () => subscription.remove();
      }, []);
 
      return (
           <NotificationContext.Provider value={{ mostrarBanner, actualizarMedicamentos }}>
                {children}
-
                {bannerVisible && (
                     <View style={styles.banner}>
                          <Text style={styles.bannerText}>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput } from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
-import { useRouter } from 'expo-router';
-import FooterNav from './footernav';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiService } from '@/services/apiService';
 
 /*
   Simulación de pasos para actividad física:
@@ -45,6 +46,8 @@ const chartConfig = {
 
 export default function ActividadFisicaScreen() {
   const router = useRouter();
+  const { pacienteId } = useLocalSearchParams();
+  const pacienteIdParam = Array.isArray(pacienteId) ? pacienteId[0] : pacienteId;
   const { pasosConteo, reiniciarPasos } = useTelemetria();
   const [visible, setVisible] = useState(false);
   const [objetivo, setObjetivo] = useState('');
@@ -63,12 +66,26 @@ export default function ActividadFisicaScreen() {
   };
 
   const saveObjetivo = async () => {
+    const objetivoNumerico = objetivoTemporal.trim();
+
+    if (!objetivoNumerico) {
+      Alert.alert('Datos incompletos', 'Ingresa una cantidad de pasos válida para guardar el objetivo.');
+      return;
+    }
+
     try {
-      await AsyncStorage.setItem('@objetivo_pasos', objetivoTemporal);
-      setObjetivo(objetivoTemporal);
+      if (pacienteIdParam) {
+        await apiService.put(`/api/actividad-fisica/${pacienteIdParam}`, {
+          pasos_diarios: Number(objetivoNumerico),
+        });
+      }
+
+      await AsyncStorage.setItem('@objetivo_pasos', objetivoNumerico);
+      setObjetivo(objetivoNumerico);
       hideModal();
     } catch (e) {
-      console.error("Error al guardar el objetivo", e);
+      console.error('Error al guardar el objetivo', e);
+      Alert.alert('Error', 'No se pudo guardar el objetivo. Intenta nuevamente.');
     }
   };
 
@@ -92,18 +109,30 @@ export default function ActividadFisicaScreen() {
   useEffect(() => {
     const cargarObjetivo = async () => {
       try {
+        if (pacienteIdParam) {
+          const response = await apiService.get(`/api/actividad-fisica/${pacienteIdParam}`);
+          const pasos = response?.pasos_diarios;
+
+          if (typeof pasos === 'number' && pasos > 0) {
+            const valor = String(pasos);
+            setObjetivo(valor);
+            await AsyncStorage.setItem('@objetivo_pasos', valor);
+            return;
+          }
+        }
+
         const objetivoGuardado = await AsyncStorage.getItem('@objetivo_pasos');
 
         if (objetivoGuardado !== null) {
           setObjetivo(objetivoGuardado);
         }
       } catch (e) {
-        console.error("Error al cargar el objetivo", e);
+        console.error('Error al cargar el objetivo', e);
       }
     };
 
     cargarObjetivo();
-  }, []);
+  }, [pacienteIdParam]);
 
   return (
     <PaperProvider theme={MD3LightTheme}>

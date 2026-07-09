@@ -9,7 +9,7 @@ import {
 } from 'react-native-paper';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FooterNav from './footernav';
+import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -61,7 +61,7 @@ const App = () => {
           <Appbar.Action icon="menu" onPress={() => {}} />
           <Appbar.Content title="HealthWatch" titleStyle={styles.headerTitle} />
           <TouchableOpacity 
-            onPress={() => router.push('/settings')}
+            onPress={() => router.push('/AjustesScreen')}
             activeOpacity={0.7}
           >
             <Avatar.Icon 
@@ -87,7 +87,7 @@ const App = () => {
           <View style={styles.grid}>
             {/* Tarjeta Signos Vitales */}
             <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push({
-              pathname: '/vital_signs',
+              pathname: '/SignosVitalesScreen',
               params: { pacienteId, nombre }
             })}>
               <Card.Content>
@@ -98,7 +98,7 @@ const App = () => {
             </Card>
 
             {/* Tarjeta Actividad física */}
-            <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/fisica')}>
+            <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/ActividadFisicaScreen')}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
                 <Text variant="labelLarge" style={styles.cardLabel}>Actividad física</Text>
@@ -108,7 +108,7 @@ const App = () => {
 
             {/* Tarjeta Alertas */}
             <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push({
-              pathname: '/alerts',
+              pathname: '/AlertasScreen',
               params: { pacienteId, nombre }
             })}>
               <Card.Content>
@@ -119,7 +119,7 @@ const App = () => {
 
             {/* Tarjeta Contacto */}
             <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push({
-              pathname: '/contact',
+              pathname: '/ContactosScreen',
               params: { pacienteId }
             })}>
               <Card.Content>

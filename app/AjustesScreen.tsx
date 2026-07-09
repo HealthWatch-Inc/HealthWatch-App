@@ -82,7 +82,7 @@ export default function AjustesScreen() {
           mode="contained"
           buttonColor="#E42C2C"
           style={styles.logoutButton}
-          onPress={() => router.push('/')}
+          onPress={() => router.push('/InicioSesionScreen')}
         >
           Cerrar Sesión
         </Button>

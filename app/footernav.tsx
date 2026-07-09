@@ -12,17 +12,17 @@ const FooterNav = ({ activeTab }: FooterNavProps) => {
 
   return (
     <View style={styles.bottomNav}>
-      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/PrincipalScreen')}>
         <Text style={activeTab === 'inicio' ? styles.navTextActive : styles.navText}>Inicio</Text>
         {activeTab === 'inicio' && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/mis_pacientes')}>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/MisPacientesScreen')}>
         <Text style={activeTab === 'pacientes' ? styles.navTextActive : styles.navText}>Pacientes</Text>
         {activeTab === 'pacientes' && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/settings')}>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/AjustesScreen')}>
         <Text style={activeTab === 'datos' ? styles.navTextActive : styles.navText}>Mis Datos</Text>
         {activeTab === 'datos' && <View style={styles.activeIndicator} />}
       </TouchableOpacity>

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
-import FooterNav from './footernav';
+import FooterNav from './Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,7 +16,7 @@ const DATA = [
 interface Medication {
   id: string;
   nombre: string;
-  horas: string;
+  horas: string[];
   frecuencia: string;
 }
 
@@ -29,7 +29,7 @@ interface FallEvent {
 export default function NotificationsScreen() {
   const router = useRouter();
   const { pacienteId } = useLocalSearchParams();
-  const { actualizarMedicamentos } = useNotificationBanner();
+  const { actualizarMedicamentos, mostrarBanner } = useNotificationBanner();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [falls, setFalls] = useState<FallEvent[]>(DATA);
   const [visible, setVisible] = useState(false);
@@ -40,6 +40,7 @@ export default function NotificationsScreen() {
   const [frecuencia, setFrecuencia] = useState("Diario");
   const [menuVisible, setMenuVisible] = useState(false);
   const [medicamentoEditado, setMedicamentoEditado] = useState<Medication | null>(null);
+  const fallIdsMostradosRef = useRef<string[]>([]);
 
   useEffect(() => {
     loadMedications();
@@ -102,15 +103,26 @@ export default function NotificationsScreen() {
           };
         });
 
-      if (nuevasCaidas.length > 0) {
+      const nuevasCaidasNoDuplicadas = nuevasCaidas.filter(
+        (item: any) => !fallIdsMostradosRef.current.includes(item.id)
+      );
+
+      if (nuevasCaidasNoDuplicadas.length > 0) {
+        fallIdsMostradosRef.current = [
+          ...fallIdsMostradosRef.current,
+          ...nuevasCaidasNoDuplicadas.map((item: any) => item.id),
+        ];
+
         setFalls((prevFalls) => {
-          const combined = [...nuevasCaidas, ...prevFalls];
+          const combined = [...nuevasCaidasNoDuplicadas, ...prevFalls];
           const unique = combined.filter(
             (item, index, self) =>
               index === self.findIndex((other) => other.id === item.id)
           );
           return unique;
         });
+
+        mostrarBanner('Se ha detectado una posible caída.');
       }
     } catch (error) {
       console.error('Error cargando caídas detectadas:', error);
@@ -118,17 +130,24 @@ export default function NotificationsScreen() {
   };
 
   const loadMedications = async () => {
-    if (!pacienteId) return;
+    if (!pacienteId) {
+      setMedications([]);
+      await actualizarMedicamentos([]);
+      setLoadingMeds(false);
+      return;
+    }
 
     try {
       setLoadingMeds(true);
       const response = await apiService.get(`/api/medicamentos/${pacienteId}`);
 
-      const meds = response ?? [];
+      const meds = Array.isArray(response) ? response : [];
       setMedications(meds);
-      actualizarMedicamentos(meds);
+      await actualizarMedicamentos(meds);
     } catch (error) {
       console.error("Error cargando los medicamentos:", error);
+      setMedications([]);
+      await actualizarMedicamentos([]);
     } finally {
       setLoadingMeds(false);
     }
@@ -138,8 +157,11 @@ export default function NotificationsScreen() {
 
   const hideModal = () => {
     setVisible(false);
+    setMedicamentoEditado(null);
     setMedName('');
-    // setHour('08:00 am');
+    setFrecuencia('Diario');
+    setTime(new Date());
+    setMenuVisible(false);
   };
 
   const formatHour = (date: Date) => {
@@ -148,20 +170,30 @@ export default function NotificationsScreen() {
     return `${h}:${m}`;
   }
 
-  const createMedication = async () => {
-    if (!pacienteId || !medName.trim()) return;
+  const guardarMedicamento = async () => {
+    if (!pacienteId || !medName.trim()) {
+      Alert.alert('Datos incompletos', 'Ingresa el nombre del medicamento para guardarlo.');
+      return;
+    }
+
     const medicamento = {
-      nombre: medName,
+      nombre: medName.trim(),
       horas: [formatHour(time)],
-      frecuencia: frecuencia,
+      frecuencia,
     };
 
     try {
-      await apiService.post(`/api/medicamentos/${pacienteId}`, medicamento);
+      if (medicamentoEditado) {
+        await apiService.put(`/api/medicamentos/${pacienteId}/${medicamentoEditado.id}`, medicamento);
+      } else {
+        await apiService.post(`/api/medicamentos/${pacienteId}`, medicamento);
+      }
+
       await loadMedications();
       hideModal();
     } catch (error) {
       console.error("Error al guardar el medicamento:", error);
+      Alert.alert('Error', 'No se pudo guardar el medicamento. Intenta nuevamente.');
     }
   };
 
@@ -169,23 +201,22 @@ export default function NotificationsScreen() {
     setMedicamentoEditado(medication);
     setMedName(medication.nombre);
 
-    if (medication.horas.length > 0) {
-        const [hour, minute] = medication.horas[0].split(":").map(Number);
-
-        const date = new Date();
-        date.setHours(hour, minute, 0, 0);
-
-        setTime(date);
+    if (medication.horas?.length > 0) {
+      const [hour, minute] = medication.horas[0].split(":").map(Number);
+      const date = new Date();
+      date.setHours(hour, minute, 0, 0);
+      setTime(date);
+    } else {
+      setTime(new Date());
     }
-    setFrecuencia(medication.frecuencia);
+
+    setFrecuencia(medication.frecuencia || 'Diario');
     setVisible(true);
   };
 
   const updateMedication = async () => {
-    if (!medicamentoEditado) return;
-
-    // Se edita el medicamento
-  }
+    await guardarMedicamento();
+  };
 
   // Función para eliminar un medicamento con confirmación previa
   const deleteMedication = (id: string, name: string) => {
@@ -211,9 +242,10 @@ export default function NotificationsScreen() {
 
     try {
       await apiService.delete(`/api/medicamentos/${pacienteId}/${id}`);
-      setMedications((prevMeds) => prevMeds.filter((med) => med.id !== id));
+      await loadMedications();
     } catch (error) {
       console.error("Error al eliminar el medicamento:", error);
+      Alert.alert('Error', 'No se pudo eliminar el medicamento. Intenta nuevamente.');
     }
   };
 
@@ -377,8 +409,8 @@ export default function NotificationsScreen() {
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   Cancelar
                 </Button>
-                <Button mode='contained' onPress={createMedication} style={styles.saveButton}>
-                  Guardar
+                <Button mode='contained' onPress={guardarMedicamento} style={styles.saveButton}>
+                  {medicamentoEditado ? 'Guardar' : 'Agregar'}
                 </Button>
               </View>
             </ScrollView>

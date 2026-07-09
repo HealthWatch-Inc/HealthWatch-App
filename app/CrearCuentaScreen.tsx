@@ -32,7 +32,7 @@ export default function RegisterScreen() {
     try {
       await authService.register(email, password);
       Alert.alert('¡Éxito!', 'Cuenta creada correctamente', [
-        { text: 'OK', onPress: () => router.replace('/') }
+        { text: 'OK', onPress: () => router.replace('/InicioSesionScreen') }
       ]);
     } catch (error: any) {
       Alert.alert('Error', error.message);
@@ -106,7 +106,7 @@ export default function RegisterScreen() {
 
             <TouchableOpacity 
               style={globalStyles.linkContainer} 
-              onPress={() => router.push('/')}
+              onPress={() => router.push('/InicioSesionScreen')}
             >
               <Text style={globalStyles.linkText}>
                 ¿Ya tiene una cuenta? <Text style={globalStyles.linkTextBold}>Iniciar sesión.</Text>

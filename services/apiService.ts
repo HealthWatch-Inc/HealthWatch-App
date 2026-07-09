@@ -11,30 +11,19 @@ export const apiService = {
 
     const token = await auth.currentUser.getIdToken(true);
 
-    const controller = new AbortController();
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    const timeout = setTimeout(() => {
-      controller.abort();
-    }, 20000);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-      return await response.json();
-    } finally {
-      clearTimeout(timeout);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
     }
+
+    return await response.json();
   },
 
   // POST

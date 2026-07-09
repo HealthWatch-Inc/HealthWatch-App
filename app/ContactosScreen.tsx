@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, FlatList, Alert, Linking, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, Button, Divider, FAB, PaperProvider, Portal, Modal, TextInput, MD3LightTheme, ActivityIndicator } from 'react-native-paper';
-import FooterNav from './footernav';
+import FooterNav from './Footernav';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 
@@ -59,43 +59,35 @@ export default function EmergencyContactsScreen() {
 
      // Para la lista de contactos
      const loadContactos = async () => {
-          console.log("1. Entró a loadContactos");
-
           if (!pacienteId) {
-               console.log("2. No hay pacienteId");
-               setContactos(CONTACTS);
+               setContactos([]);
                setLoadingCont(false);
                return;
           }
 
           try {
-               console.log("3. Antes del GET");
-
+               setLoadingCont(true);
                const response = await apiService.get(`/api/contactos/${pacienteId}`);
-
-               console.log("4. Después del GET", response);
-
-               if (response && response.length > 0) {
-                    setContactos(response);
-               } else {
-                    setContactos(CONTACTS);
-               }
+               const contactosApi = Array.isArray(response) ? response : [];
+               setContactos(contactosApi);
           } catch (error) {
-               console.log("5. Entró al catch", error);
-               setContactos(CONTACTS);
+               console.error("Error al cargar los contactos:", error);
+               setContactos([]);
           } finally {
-               console.log("6. Entró al finally");
                setLoadingCont(false);
           }
      };
 
      const createContacto = async () => {
-          if (!pacienteId || !nombreContacto.trim()) return;
+          if (!pacienteId || !nombreContacto.trim() || !telefonoContacto.trim() || !relacionContacto.trim()) {
+               Alert.alert('Datos incompletos', 'Completa nombre, teléfono y relación para guardar el contacto.');
+               return;
+          }
 
           const contacto = {
-               name: nombreContacto,
+               name: nombreContacto.trim(),
                phone: telefonoContacto,
-               relation: relacionContacto
+               relation: relacionContacto.trim()
           }
 
           try {
@@ -104,6 +96,7 @@ export default function EmergencyContactsScreen() {
                hideModal();
           } catch (error) {
                console.error("Error al guardar el contacto:", error);
+               Alert.alert('Error', 'No se pudo guardar el contacto. Intenta nuevamente.');
           }
      }
 
@@ -116,16 +109,34 @@ export default function EmergencyContactsScreen() {
      }
 
      const updateContacto = async () => {
-          if (!contactoEditado) return;
+          if (!contactoEditado || !pacienteId) return;
 
-          // Se edita el contacto
+          if (!nombreContacto.trim() || !telefonoContacto.trim() || !relacionContacto.trim()) {
+               Alert.alert('Datos incompletos', 'Completa nombre, teléfono y relación para actualizar el contacto.');
+               return;
+          }
+
+          const contactoActualizado = {
+               name: nombreContacto.trim(),
+               phone: telefonoContacto,
+               relation: relacionContacto.trim()
+          };
+
+          try {
+               await apiService.put(`/api/contactos/${pacienteId}/${contactoEditado.id}`, contactoActualizado);
+               await loadContactos();
+               hideModal();
+          } catch (error) {
+               console.error("Error al actualizar el contacto:", error);
+               Alert.alert('Error', 'No se pudo actualizar el contacto. Intenta nuevamente.');
+          }
      }
 
      const deleteContacto = (id: string, name: string) => {
           const mensaje = `¿Estás seguro de que deseas eliminar el contacto "${name}"?`
 
           Alert.alert(
-               "Eliminar medicamento",
+               "Eliminar contacto",
                mensaje,
                [
                     { text: "Cancelar", style: "cancel" },
@@ -142,9 +153,10 @@ export default function EmergencyContactsScreen() {
           if (!pacienteId) return;
           try {
                await apiService.delete(`/api/contactos/${pacienteId}/${id}`);
-               setContactos((prevConts) => prevConts.filter((cont) => cont.id !== id));
+               await loadContactos();
           } catch (error) {
-               console.log("Error al eliminar el contacto:", error);
+               console.error("Error al eliminar el contacto:", error);
+               Alert.alert('Error', 'No se pudo eliminar el contacto. Intenta nuevamente.');
           }
      };
 

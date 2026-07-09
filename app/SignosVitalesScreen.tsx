@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import FooterNav from './footernav';
+import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 
 const theme = {

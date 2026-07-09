@@ -44,7 +44,7 @@ export default function PacientesScreen() {
       <TouchableOpacity
         onPress={() => {
           setTimeout(() => {
-            router.push('/settings');
+            router.push('/AjustesScreen');
           }, 1);
         }}
         activeOpacity={0.7}
@@ -95,7 +95,7 @@ export default function PacientesScreen() {
                 <TouchableRipple
                   onPress={() => 
                     router.push({
-                      pathname: '/home',
+                      pathname: '/PrincipalScreen',
                       params: { 
                         pacienteId: paciente.id,
                         nombre: paciente.nombre_completo || 'Paciente desconocido' 
