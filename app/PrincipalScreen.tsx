@@ -12,14 +12,17 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePaciente } from '@/context/PacienteContext';
+import { t } from '../utils/i18n';
 
 const App = () => {
   const router = useRouter();
   const { pacienteId, nombre } = useLocalSearchParams();
-  const { telemetriaActual, setPacienteId } = useTelemetria();
+  const { telemetriaActual} = useTelemetria();
+  const { setPacienteId } = usePaciente();
 
   // Estado para objetivo y pasos en la pantalla Home
-  const [objetivoHome, setObjetivoHome] = useState('Por definir');
+  const [objetivoHome, setObjetivoHome] = useState('');
   const [pasosHome, setPasosHome] = useState(0);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ const App = () => {
           if (objGuardado !== null && objGuardado !== '') {
             setObjetivoHome(objGuardado);
           } else {
-            setObjetivoHome('Por definir');
+            setObjetivoHome('');
           }
 
           if (pasosGuardados !== null) {
@@ -59,9 +62,9 @@ const App = () => {
         {/* Header / Appbar */}
         <Appbar.Header style={styles.header}>
           <Appbar.Action icon="menu" onPress={() => {}} />
-          <Appbar.Content title="HealthWatch" titleStyle={styles.headerTitle} />
+          <Appbar.Content title={t('patients.app_name')} titleStyle={styles.headerTitle} />
           <TouchableOpacity 
-            onPress={() => router.push('/AjustesScreen')}
+            onPress={() => router.push({ pathname: '/AjustesScreen' })}
             activeOpacity={0.7}
           >
             <Avatar.Icon 
@@ -76,12 +79,12 @@ const App = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Bienvenida */}
           <Text variant="headlineMedium" style={styles.welcomeText}>
-            Paciente: {nombre || 'Paciente'}
+            {t('home.patient_label')}: {nombre || t('patients.unknown_patient')}
           </Text>
 
           {/* Sección: Panel del usuario */}
           <Text variant="titleMedium" style={styles.sectionTitle}>
-            Panel del usuario
+            {t('home.user_panel')}
           </Text>
           
           <View style={styles.grid}>
@@ -92,7 +95,7 @@ const App = () => {
             })}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>Signos vitales</Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.vital_signs')}</Text>
                 <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate.toFixed(2) ?? '--'}</Text>
               </Card.Content>
             </Card>
@@ -101,8 +104,8 @@ const App = () => {
             <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/ActividadFisicaScreen')}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>Actividad física</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>Meta: {objetivoHome} </Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.physical_activity')}</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{t('fitness.goal')}: {objetivoHome || t('fitness.not_defined')} </Text>
               </Card.Content>
             </Card>
 
@@ -113,7 +116,7 @@ const App = () => {
             })}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>Alertas y Notificaciones</Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.alerts_notifications')}</Text>
               </Card.Content>
             </Card>
 
@@ -124,21 +127,21 @@ const App = () => {
             })}>
               <Card.Content>
                 <MaterialCommunityIcons name="bell-ring-outline" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>Contacto de emergencia</Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.emergency_contact')}</Text>
               </Card.Content>
             </Card>
           </View>
 
           {/* Sección: Datos del dispositivo */}
           <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 24 }]}>
-            Datos del dispositivo
+            {t('home.device_data')}
           </Text>
           
           <Card style={[styles.wideCard, { backgroundColor: '#3d7a3d' }]}>
             <Card.Content style={styles.wideCardContent}>
               <MaterialCommunityIcons name="battery-70" size={24} color="white" />
               <View style={{ marginLeft: 12 }}>
-                <Text variant="labelLarge" style={styles.cardLabel}>Batería del reloj</Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.watch_battery')}</Text>
                 <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.battery || 0}%</Text>
               </View>
             </Card.Content>

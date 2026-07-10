@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, FlatList, ScrollView, Alert, Platform } from 'react-native';
+import React, { useState, useEffect} from 'react';
+import { StyleSheet, View, FlatList, ScrollView, Alert} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
 import FooterNav from './Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { usePaciente } from '@/context/PacienteContext';
+import { t } from '../utils/i18n';
 
 const DATA = [
   { id: '1', time: '3:20 p. m.', date: '12/4/2026' },
@@ -29,7 +31,8 @@ interface FallEvent {
 export default function NotificationsScreen() {
   const router = useRouter();
   const { pacienteId } = useLocalSearchParams();
-  const { actualizarMedicamentos, mostrarBanner } = useNotificationBanner();
+  const { actualizarMedicamentos } = useNotificationBanner();
+  const { setPacienteId } = usePaciente();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [falls, setFalls] = useState<FallEvent[]>(DATA);
   const [visible, setVisible] = useState(false);
@@ -40,92 +43,50 @@ export default function NotificationsScreen() {
   const [frecuencia, setFrecuencia] = useState("Diario");
   const [menuVisible, setMenuVisible] = useState(false);
   const [medicamentoEditado, setMedicamentoEditado] = useState<Medication | null>(null);
-  const fallIdsMostradosRef = useRef<string[]>([]);
 
   useEffect(() => {
+    console.log("LOAD EFFECT")
+    
+    if (!pacienteId) return;
+
+    setPacienteId(String(pacienteId));
     loadMedications();
-    cargarCaidasDetectadas();
 
-    const interval = setInterval(() => {
-      cargarCaidasDetectadas();
-    }, 5000);
+  }, [pacienteId, setPacienteId]);
 
-    return () => clearInterval(interval);
-  }, [pacienteId]);
-
-  const onChangeTime = (_: any, selectedTime?: Date) => {
-    setShowPicker(false);
+  /*
+  const onChangeTime = (event: any, selectedTime?: Date) => {
+    
+    console.log("PICKER", selectedTime);
+    
+    if (event?.type === 'dismissed') {
+      setShowPicker(false);
+      return;
+    }
 
     if (selectedTime) {
       setTime(selectedTime);
+      setShowPicker(false);
     }
   };
+  */
 
-  const cargarCaidasDetectadas = async () => {
-    if (!pacienteId) return;
+  const onChangeTime = (event: any, selectedTime?: Date) => {
+    console.log("onChangeTime");
+    console.log("event:", event.type);
 
-    try {
-      const response = await apiService.get(
-        `/api/pacientes/${pacienteId}/telemetria?limite=50`
-      );
-      const telemetrias = response.telemetria ?? [];
+    if (selectedTime) {
+      console.log("Nueva hora:", selectedTime.toLocaleTimeString());
+    }
 
-      const nuevasCaidas = telemetrias
-        .filter((item: any) => {
-          const ax = Number(item.ax ?? 0);
-          const ay = Number(item.ay ?? 0);
-          const az = Number(item.az ?? 0);
+    if (event?.type === "dismissed") {
+      setShowPicker(false);
+      return;
+    }
 
-          return (
-            Math.abs(ax) >= 20 ||
-            Math.abs(ay) >= 20 ||
-            Math.abs(az) <= 6
-          );
-        })
-        .map((item: any) => {
-          const rawTime = String(item.time ?? '');
-          const timestamp = new Date(rawTime.replace(' ', 'T'));
-          const time = isNaN(timestamp.getTime())
-            ? rawTime
-            : timestamp.toLocaleTimeString('es-ES', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            });
-          const date = isNaN(timestamp.getTime())
-            ? rawTime
-            : timestamp.toLocaleDateString('es-ES');
-
-          return {
-            id: rawTime || `${item.ax}-${item.ay}-${item.az}`,
-            time,
-            date,
-          };
-        });
-
-      const nuevasCaidasNoDuplicadas = nuevasCaidas.filter(
-        (item: any) => !fallIdsMostradosRef.current.includes(item.id)
-      );
-
-      if (nuevasCaidasNoDuplicadas.length > 0) {
-        fallIdsMostradosRef.current = [
-          ...fallIdsMostradosRef.current,
-          ...nuevasCaidasNoDuplicadas.map((item: any) => item.id),
-        ];
-
-        setFalls((prevFalls) => {
-          const combined = [...nuevasCaidasNoDuplicadas, ...prevFalls];
-          const unique = combined.filter(
-            (item, index, self) =>
-              index === self.findIndex((other) => other.id === item.id)
-          );
-          return unique;
-        });
-
-        mostrarBanner('Se ha detectado una posible caída.');
-      }
-    } catch (error) {
-      console.error('Error cargando caídas detectadas:', error);
+    if (selectedTime) {
+      cambiarHora(selectedTime, "DateTimePicker");
+      setShowPicker(false);
     }
   };
 
@@ -153,14 +114,27 @@ export default function NotificationsScreen() {
     }
   };
 
-  const showModal = () => setVisible(true);
+  const cambiarHora = (date: Date, origen: string) => {
+    console.log("setTime desde", origen, formatHour(date));
+    setTime(date);
+  };
+
+  const showModal = () => {
+    setShowPicker(false);
+    setVisible(true);
+  };
+
+  const abrirSelectorHora = () => {
+    setShowPicker(true);
+  };
 
   const hideModal = () => {
     setVisible(false);
+    setShowPicker(false);
     setMedicamentoEditado(null);
     setMedName('');
-    setFrecuencia('Diario');
-    setTime(new Date());
+    setFrecuencia('daily');
+    cambiarHora(new Date(), "hideModal");
     setMenuVisible(false);
   };
 
@@ -172,7 +146,7 @@ export default function NotificationsScreen() {
 
   const guardarMedicamento = async () => {
     if (!pacienteId || !medName.trim()) {
-      Alert.alert('Datos incompletos', 'Ingresa el nombre del medicamento para guardarlo.');
+      Alert.alert(t('common.error'), t('alerts.incomplete_data'));
       return;
     }
 
@@ -193,11 +167,13 @@ export default function NotificationsScreen() {
       hideModal();
     } catch (error) {
       console.error("Error al guardar el medicamento:", error);
-      Alert.alert('Error', 'No se pudo guardar el medicamento. Intenta nuevamente.');
+      Alert.alert(t('common.error'), t('alerts.error_save'));
     }
   };
 
   const editMedication = (medication: Medication) => {
+    console.log("EDIT", medication.horas[0]);
+    
     setMedicamentoEditado(medication);
     setMedName(medication.nombre);
 
@@ -210,7 +186,15 @@ export default function NotificationsScreen() {
       setTime(new Date());
     }
 
-    setFrecuencia(medication.frecuencia || 'Diario');
+    const frequencyMap: Record<string, string> = {
+      Diario: 'daily',
+      Semanal: 'weekly',
+      Mensual: 'monthly',
+      daily: 'daily',
+      weekly: 'weekly',
+      monthly: 'monthly',
+    };
+    setFrecuencia(frequencyMap[medication.frecuencia] ?? 'daily');
     setVisible(true);
   };
 
@@ -220,15 +204,15 @@ export default function NotificationsScreen() {
 
   // Función para eliminar un medicamento con confirmación previa
   const deleteMedication = (id: string, name: string) => {
-    const mensaje = `¿Estás seguro de que deseas eliminar los recordatorios para "${name}"?`;
+    const mensaje = t('alerts.delete_medication_message', { name });
 
     Alert.alert(
-      "Eliminar medicamento",
+      t('alerts.delete_medication_title'),
       mensaje,
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: t('common.cancel'), style: "cancel" },
         {
-          text: "Eliminar",
+          text: t('common.delete'),
           style: "destructive",
           onPress: () => ejecutarEliminacion(id)
         }
@@ -245,17 +229,17 @@ export default function NotificationsScreen() {
       await loadMedications();
     } catch (error) {
       console.error("Error al eliminar el medicamento:", error);
-      Alert.alert('Error', 'No se pudo eliminar el medicamento. Intenta nuevamente.');
+      Alert.alert(t('common.error'), t('alerts.error_delete'));
     }
   };
 
   // Componente que contiene todo lo que va ARRIBA de las caídas
   const RenderHeader = () => (
     <View>
-      <Text variant="headlineSmall" style={styles.title}>Alertas y Notificaciones</Text>
+      <Text variant="headlineSmall" style={styles.title}>{t('alerts.title')}</Text>
 
       {/* Recordatorio de Medicamento */}
-      <Text variant="titleMedium" style={styles.sectionTitle}>Recordatorio de Medicamentos</Text>
+      <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.medication_reminder')}</Text>
 
       <View style={styles.medsContainer}>
         {loadingMeds ? (
@@ -266,7 +250,7 @@ export default function NotificationsScreen() {
         ) : medications.length === 0 ? (
           // Si no hay medicamentos
           <View>
-            <Text variant='bodyMedium'>No hay medicamentos programados</Text>
+            <Text variant='bodyMedium'>{t('alerts.no_medications')}</Text>
           </View>
         ) : (
           medications.map((item) => (
@@ -300,7 +284,7 @@ export default function NotificationsScreen() {
       </View>
 
       {/* Título de la sección inferior */}
-      <Text variant="titleMedium" style={styles.sectionTitle}>Caídas detectadas</Text>
+      <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.falls_detected')}</Text>
     </View>
   );
 
@@ -308,7 +292,7 @@ export default function NotificationsScreen() {
     <PaperProvider theme={MD3LightTheme}>
       <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Atrás" />
+        <Appbar.Content title={t('common.back')} />
       </Appbar.Header>
 
       <View style={styles.container}>
@@ -326,7 +310,7 @@ export default function NotificationsScreen() {
           )}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Text variant="bodyMedium">Aún no se han detectado caídas.</Text>
+              <Text variant="bodyMedium">{t('alerts.no_falls')}</Text>
             </View>
           )}
         />
@@ -339,16 +323,16 @@ export default function NotificationsScreen() {
             onDismiss={hideModal}
             contentContainerStyle={styles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>{medicamentoEditado ? "Editar medicamento":"Agregar medicamento"}</Text>
+              <Text style={styles.modalTitle}>{medicamentoEditado ? t('alerts.edit_medication') : t('alerts.add_medication')}</Text>
 
-              <Text style={styles.inputLabel}>Nombre del Medicamento</Text>
-              <TextInput placeholder='Ej. Paracetamol' value={medName} onChangeText={setMedName} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' />
+              <Text style={styles.inputLabel}>{t('alerts.medication_name')}</Text>
+              <TextInput placeholder={t('alerts.example_medication')} value={medName} onChangeText={setMedName} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' />
 
-              <Text style={styles.inputLabel}>Horario de Recordatorio</Text>
+              <Text style={styles.inputLabel}>{t('alerts.reminder_time')}</Text>
 
               <Button
                 mode="outlined"
-                onPress={() => setShowPicker(true)}
+                onPress={abrirSelectorHora}
               >
                 {time.toLocaleTimeString([], {
                   hour: '2-digit',
@@ -366,7 +350,7 @@ export default function NotificationsScreen() {
                 />
               )}
 
-              <Text style={styles.inputLabel}>Frecuencia de medicamento</Text>
+              <Text style={styles.inputLabel}>{t('alerts.frequency')}</Text>
 
               <Menu
               visible={menuVisible}
@@ -376,41 +360,40 @@ export default function NotificationsScreen() {
                 mode='outlined'
                 onPress={()=> setMenuVisible(true)}
                 contentStyle={{justifyContent: "space-between"}}>
-                  {frecuencia}
+                  {t(`alerts.${frecuencia}`)}
                 </Button>
               }>
                 <Menu.Item
-                onPress={() => {
-                    setFrecuencia("Diario");
+                  onPress={() => {
+                    setFrecuencia('daily');
                     setMenuVisible(false);
-                }}
-                title="Diario" />
-
-                <Menu.Item
-                onPress={() => {
-                      setFrecuencia("Semanal");
-                      setMenuVisible(false);
-                }}
-                
-                title="Semanal"
+                  }}
+                  title={t('alerts.daily')}
                 />
 
                 <Menu.Item
-                onPress={() => {
-                      setFrecuencia("Mensual");
-                      setMenuVisible(false);
-                }}
-                
-                title="Mensual"
+                  onPress={() => {
+                    setFrecuencia('weekly');
+                    setMenuVisible(false);
+                  }}
+                  title={t('alerts.weekly')}
+                />
+
+                <Menu.Item
+                  onPress={() => {
+                    setFrecuencia('monthly');
+                    setMenuVisible(false);
+                  }}
+                  title={t('alerts.monthly')}
                 />
               </Menu>
 
               <View style={styles.modalActions}>
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button mode='contained' onPress={guardarMedicamento} style={styles.saveButton}>
-                  {medicamentoEditado ? 'Guardar' : 'Agregar'}
+                  {medicamentoEditado ? t('common.save') : t('common.add')}
                 </Button>
               </View>
             </ScrollView>

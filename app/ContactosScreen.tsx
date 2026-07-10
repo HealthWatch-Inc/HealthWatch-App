@@ -5,6 +5,8 @@ import { Appbar, Text, Button, Divider, FAB, PaperProvider, Portal, Modal, TextI
 import FooterNav from './Footernav';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
+import { t } from '../utils/i18n';
+
 
 interface Contacto {
      id: string;
@@ -80,7 +82,7 @@ export default function EmergencyContactsScreen() {
 
      const createContacto = async () => {
           if (!pacienteId || !nombreContacto.trim() || !telefonoContacto.trim() || !relacionContacto.trim()) {
-               Alert.alert('Datos incompletos', 'Completa nombre, teléfono y relación para guardar el contacto.');
+               Alert.alert(t('common.error'), t('contacts.incomplete_data'));
                return;
           }
 
@@ -96,7 +98,7 @@ export default function EmergencyContactsScreen() {
                hideModal();
           } catch (error) {
                console.error("Error al guardar el contacto:", error);
-               Alert.alert('Error', 'No se pudo guardar el contacto. Intenta nuevamente.');
+               Alert.alert(t('common.error'), t('contacts.error_save'));
           }
      }
 
@@ -112,7 +114,7 @@ export default function EmergencyContactsScreen() {
           if (!contactoEditado || !pacienteId) return;
 
           if (!nombreContacto.trim() || !telefonoContacto.trim() || !relacionContacto.trim()) {
-               Alert.alert('Datos incompletos', 'Completa nombre, teléfono y relación para actualizar el contacto.');
+               Alert.alert(t('common.error'), t('contacts.incomplete_data'));
                return;
           }
 
@@ -128,21 +130,20 @@ export default function EmergencyContactsScreen() {
                hideModal();
           } catch (error) {
                console.error("Error al actualizar el contacto:", error);
-               Alert.alert('Error', 'No se pudo actualizar el contacto. Intenta nuevamente.');
+               Alert.alert(t('common.error'), t('contacts.error_update'));
           }
      }
 
      const deleteContacto = (id: string, name: string) => {
-          const mensaje = `¿Estás seguro de que deseas eliminar el contacto "${name}"?`
+          const mensaje = t('contacts.delete_contact_message', { name })
 
           Alert.alert(
-               "Eliminar contacto",
+               t('contacts.delete_contact_title'),
                mensaje,
                [
-                    { text: "Cancelar", style: "cancel" },
+                    { text: t('common.cancel'), style: "cancel" },
                     {
-                         text: "Eliminar",
-                         style: "destructive",
+                         text: t('common.delete'),
                          onPress: () => ejecutarEliminacion(id)
                     }
                ]
@@ -156,7 +157,7 @@ export default function EmergencyContactsScreen() {
                await loadContactos();
           } catch (error) {
                console.error("Error al eliminar el contacto:", error);
-               Alert.alert('Error', 'No se pudo eliminar el contacto. Intenta nuevamente.');
+               Alert.alert(t('common.error'), t('contacts.error_save'));
           }
      };
 
@@ -169,11 +170,11 @@ export default function EmergencyContactsScreen() {
                {/* Header */}
                <Appbar.Header style={styles.header}>
                     <Appbar.BackAction onPress={() => router.back()} />
-                    <Appbar.Content title="Atrás" />
+                    <Appbar.Content title={t('common.back')} />
                </Appbar.Header>
 
                <View style={styles.container}>
-                    <Text variant="headlineSmall" style={styles.title}>Contactos de emergencia</Text>
+                    <Text variant="headlineSmall" style={styles.title}>{t('contacts.title')}</Text>
 
                     {loadingCont ? (
                          <View>
@@ -181,7 +182,7 @@ export default function EmergencyContactsScreen() {
                          </View>
                     ) : contactos.length === 0 ? (
                          <View>
-                              <Text variant='bodyMedium'>No hay contactos</Text>
+                              <Text variant='bodyMedium'>{t('contacts.no_contacts')}</Text>
                          </View>
                     ) : (
                          <FlatList
@@ -204,19 +205,19 @@ export default function EmergencyContactsScreen() {
                                                   buttonColor="#B3261E"
                                                   style={styles.callButton}
                                              >
-                                                  Llamar
+                                                  {t('contacts.call')}
                                              </Button>
 
                                              <Button
                                                   mode='outlined'
                                                   onPress={() => editContacto(item)}>
-                                                  Editar
+                                                  {t('contacts.edit')}
                                              </Button>
 
                                              <Button
                                                   mode='outlined'
                                                   onPress={() => deleteContacto(item.id, item.name)}>
-                                                  Eliminar
+                                                  {t('contacts.delete')}
                                              </Button>
                                         </View>
                                         <Divider style={styles.divider} />
@@ -230,26 +231,26 @@ export default function EmergencyContactsScreen() {
                     <Portal>
                          <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalContainer}>
                               <ScrollView showsVerticalScrollIndicator={false}>
-                                   <Text style={styles.modalTitle}>{contactoEditado ? "Editar contacto" : "Agregar contacto"}</Text>
+                                   <Text style={styles.modalTitle}>{contactoEditado ? t('contacts.edit_contact') : t('contacts.add_contact')}</Text>
 
-                                   <Text style={styles.inputLabel}>Nombre</Text>
-                                   <TextInput keyboardType='default' placeholder='Ej. Juan Perez' mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={nombreContacto} onChangeText={setNombreContacto} />
+                                   <Text style={styles.inputLabel}>{t('contacts.name')}</Text>
+                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_name')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={nombreContacto} onChangeText={setNombreContacto} />
 
 
-                                   <Text style={styles.inputLabel}>Teléfono celular</Text>
-                                   <TextInput keyboardType='numeric' placeholder='Ej. 912080867' mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={telefonoContacto} onChangeText={handleNumberChange} />
+                                   <Text style={styles.inputLabel}>{t('contacts.phone')}</Text>
+                                   <TextInput keyboardType='numeric' placeholder={t('contacts.placeholder_phone')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={telefonoContacto} onChangeText={handleNumberChange} />
 
-                                   <Text style={styles.inputLabel}>Relación con el paciente</Text>
-                                   <TextInput keyboardType='default' placeholder='Ej. Hijo' mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={relacionContacto} onChangeText={setRelacionContacto} />
+                                   <Text style={styles.inputLabel}>{t('contacts.relation')}</Text>
+                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_relation')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={relacionContacto} onChangeText={setRelacionContacto} />
 
                                    <View style={styles.modalActions}>
                                         <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
-                                             Cancelar
+                                             {t('common.cancel')}
                                         </Button>
                                         <Button
                                              mode='contained'
                                              onPress={contactoEditado ? updateContacto : createContacto} style={styles.saveButton}>
-                                             {contactoEditado ? "Guardar" : "Agregar"}
+                                             {contactoEditado ? t('common.save') : t('common.add')}
                                         </Button>
                                    </View>
                               </ScrollView>

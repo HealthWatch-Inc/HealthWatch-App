@@ -44,7 +44,7 @@ export default function PacientesScreen() {
       <TouchableOpacity
         onPress={() => {
           setTimeout(() => {
-            router.push('/AjustesScreen');
+            router.push({ pathname: '/AjustesScreen' });
           }, 1);
         }}
         activeOpacity={0.7}

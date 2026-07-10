@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { apiService } from '@/services/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePaciente } from './PacienteContext';
 
 export interface Telemetria {
   time: string;
@@ -20,16 +21,33 @@ interface TelemetriaContextValue {
   telemetriaActual: Telemetria | null;
   pasosConteo: number;
   reiniciarPasos: () => Promise<void>;
+  refreshTelemetria: () => Promise<void>;
   pacienteId?: string;
-  setPacienteId: (id: string | undefined) => void;
 }
 
 const TelemetriaContext = createContext<TelemetriaContextValue | undefined>(undefined);
 
 export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
-  const [pacienteId, setPacienteId] = useState<string | undefined>(undefined);
+  const { pacienteId } = usePaciente();
   const [telemetrias, setTelemetrias] = useState<Telemetria[]>([]);
   const [pasosConteo, setPasosConteo] = useState(0);
+
+  const cargarTelemetria = async () => {
+    if (!pacienteId) {
+      setTelemetrias([]);
+      return;
+    }
+
+    try {
+      const response = await apiService.get(
+        `/api/pacientes/${pacienteId}/telemetria`
+      );
+
+      setTelemetrias(response.telemetria ?? []);
+    } catch (error) {
+      console.log('Error cargando telemetría en TelemetriaProvider', error);
+    }
+  };
 
   useEffect(() => {
     if (!pacienteId) {
@@ -38,20 +56,6 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
     }
 
     let interval: ReturnType<typeof setInterval>;
-
-    const cargarTelemetria = async () => {
-      try {
-        const response = await apiService.get(
-          `/api/pacientes/${pacienteId}/telemetria`
-        );
-
-        // console.log(response.telemetria);
-
-        setTelemetrias(response.telemetria ?? []);
-      } catch (error) {
-        console.log('Error cargando telemetría en TelemetriaProvider', error);
-      }
-    };
 
     cargarTelemetria();
     interval = setInterval(cargarTelemetria, 1000);
@@ -108,9 +112,10 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
   };
 
   //Constante para el Filtro de Aceleración y Giroscopio
-  const UMBRAL_SUBIDA = 1.2;
-  const UMBRAL_BAJADA = 0.6;
-  const TIEMPO_MINIMO = 300;
+  // Ajustados para mayor sensibilidad (detectar más pasos)
+  const UMBRAL_SUBIDA = 0.30;
+  const UMBRAL_BAJADA = 0.15;
+  const TIEMPO_MINIMO = 250;
   const GRAVEDAD = 9.81;
 
   // Estado del filtro
@@ -127,6 +132,8 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
 
     const { ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0 } = telemetriaActual;
 
+    console.log('Telemetria recibida:', { ax, ay, az, gx, gy, gz });
+
     // Magnitud de aceleración y giro
     const aceleracion = Math.sqrt(ax * ax + ay * ay + az * az);
 
@@ -138,15 +145,9 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
 
     // Filtrado
     const acelFiltrada = filtroExponencial(movimiento, acelAnterior, 0.3);
-
-    // Calibración
-    // console.log({
-    //   acel: aceleracion.toFixed(2),
-    //   movimiento: acelFiltrada.toFixed(2),
-    //   pasos: pasosConteo
-    // })
-
     const ahora = Date.now();
+
+    console.log(`acelFiltrada=${acelFiltrada.toFixed(3)} giro=${giro.toFixed(3)} umbral_subida=${UMBRAL_SUBIDA} umbral_bajada=${UMBRAL_BAJADA} pasos_actual=${pasosConteo}`);
 
     // Detectar inicio del pico
     if (!arribaUmbral.current && acelFiltrada > UMBRAL_SUBIDA) {
@@ -154,20 +155,19 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
 
       if (ahora - ultimoPaso.current > TIEMPO_MINIMO) {
         ultimoPaso.current = ahora;
-        console.log("Paso detectado")
-        setPasosConteo((prev) => prev + 1);
+        setPasosConteo((prev) => {
+          const next = prev + 1;
+          console.log('Paso detectado ->', { tiempo: new Date(ahora).toISOString(), previo: prev, siguiente: next });
+          return next;
+        });
       }
     }
 
     // Reiniciar al bajar el pico
     if (acelFiltrada < UMBRAL_BAJADA) {
       arribaUmbral.current = false;
+      console.log('Acabó pico (bajo umbral):', acelFiltrada.toFixed(3));
     }
-
-    // console.log({
-    //   acelFiltrada,
-    //   arriba: arribaUmbral.current
-    // });
 
   }, [telemetriaActual]);
 
@@ -178,8 +178,7 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
         telemetriaActual,
         pasosConteo,
         reiniciarPasos,
-        pacienteId,
-        setPacienteId
+        refreshTelemetria: cargarTelemetria,
       }}
     >
       {children}

@@ -5,6 +5,8 @@ import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
+import { usePaciente } from '@/context/PacienteContext';
+import { t } from '../utils/i18n';
 
 const theme = {
   ...MD3LightTheme,
@@ -48,7 +50,9 @@ export default function SignosVitalesScreen() {
   const router = useRouter();
 
   const { pacienteId } = useLocalSearchParams();
-  const { telemetriaActual, setPacienteId } = useTelemetria();
+  const { telemetriaActual} = useTelemetria();
+  const { setPacienteId } = usePaciente();
+
 
   // Estados por cada gráfico
   const [heartRateData, setHeartRateData] = useState<ChartData>(initialChartState);
@@ -99,18 +103,18 @@ export default function SignosVitalesScreen() {
       <SafeAreaView style={styles.container}>
         <Appbar.Header style={styles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Atrás" />
+          <Appbar.Content title={t('common.back')} />
         </Appbar.Header>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text variant="headlineMedium" style={styles.title}>Signos vitales</Text>
+          <Text variant="headlineMedium" style={styles.title}>{t('vitals.title')}</Text>
 
           <Card style={styles.vitalsCard}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.cardTitle}>Frecuencia Cardiaca</Text>
+              <Text variant="titleMedium" style={styles.cardTitle}>{t('vitals.heart_rate')}</Text>
 
               <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate.toFixed(2)} BPM` : '-- BPM'}
+                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate.toFixed(2)} ${t('vitals.bpm')}` : `-- ${t('vitals.bpm')}`}
               </Text>
 
               {heartRateData.labels.length > 0 && (
@@ -127,9 +131,9 @@ export default function SignosVitalesScreen() {
 
           <Card style={styles.vitalsCard}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.cardTitle}>Nivel de Oxígeno</Text>
+              <Text variant="titleMedium" style={styles.cardTitle}>{t('vitals.oxygen_level')}</Text>
               <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.spo2 ? `${telemetriaActual.spo2}%` : '--%'}
+                {telemetriaActual?.spo2 ? `${telemetriaActual.spo2}${t('vitals.percent')}` : `--${t('vitals.percent')}`}
               </Text>
 
               {spo2Data.labels.length > 0 && (

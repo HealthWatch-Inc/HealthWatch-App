@@ -8,9 +8,15 @@ import {
   Divider,
   Surface,
   Provider as PaperProvider,
-  MD3LightTheme
+  MD3LightTheme,
+  Portal,
+  Dialog,
+  RadioButton,
+  List
 } from 'react-native-paper';
+import { t } from '../utils/i18n';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '@/context/LanguageContext';
 
 // Definición de tipos para las filas de datos
 interface SettingRowProps {
@@ -30,6 +36,8 @@ const SettingRow = ({ label, value }: SettingRowProps) => (
 export default function AjustesScreen() {
   const router = useRouter();
   const [usuario, setUsuario] = useState('');
+  const { language, changeLanguage } = useLanguage();
+  const [langDialogVisible, setLangDialogVisible] = useState(false);
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -42,39 +50,56 @@ export default function AjustesScreen() {
         console.error('Error cargando usuario en settings:', error);
       }
     };
-
     cargarUsuario();
   }, []);
 
   return (
-    <PaperProvider theme={MD3LightTheme}>
-      <Appbar.Header style={styles.header}>
+    <PaperProvider key={language} theme={MD3LightTheme}>
+      <View style={{ flex: 1 }}>
+        <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Atrás" />
+        <Appbar.Content title={t('settings.back')} />
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={styles.container}>
-        <Text variant="headlineSmall" style={styles.mainTitle}>Ajustes</Text>
+        <Text variant="headlineSmall" style={styles.mainTitle}>{t('settings.title')}</Text>
 
         {/* Sección Perfil */}
-        <Text variant="titleMedium" style={styles.sectionHeader}>Perfil</Text>
-        <SettingRow label="Usuario" value="José García" />
-        <SettingRow label="Rol" value="Cuidador" />
-        <SettingRow label="Num o correo" value={usuario || 'No registrado'} />
+        <Text variant="titleMedium" style={styles.sectionHeader}>{t('settings.profile')}</Text>
+        <SettingRow label={t('settings.user')} value="José García" />
+        <SettingRow label={t('settings.role')} value={t('settings.caregiver')} />
+        <SettingRow label={t('settings.contact')} value={usuario || t('settings.not_registered')} />
         <Divider style={styles.divider} />
 
         {/* Sección Seguridad */}
-        <Text variant="titleMedium" style={styles.sectionHeader}>Seguridad</Text>
-        <SettingRow label="Contraseña" value="************" />
-        <SettingRow label="Nueva Contraseña" value="************" />
+        <Text variant="titleMedium" style={styles.sectionHeader}>{t('settings.security')}</Text>
+        <SettingRow label={t('settings.password')} value="************" />
+        <SettingRow label={t('settings.new_password')} value="************" />
         <Divider style={styles.divider} />
 
         {/* Sección Preferencias */}
-        <Text variant="titleMedium" style={styles.sectionHeader}>Preferencias</Text>
+        <Text variant="titleMedium" style={styles.sectionHeader}>{t('settings.preferences')}</Text>
         <View style={styles.row}>
-          <Text variant="bodyMedium" style={styles.label}>Idioma</Text>
-          <Text variant="bodyMedium" style={styles.linkText}>Seleccionar &gt;</Text>
+          <Text variant="bodyMedium" style={styles.label}>{t('settings.language')}</Text>
+          <Button mode="text" onPress={() => setLangDialogVisible(true)}>{language === 'es' ? 'Español' : 'English'}</Button>
         </View>
+        <Portal>
+          <Dialog visible={langDialogVisible} onDismiss={() => setLangDialogVisible(false)}>
+            <Dialog.Title>{t('settings.select_language')}</Dialog.Title>
+            <Dialog.Content>
+              <RadioButton.Group value={language} onValueChange={async (val) => {
+                await changeLanguage(val);
+                setLangDialogVisible(false);
+              }}>
+                <List.Item title="Español" description="Español (predeterminado)" left={() => <RadioButton value="es" />} />
+                <List.Item title="English" description="English" left={() => <RadioButton value="en" />} />
+              </RadioButton.Group>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setLangDialogVisible(false)}>{t('settings.accept')}</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
         <Divider style={styles.divider} />
 
         {/* Botón Acción */}
@@ -84,9 +109,10 @@ export default function AjustesScreen() {
           style={styles.logoutButton}
           onPress={() => router.push('/InicioSesionScreen')}
         >
-          Cerrar Sesión
+          {t('settings.logout')}
         </Button>
       </ScrollView>
+      </View>
     </PaperProvider>
   );
 }

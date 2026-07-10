@@ -7,6 +7,7 @@ import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService } from '@/services/apiService';
+import { t } from '../utils/i18n';
 
 /*
   Simulación de pasos para actividad física:
@@ -69,7 +70,7 @@ export default function ActividadFisicaScreen() {
     const objetivoNumerico = objetivoTemporal.trim();
 
     if (!objetivoNumerico) {
-      Alert.alert('Datos incompletos', 'Ingresa una cantidad de pasos válida para guardar el objetivo.');
+      Alert.alert(t('common.error'), t('fitness.incomplete_steps'));
       return;
     }
 
@@ -85,7 +86,7 @@ export default function ActividadFisicaScreen() {
       hideModal();
     } catch (e) {
       console.error('Error al guardar el objetivo', e);
-      Alert.alert('Error', 'No se pudo guardar el objetivo. Intenta nuevamente.');
+      Alert.alert(t('common.error'), t('fitness.error_save_goal'));
     }
   };
 
@@ -141,12 +142,12 @@ export default function ActividadFisicaScreen() {
         {/* Barra Superior con botón para regresar */}
         <Appbar.Header style={styles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Atrás" />
+          <Appbar.Content title={t('common.back')} />
         </Appbar.Header>
 
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
           <Text variant="headlineMedium" style={styles.title}>
-            Actividad Física
+            {t('fitness.title')}
           </Text>
 
           {/* Tarjeta de Pasos (Estilo mostaza/marrón de la imagen) */}
@@ -163,7 +164,7 @@ export default function ActividadFisicaScreen() {
             </Card.Content>
           </Card>
 
-          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: '#ffffff' }}> Reiniciar conteo de pasos</Button>
+          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: '#ffffff' }}>{t('fitness.restart')}</Button>
         </ScrollView>
 
         <FAB icon="plus" style={styles.fab} color='white' onPress={showModal} />
@@ -174,17 +175,17 @@ export default function ActividadFisicaScreen() {
             onDismiss={hideModal}
             contentContainerStyle={styles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>Nuevo objetivo</Text>
+              <Text style={styles.modalTitle}>{t('fitness.new_goal')}</Text>
 
-              <Text style={styles.inputLabel}>Cantidad de pasos final</Text>
-              <TextInput keyboardType='numeric' placeholder='Ej. 1000' mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
+              <Text style={styles.inputLabel}>{t('fitness.step_goal_label')}</Text>
+              <TextInput keyboardType='numeric' placeholder={t('fitness.example_goal')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
 
               <View style={styles.modalActions}>
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button mode='contained' onPress={saveObjetivo} style={styles.saveButton}>
-                  Guardar
+                  {t('common.save')}
                 </Button>
               </View>
             </ScrollView>
