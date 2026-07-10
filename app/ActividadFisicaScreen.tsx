@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView, Alert } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput } from 'react-native-paper';
+import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import FooterNav from './Footernav';
@@ -90,6 +90,33 @@ export default function ActividadFisicaScreen() {
     }
   };
 
+  const borrarObjetivo = async () => {
+    try {
+      if (pacienteIdParam) {
+        await apiService.delete(`/api/actividad-fisica/${pacienteIdParam}`);
+      }
+
+      await AsyncStorage.removeItem('@objetivo_pasos');
+      setObjetivo('');
+      setDataChart([0]);
+      Alert.alert(t('common.success') ?? 'Éxito', t('fitness.goal_deleted') ?? 'Objetivo eliminado');
+    } catch (e) {
+      console.error('Error al eliminar objetivo', e);
+      Alert.alert(t('common.error') ?? 'Error', t('fitness.error_delete_goal') ?? 'No se pudo eliminar el objetivo');
+    }
+  }
+
+  const borrarObjetivoConfirm = () => {
+    Alert.alert(
+      t('common.confirmation') ?? 'Confirmar',
+      t('fitness.confirm_delete_goal') ?? '¿Eliminar el objetivo de pasos?',
+      [
+        { text: t('common.cancel') ?? 'Cancelar', style: 'cancel' },
+        { text: t('common.delete') ?? 'Eliminar', style: 'destructive', onPress: borrarObjetivo }
+      ]
+    );
+  }
+
   useEffect(() => {
     const objNum = parseInt(objetivo, 10);
     if (!isNaN(objNum) && objNum > 0) {
@@ -158,7 +185,16 @@ export default function ActividadFisicaScreen() {
               </Text>
 
               <Text variant='titleMedium' style={styles.infoText}>Actual: {pasosConteo}</Text>
-              <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
+              <View style={styles.goalRow}>
+                <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
+                <IconButton
+                  icon="delete"
+                  size={20}
+                  iconColor='#ffffff'
+                  onPress={() => borrarObjetivoConfirm()}
+                  style={styles.deleteIcon}
+                />
+              </View>
 
               <ProgressChart data={dataChart} width={350} height={210} strokeWidth={16} radius={82} chartConfig={chartConfig} hideLegend={false} />
             </Card.Content>
@@ -210,6 +246,8 @@ const styles = StyleSheet.create({
   cardFlexContainer: {
     flexDirection: 'row', alignItems: 'center',
   },
+  goalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  deleteIcon: { margin: 0 },
   textContainer: { marginLeft: 20, justifyContent: 'center', },
   infoText: { color: '#ffffff', fontSize: 22, marginLeft: 4, fontWeight: 'bold', marginBottom: 13 },
   fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#665200', borderRadius: 50, zIndex: 10 },

@@ -18,6 +18,7 @@ const en = {
     not_defined: 'Not defined',
     yes: 'Yes',
     no: 'No',
+    confirmation: 'Confirm',
   },
   auth: {
     login_title: 'Sign In',
@@ -110,6 +111,9 @@ const en = {
     incomplete_steps: 'Enter a valid step count to save the goal.',
     save_goal: 'Save',
     error_save_goal: 'Could not save the goal. Try again.',
+    confirm_delete_goal: 'Are you sure you want to delete the step goal?',
+    goal_deleted: 'Goal deleted successfully',
+    error_delete_goal: 'Could not delete the goal. Try again.',
   },
   alerts: {
     title: 'Alerts and Notifications',
@@ -170,6 +174,7 @@ const es = {
     not_defined: 'Por definir',
     yes: 'Sí',
     no: 'No',
+    confirmation: 'Confirmar',
   },
   auth: {
     login_title: 'Iniciar Sesión',
@@ -262,6 +267,9 @@ const es = {
     incomplete_steps: 'Ingresa una cantidad de pasos válida para guardar el objetivo.',
     save_goal: 'Guardar',
     error_save_goal: 'No se pudo guardar el objetivo. Intenta nuevamente.',
+    confirm_delete_goal: '¿Estás seguro de que quieres eliminar el objetivo de pasos?',
+    goal_deleted: 'Objetivo eliminado correctamente',
+    error_delete_goal: 'No se pudo eliminar el objetivo. Intenta nuevamente.',
   },
   alerts: {
     title: 'Alertas y Notificaciones',
