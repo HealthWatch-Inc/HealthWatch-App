@@ -8,7 +8,6 @@ import {
   Divider,
   Surface,
   Provider as PaperProvider,
-  MD3LightTheme,
   Portal,
   Dialog,
   RadioButton,
@@ -54,7 +53,7 @@ export default function AjustesScreen() {
   }, []);
 
   return (
-    <PaperProvider key={language} theme={MD3LightTheme}>
+    <PaperProvider key={language}>
       <View style={{ flex: 1 }}>
         <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} />

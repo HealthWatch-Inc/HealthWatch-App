@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
+import { Appbar, Card, Text, IconButton, Provider as PaperProvider, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
 import FooterNav from './Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
@@ -53,23 +53,6 @@ export default function NotificationsScreen() {
     loadMedications();
 
   }, [pacienteId, setPacienteId]);
-
-  /*
-  const onChangeTime = (event: any, selectedTime?: Date) => {
-    
-    console.log("PICKER", selectedTime);
-    
-    if (event?.type === 'dismissed') {
-      setShowPicker(false);
-      return;
-    }
-
-    if (selectedTime) {
-      setTime(selectedTime);
-      setShowPicker(false);
-    }
-  };
-  */
 
   const onChangeTime = (event: any, selectedTime?: Date) => {
     console.log("onChangeTime");
@@ -233,7 +216,38 @@ export default function NotificationsScreen() {
     }
   };
 
-  // Componente que contiene todo lo que va ARRIBA de las caídas
+  const CardMedicamento = ({id, objeto, nombre, frecuencia, horas}: {id: string, objeto: Medication ,nombre: string, frecuencia: string, horas: string[]}) => {
+    return (
+      <>
+        <Card key={id} style={styles.medCard}>
+            <Card.Content style={styles.medContent}>
+              <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
+              <View style={styles.medTextWrapper}>
+                <Text style={styles.medTitle}>{nombre}</Text>
+                <Text style={styles.medTime}>{frecuencia}</Text>
+                <Text style={styles.medTime}>{horas}</Text>
+              </View>
+              {/* Botón para eliminar */}
+              <IconButton
+                icon="pencil"
+                iconColor="#ffffff"
+                size={22}
+                onPress={() => editMedication(objeto)}
+              />
+              
+              <IconButton
+                icon="delete"
+                iconColor="#FF8A8A"
+                size={22}
+                onPress={() => deleteMedication(id, nombre)}
+                style={styles.deleteMedBtn}
+              />
+            </Card.Content>
+          </Card>
+      </>
+    )
+  }
+
   const RenderHeader = () => (
     <View>
       <Text variant="headlineSmall" style={styles.title}>{t('alerts.title')}</Text>
@@ -254,31 +268,7 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           medications.map((item) => (
-            <Card key={item.id} style={styles.medCard}>
-              <Card.Content style={styles.medContent}>
-                <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
-                <View style={styles.medTextWrapper}>
-                  <Text style={styles.medTitle}>{item.nombre}</Text>
-                  <Text style={styles.medTime}>{item.frecuencia}</Text>
-                  <Text style={styles.medTime}>{item.horas}</Text>
-                </View>
-                {/* Botón para eliminar */}
-                <IconButton
-                  icon="pencil"
-                  iconColor="#ffffff"
-                  size={22}
-                  onPress={() => editMedication(item)}
-                />
-                
-                <IconButton
-                  icon="delete"
-                  iconColor="#FF8A8A"
-                  size={22}
-                  onPress={() => deleteMedication(item.id, item.nombre)}
-                  style={styles.deleteMedBtn}
-                />
-              </Card.Content>
-            </Card>
+            <CardMedicamento key={item.id} id={item.id} objeto={item} nombre={item.nombre} frecuencia={item.frecuencia} horas={item.horas}/>
           ))
         )}
       </View>
@@ -289,7 +279,7 @@ export default function NotificationsScreen() {
   );
 
   return (
-    <PaperProvider theme={MD3LightTheme}>
+    <PaperProvider>
       <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('common.back')} />

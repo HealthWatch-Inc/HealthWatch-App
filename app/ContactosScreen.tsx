@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, FlatList, Alert, Linking, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, Button, Divider, FAB, PaperProvider, Portal, Modal, TextInput, MD3LightTheme, ActivityIndicator } from 'react-native-paper';
+import { Appbar, Text, Button, Divider, FAB, PaperProvider, Portal, Modal, TextInput, ActivityIndicator } from 'react-native-paper';
 import FooterNav from './Footernav';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
@@ -166,7 +166,7 @@ export default function EmergencyContactsScreen() {
      }, [pacienteId]);
 
      return (
-          <PaperProvider theme={MD3LightTheme}>
+          <PaperProvider>
                {/* Header */}
                <Appbar.Header style={styles.header}>
                     <Appbar.BackAction onPress={() => router.back()} />

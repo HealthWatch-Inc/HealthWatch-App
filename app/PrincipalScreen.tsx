@@ -56,6 +56,8 @@ const App = () => {
     }, [])
   );
 
+  console.log("telemetriaActual:", telemetriaActual);
+
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>

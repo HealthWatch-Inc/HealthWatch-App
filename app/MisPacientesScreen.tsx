@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, Dimensions, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
-import { Appbar, Text, Avatar, Surface, TouchableRipple, useTheme } from 'react-native-paper';
+import { Appbar, Text, Avatar, Surface, TouchableRipple} from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import { apiService } from '@/services/apiService';
 import { auth } from '@/config/firebase';
 
 export default function PacientesScreen() {
-  const theme = useTheme();
   const router = useRouter();
   const [pacientes, setPacientes] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);

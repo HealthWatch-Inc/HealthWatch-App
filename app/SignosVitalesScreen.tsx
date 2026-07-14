@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
+import { Provider as PaperProvider, Appbar, Text, Card } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import { usePaciente } from '@/context/PacienteContext';
 import { t } from '../utils/i18n';
-
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: '#005b70',
-    surfaceVariant: '#690909',
-  },
-};
 
 const chartConfig = {
   backgroundGradientFrom: "#1E2923",
@@ -53,11 +44,9 @@ export default function SignosVitalesScreen() {
   const { telemetriaActual} = useTelemetria();
   const { setPacienteId } = usePaciente();
 
-
   // Estados por cada gráfico
   const [heartRateData, setHeartRateData] = useState<ChartData>(initialChartState);
   const [spo2Data, setSpo2Data] = useState<ChartData>(initialChartState);
-
 
   const actualizarGrafico = (
     tipo: TelemetriaKey, 
@@ -98,8 +87,34 @@ export default function SignosVitalesScreen() {
     setPacienteId(pacienteId as string | undefined);
   }, [pacienteId, setPacienteId]);
 
+  const CardVitals = ({titulo, dato, chart, unidad}: {titulo: string, dato: number | undefined, chart: ChartData, unidad: string}) => {
+    return(
+      <>
+        <Card style={styles.vitalsCard}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.cardTitle}>{titulo}</Text>
+
+            <Text variant="titleMedium" style={styles.cardData}>
+              {dato ? `${dato.toFixed(2)} ${unidad}` : `-- ${unidad}`}
+            </Text>
+
+            {chart.labels.length > 0 && (
+              <LineChart data={chart}
+              width={350}
+              height={300}
+              verticalLabelRotation={30}
+              chartConfig={chartConfig}
+              bezier
+              />
+            )}
+          </Card.Content>
+        </Card>
+      </>
+    )
+  }
+
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider>
       <SafeAreaView style={styles.container}>
         <Appbar.Header style={styles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
@@ -108,45 +123,8 @@ export default function SignosVitalesScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text variant="headlineMedium" style={styles.title}>{t('vitals.title')}</Text>
-
-          <Card style={styles.vitalsCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.cardTitle}>{t('vitals.heart_rate')}</Text>
-
-              <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.heart_rate ? `${telemetriaActual?.heart_rate.toFixed(2)} ${t('vitals.bpm')}` : `-- ${t('vitals.bpm')}`}
-              </Text>
-
-              {heartRateData.labels.length > 0 && (
-                <LineChart data={heartRateData}
-                width={350}
-                height={300}
-                verticalLabelRotation={30}
-                chartConfig={chartConfig}
-                bezier
-                />
-              )}
-            </Card.Content>
-          </Card>
-
-          <Card style={styles.vitalsCard}>
-            <Card.Content>
-              <Text variant="titleMedium" style={styles.cardTitle}>{t('vitals.oxygen_level')}</Text>
-              <Text variant="titleMedium" style={styles.cardData}>
-                {telemetriaActual?.spo2 ? `${telemetriaActual.spo2}${t('vitals.percent')}` : `--${t('vitals.percent')}`}
-              </Text>
-
-              {spo2Data.labels.length > 0 && (
-                <LineChart data={spo2Data}
-                width={350}
-                height={300}
-                verticalLabelRotation={30}
-                chartConfig={chartConfig}
-                bezier
-                />
-              )}
-            </Card.Content>
-          </Card>
+          <CardVitals titulo={t('vitals.heart_rate')} dato={telemetriaActual?.heart_rate} chart={heartRateData} unidad='BPM'/>
+          <CardVitals titulo={t('vitals.oxygen_level')} dato={telemetriaActual?.spo2} chart={spo2Data} unidad='%'/>
         </ScrollView>
 
         <FooterNav activeTab="inicio" />

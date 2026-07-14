@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView, Alert } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
+import { Provider as PaperProvider, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import FooterNav from './Footernav';
@@ -36,7 +36,7 @@ const chartConfig = {
   backgroundGradientTo: "#08130D",
   backgroundGradientToOpacity: 0.5,
   color: (opacity = 1) => `rgba(256, 256, 256, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
+  strokeWidth: 2,
   barPercentage: 0.5,
   useShadowColorFromDataset: false,
   fontFamily: 'Arial Black',
@@ -163,7 +163,7 @@ export default function ActividadFisicaScreen() {
   }, [pacienteIdParam]);
 
   return (
-    <PaperProvider theme={MD3LightTheme}>
+    <PaperProvider>
       <SafeAreaView style={styles.safeArea}>
 
         {/* Barra Superior con botón para regresar */}

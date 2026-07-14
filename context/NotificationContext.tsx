@@ -51,8 +51,6 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
      const { pacienteId } = usePaciente();
      const router = useRouter();
      const fallIdsMostradosRef = useRef<string[]>([]);
-     const [time, setTime] = useState(new Date());
-     
      const [, setMedications] = useState<Medication[]>([]);
      const { refreshTelemetria } = useTelemetria();
 
@@ -274,12 +272,6 @@ export const NotificationProvider = ({ children }: NotificationContextProps) => 
           return () => clearInterval(interval);
 
      }, [pacienteId]);
-
-     const formatHour = (date: Date) => {
-          const h = String(date.getHours()).padStart(2, '0');
-          const m = String(date.getMinutes()).padStart(2, '0');
-          return `${h}:${m}`;
-     }
 
      return (
           <NotificationContext.Provider value={{ actualizarMedicamentos }}>
