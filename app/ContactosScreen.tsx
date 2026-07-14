@@ -1,12 +1,22 @@
 import React from 'react';
 import { StyleSheet, View, FlatList, Alert, Linking, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, Button, Divider, FAB, PaperProvider, Portal, Modal, TextInput, ActivityIndicator } from 'react-native-paper';
+import { Appbar, Text, Button, Divider, FAB, PaperProvider, MD3LightTheme, Portal, Modal, TextInput, ActivityIndicator } from 'react-native-paper';
 import FooterNav from './Footernav';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { t } from '../utils/i18n';
 
+const theme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    background: '#FEF7FF',
+    surface: '#FEF7FF',
+    onSurface: '#000000',
+    onSurfaceVariant: '#000000',
+  },
+};
 
 interface Contacto {
      id: string;
@@ -166,7 +176,7 @@ export default function EmergencyContactsScreen() {
      }, [pacienteId]);
 
      return (
-          <PaperProvider>
+          <PaperProvider theme={theme}>
                {/* Header */}
                <Appbar.Header style={styles.header}>
                     <Appbar.BackAction onPress={() => router.back()} />
@@ -265,8 +275,8 @@ export default function EmergencyContactsScreen() {
 
 const styles = StyleSheet.create({
      container: { flex: 1, padding: 16, backgroundColor: '#FEF7FF' },
-     header: { backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between', },
-     title: { marginBottom: 24, fontWeight: 'bold' },
+     header: { backgroundColor: '#FEF7FF', elevation: 0, justifyContent: 'space-between', shadowOpacity: 0, borderBottomWidth: 0 },
+     title: { marginBottom: 24, fontWeight: 'bold', color: '#1D1B20' },
      contactItem: { marginBottom: 16 },
      row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
      name: { fontWeight: '600' },

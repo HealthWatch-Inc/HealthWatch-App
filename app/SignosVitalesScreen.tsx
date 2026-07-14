@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Provider as PaperProvider, Appbar, Text, Card } from 'react-native-paper';
+import { Provider as PaperProvider, MD3LightTheme, Appbar, Text, Card } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import FooterNav from './Footernav';
@@ -21,6 +21,17 @@ const chartConfig = {
   propsForLabels: {
     fontFamily: 'Arial Black',
   }
+};
+
+const theme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    background: '#FEF7FF',
+    surface: '#FEF7FF',
+    onSurface: '#000000',
+    onSurfaceVariant: '#000000',
+  },
 };
 
 interface ChartData {
@@ -114,7 +125,7 @@ export default function SignosVitalesScreen() {
   }
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <SafeAreaView style={styles.container}>
         <Appbar.Header style={styles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
@@ -136,7 +147,7 @@ export default function SignosVitalesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff' },
   scrollContent: { padding: 16, paddingBottom: 100 },
-  header: { backgroundColor: '#ffffff', elevation: 0 },
+  header: { backgroundColor: '#ffffff', elevation: 0, shadowOpacity: 0, borderBottomWidth: 0 },
   title: { fontWeight: 'bold', marginBottom: 20, color: '#000' },
   vitalsCard: { backgroundColor: '#690909', borderRadius: 28, marginBottom: 24, paddingVertical: 8 },
   cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4 },

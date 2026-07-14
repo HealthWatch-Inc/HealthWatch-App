@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView, Alert } from 'react-native';
-import { Provider as PaperProvider, Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
+import { Provider as PaperProvider, MD3LightTheme ,Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import FooterNav from './Footernav';
@@ -43,6 +43,17 @@ const chartConfig = {
   propsForLabels: {
     fontFamily: 'Arial Black',
   }
+};
+
+const theme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    background: '#FEF7FF',
+    surface: '#FEF7FF',
+    onSurface: '#000000',
+    onSurfaceVariant: '#000000',
+  },
 };
 
 export default function ActividadFisicaScreen() {
@@ -163,7 +174,7 @@ export default function ActividadFisicaScreen() {
   }, [pacienteIdParam]);
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <SafeAreaView style={styles.safeArea}>
 
         {/* Barra Superior con botón para regresar */}
@@ -239,7 +250,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#ffffff', },
   container: { flex: 1, backgroundColor: '#ffffff', },
   scrollContent: { padding: 16, },
-  header: { backgroundColor: '#ffffff', elevation: 0, },
+  header: { backgroundColor: '#ffffff', elevation: 0, shadowOpacity: 0, borderBottomWidth: 0 },
   title: { fontWeight: 'bold', marginBottom: 20, color: '#000', },
   activityCard: { backgroundColor: '#665200', borderRadius: 28, paddingVertical: 8, },
   cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4, },

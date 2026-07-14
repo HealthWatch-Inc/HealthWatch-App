@@ -162,9 +162,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   header: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#f9f9f9',
     elevation: 0,
     justifyContent: 'space-between',
+    shadowOpacity: 0,
+    borderBottomWidth: 0,
   },
   headerTitle: {
     textAlign: 'center',

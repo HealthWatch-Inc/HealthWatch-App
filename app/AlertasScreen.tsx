@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import { StyleSheet, View, FlatList, ScrollView, Alert} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Appbar, Card, Text, IconButton, Provider as PaperProvider, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
+import { Appbar, Card, Text, IconButton, Provider as PaperProvider, MD3LightTheme, FAB, Portal, Modal, TextInput, Button, ActivityIndicator, Menu } from 'react-native-paper';
 import FooterNav from './Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
@@ -14,6 +14,17 @@ const DATA = [
   { id: '2', time: '6:07 a. m.', date: '2/3/2026' },
   { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
 ];
+
+const theme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    background: '#FEF7FF',
+    surface: '#FEF7FF',
+    onSurface: '#000000',
+    onSurfaceVariant: '#000000',
+  },
+};
 
 interface Medication {
   id: string;
@@ -279,7 +290,7 @@ export default function NotificationsScreen() {
   );
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('common.back')} />
@@ -397,8 +408,8 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 16, backgroundColor: '#FEF7FF' },
-  header: { backgroundColor: 'transparent', elevation: 0, justifyContent: 'space-between', },
-  title: { marginBottom: 20, fontWeight: 'bold' },
+  header: { backgroundColor: '#FEF7FF', elevation: 0, justifyContent: 'space-between', shadowOpacity: 0, borderBottomWidth: 0 },
+  title: { marginBottom: 20, fontWeight: 'bold', color: '#1D1B20' },
   medsContainer: { marginBottom: 16 },
   medCard: { backgroundColor: '#004A60', marginBottom: 12, width: '100%' },
   medContent: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
