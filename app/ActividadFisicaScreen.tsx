@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, SafeAreaView, Alert } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme ,Appbar, Text, Card, Modal, Portal, FAB, Button, TextInput, IconButton } from 'react-native-paper';
+import {
+  Provider as PaperProvider,
+  Appbar,
+  Text,
+  Card,
+  Modal,
+  Portal,
+  FAB,
+  Button,
+  TextInput,
+  IconButton
+} from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import FooterNav from './Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService } from '@/services/apiService';
+import { Colors, globalStyles, theme, chartConfig } from '@/constants/styles';
 import { t } from '../utils/i18n';
 
 /*
@@ -29,32 +41,6 @@ import { t } from '../utils/i18n';
   
   Un α cercano a 1 (ej. 0.8) genera un filtrado rápido que reacciona casi de inmediato a los cambios (ideal para señales dinámicas).
 */
-
-const chartConfig = {
-  backgroundGradientFrom: "#1E2923",
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: "#08130D",
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(256, 256, 256, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  fontFamily: 'Arial Black',
-  propsForLabels: {
-    fontFamily: 'Arial Black',
-  }
-};
-
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    background: '#FEF7FF',
-    surface: '#FEF7FF',
-    onSurface: '#000000',
-    onSurfaceVariant: '#000000',
-  },
-};
 
 export default function ActividadFisicaScreen() {
   const router = useRouter();
@@ -175,16 +161,16 @@ export default function ActividadFisicaScreen() {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={globalStyles.container}>
 
         {/* Barra Superior con botón para regresar */}
-        <Appbar.Header style={styles.header}>
+        <Appbar.Header style={globalStyles.header}>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title={t('common.back')} />
         </Appbar.Header>
 
-        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-          <Text variant="headlineMedium" style={styles.title}>
+        <ScrollView style={globalStyles.container} contentContainerStyle={styles.scrollContent}>
+          <Text variant="headlineMedium" style={[globalStyles.title, { marginBottom: 20 }]}>
             {t('fitness.title')}
           </Text>
 
@@ -196,12 +182,12 @@ export default function ActividadFisicaScreen() {
               </Text>
 
               <Text variant='titleMedium' style={styles.infoText}>Actual: {pasosConteo}</Text>
-              <View style={styles.goalRow}>
+              <View style={globalStyles.row}>
                 <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
                 <IconButton
                   icon="delete"
                   size={20}
-                  iconColor='#ffffff'
+                  iconColor='Colors.white'
                   onPress={() => borrarObjetivoConfirm()}
                   style={styles.deleteIcon}
                 />
@@ -211,7 +197,7 @@ export default function ActividadFisicaScreen() {
             </Card.Content>
           </Card>
 
-          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: '#ffffff' }}>{t('fitness.restart')}</Button>
+          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: 'Colors.white' }}>{t('fitness.restart')}</Button>
         </ScrollView>
 
         <FAB icon="plus" style={styles.fab} color='white' onPress={showModal} />
@@ -220,14 +206,14 @@ export default function ActividadFisicaScreen() {
           <Modal
             visible={visible}
             onDismiss={hideModal}
-            contentContainerStyle={styles.modalContainer}>
+            contentContainerStyle={globalStyles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>{t('fitness.new_goal')}</Text>
+              <Text style={globalStyles.modalTitle}>{t('fitness.new_goal')}</Text>
 
-              <Text style={styles.inputLabel}>{t('fitness.step_goal_label')}</Text>
-              <TextInput keyboardType='numeric' placeholder={t('fitness.example_goal')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
+              <Text style={[globalStyles.inputLabel, styles.modalInputLabel]}>{t('fitness.step_goal_label')}</Text>
+              <TextInput keyboardType='numeric' placeholder={t('fitness.example_goal')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
 
-              <View style={styles.modalActions}>
+              <View style={globalStyles.modalActions}>
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   {t('common.cancel')}
                 </Button>
@@ -247,27 +233,74 @@ export default function ActividadFisicaScreen() {
 
 // --- ESTILOS ---
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#ffffff', },
-  container: { flex: 1, backgroundColor: '#ffffff', },
-  scrollContent: { padding: 16, },
-  header: { backgroundColor: '#ffffff', elevation: 0, shadowOpacity: 0, borderBottomWidth: 0 },
-  title: { fontWeight: 'bold', marginBottom: 20, color: '#000', },
-  activityCard: { backgroundColor: '#665200', borderRadius: 28, paddingVertical: 8, },
-  cardTitle: { color: '#ffffff', fontWeight: '500', marginBottom: 12, marginLeft: 4, },
+  scrollContent: {
+    padding: 16,
+  },
+  modalInputLabel: {
+    marginTop: 12,
+    marginBottom: 10,
+  },
+  activityCard: {
+    backgroundColor: '#665200',
+    borderRadius: 28,
+    paddingVertical: 8,
+  },
+  cardTitle: {
+    color: Colors.white,
+    fontWeight: '500',
+    marginBottom: 12,
+    marginLeft: 4,
+  },
   cardFlexContainer: {
     flexDirection: 'row', alignItems: 'center',
   },
-  goalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  deleteIcon: { margin: 0 },
-  textContainer: { marginLeft: 20, justifyContent: 'center', },
-  infoText: { color: '#ffffff', fontSize: 22, marginLeft: 4, fontWeight: 'bold', marginBottom: 13 },
-  fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#665200', borderRadius: 50, zIndex: 10 },
-  modalContainer: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 28, maxHeight: '80%' },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16 },
-  inputLabel: { fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10 },
-  input: { backgroundColor: '#F4EFF4', marginBottom: 8, },
-  modalActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24, },
-  cancelButton: { flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20 },
-  restartButton: { flex: 1, marginRight: 8, backgroundColor: '#665200', borderRadius: 20, color: '#ffffff', marginTop: 13 },
-  saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
+  deleteIcon: {
+    margin: 0
+  },
+  textContainer: {
+    marginLeft: 20,
+    justifyContent: 'center',
+  },
+  infoText: {
+    color: Colors.white,
+    fontSize: 22,
+    marginLeft: 4,
+    fontWeight: 'bold',
+    marginBottom: 13
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 90,
+    backgroundColor: '#665200',
+    borderRadius: 50,
+    zIndex: 10
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#49454F',
+    marginTop: 12,
+    marginBottom: 10
+  },
+  cancelButton: {
+    flex: 1,
+    marginRight: 8,
+    backgroundColor: '#E6E1E5',
+    borderRadius: 20
+  },
+  restartButton: {
+    flex: 1,
+    marginRight: 8,
+    backgroundColor: '#665200',
+    borderRadius: 20,
+    color: Colors.white,
+    marginTop: 13
+  },
+  saveButton: {
+    flex: 1,
+    marginLeft: 8,
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+  },
 });

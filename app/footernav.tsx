@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { t } from '../utils/i18n';
+import { Colors } from '@/constants/styles';
 import { useLanguage } from '../context/LanguageContext';
 
 interface FooterNavProps {
@@ -41,7 +42,7 @@ const FooterNav = ({ activeTab }: FooterNavProps) => {
 const styles = StyleSheet.create({
   bottomNav: {
     height: 80,
-    backgroundColor: '#004d61',
+    backgroundColor: Colors.primary,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-start',
@@ -50,10 +51,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  navItem: { alignItems: 'center', flex: 1 },
-  navText: { color: '#ffffffaa', fontWeight: '500' },
-  navTextActive: { color: 'white', fontWeight: 'bold' },
-  activeIndicator: { height: 3, width: 30, backgroundColor: 'white', marginTop: 4, borderRadius: 2 },
+  navItem: {
+    alignItems: 'center',
+    flex: 1
+  },
+  navText: {
+    color: Colors.backgroundSettings,
+    fontWeight: '500'
+  },
+  navTextActive: {
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  activeIndicator: {
+    height: 3,
+    width: 30,
+    backgroundColor: 'white',
+    marginTop: 4,
+    borderRadius: 2
+  },
 });
 
 export default FooterNav;

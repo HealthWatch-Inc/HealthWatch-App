@@ -1,22 +1,23 @@
 import React from 'react';
 import { StyleSheet, View, FlatList, Alert, Linking, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, Button, Divider, FAB, PaperProvider, MD3LightTheme, Portal, Modal, TextInput, ActivityIndicator } from 'react-native-paper';
+import {
+     Appbar,
+     Text,
+     Button,
+     Divider,
+     FAB,
+     PaperProvider,
+     Portal,
+     Modal,
+     TextInput,
+     ActivityIndicator
+} from 'react-native-paper';
 import FooterNav from './Footernav';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { t } from '../utils/i18n';
-
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    background: '#FEF7FF',
-    surface: '#FEF7FF',
-    onSurface: '#000000',
-    onSurfaceVariant: '#000000',
-  },
-};
+import { globalStyles, Colors, theme } from '@/constants/styles';
 
 interface Contacto {
      id: string;
@@ -178,17 +179,17 @@ export default function EmergencyContactsScreen() {
      return (
           <PaperProvider theme={theme}>
                {/* Header */}
-               <Appbar.Header style={styles.header}>
+               <Appbar.Header style={globalStyles.header}>
                     <Appbar.BackAction onPress={() => router.back()} />
                     <Appbar.Content title={t('common.back')} />
                </Appbar.Header>
 
-               <View style={styles.container}>
-                    <Text variant="headlineSmall" style={styles.title}>{t('contacts.title')}</Text>
+               <View style={[globalStyles.container, { marginBottom: 24 }]}>
+                    <Text variant="headlineSmall" style={[globalStyles.title, { marginBottom: 24 }]}>{t('contacts.title')}</Text>
 
                     {loadingCont ? (
                          <View>
-                              <ActivityIndicator animating={true} color='#004A60' size='small' />
+                              <ActivityIndicator animating={true} color={Colors.primary} size='small' />
                          </View>
                     ) : contactos.length === 0 ? (
                          <View>
@@ -200,19 +201,19 @@ export default function EmergencyContactsScreen() {
                               keyExtractor={(item) => item.id}
                               renderItem={({ item }) => (
                                    <View style={styles.contactItem}>
-                                        <View style={styles.row}>
+                                        <View style={globalStyles.row}>
                                              <Text variant="titleMedium" style={styles.name}>{item.name}</Text>
                                              <Text variant="bodyLarge">{item.phone}</Text>
                                         </View>
 
                                         <Text variant="bodyMedium" style={styles.relation}>{item.relation}</Text>
 
-                                        <View style={[styles.row, { marginTop: 8 }]}>
+                                        <View style={[globalStyles.row, { marginTop: 8 }]}>
 
                                              <Button
                                                   mode="contained"
                                                   onPress={() => makeCall(item.phone)}
-                                                  buttonColor="#B3261E"
+                                                  buttonColor={Colors.danger}
                                                   style={styles.callButton}
                                              >
                                                   {t('contacts.call')}
@@ -230,36 +231,35 @@ export default function EmergencyContactsScreen() {
                                                   {t('contacts.delete')}
                                              </Button>
                                         </View>
-                                        <Divider style={styles.divider} />
+                                        <Divider style={globalStyles.divider} />
                                    </View>
                               )}
                          />
                     )}
 
-                    <FAB icon="plus" style={styles.fab} color='white' onPress={showModal} />
+                    <FAB icon="plus" style={globalStyles.fab} color='white' onPress={showModal} />
 
                     <Portal>
-                         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalContainer}>
+                         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={globalStyles.modalContainer}>
                               <ScrollView showsVerticalScrollIndicator={false}>
-                                   <Text style={styles.modalTitle}>{contactoEditado ? t('contacts.edit_contact') : t('contacts.add_contact')}</Text>
+                                   <Text style={globalStyles.modalTitle}>{contactoEditado ? t('contacts.edit_contact') : t('contacts.add_contact')}</Text>
 
-                                   <Text style={styles.inputLabel}>{t('contacts.name')}</Text>
-                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_name')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={nombreContacto} onChangeText={setNombreContacto} />
+                                   <Text style={globalStyles.inputLabel}>{t('contacts.name')}</Text>
+                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_name')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={nombreContacto} onChangeText={setNombreContacto} />
 
+                                   <Text style={globalStyles.inputLabel}>{t('contacts.phone')}</Text>
+                                   <TextInput keyboardType='numeric' placeholder={t('contacts.placeholder_phone')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={telefonoContacto} onChangeText={handleNumberChange} />
 
-                                   <Text style={styles.inputLabel}>{t('contacts.phone')}</Text>
-                                   <TextInput keyboardType='numeric' placeholder={t('contacts.placeholder_phone')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={telefonoContacto} onChangeText={handleNumberChange} />
+                                   <Text style={globalStyles.inputLabel}>{t('contacts.relation')}</Text>
+                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_relation')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={relacionContacto} onChangeText={setRelacionContacto} />
 
-                                   <Text style={styles.inputLabel}>{t('contacts.relation')}</Text>
-                                   <TextInput keyboardType='default' placeholder={t('contacts.placeholder_relation')} mode='outlined' style={styles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={relacionContacto} onChangeText={setRelacionContacto} />
-
-                                   <View style={styles.modalActions}>
-                                        <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
+                                   <View style={globalStyles.modalActions}>
+                                        <Button mode='contained' onPress={hideModal} style={[globalStyles.button, { backgroundColor: Colors.cancel }]} labelStyle={{ color: Colors.textSecondaryMaterial }}>
                                              {t('common.cancel')}
                                         </Button>
                                         <Button
                                              mode='contained'
-                                             onPress={contactoEditado ? updateContacto : createContacto} style={styles.saveButton}>
+                                             onPress={contactoEditado ? updateContacto : createContacto} style={[globalStyles.button, { backgroundColor: Colors.primary }]}>
                                              {contactoEditado ? t('common.save') : t('common.add')}
                                         </Button>
                                    </View>
@@ -274,21 +274,16 @@ export default function EmergencyContactsScreen() {
 }
 
 const styles = StyleSheet.create({
-     container: { flex: 1, padding: 16, backgroundColor: '#FEF7FF' },
-     header: { backgroundColor: '#FEF7FF', elevation: 0, justifyContent: 'space-between', shadowOpacity: 0, borderBottomWidth: 0 },
-     title: { marginBottom: 24, fontWeight: 'bold', color: '#1D1B20' },
-     contactItem: { marginBottom: 16 },
-     row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-     name: { fontWeight: '600' },
-     relation: { color: '#49454F' },
-     callButton: { borderRadius: 20 },
-     divider: { marginTop: 16, backgroundColor: '#CAC4D0' },
-     fab: { position: 'absolute', margin: 16, right: 0, bottom: 90, backgroundColor: '#004A60', borderRadius: 50, zIndex: 10 },
-     modalActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24, },
-     cancelButton: { flex: 1, marginRight: 8, backgroundColor: '#E6E1E5', borderRadius: 20 },
-     saveButton: { flex: 1, marginLeft: 8, backgroundColor: '#004A60', borderRadius: 20, },
-     modalContainer: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 28, maxHeight: '80%' },
-     modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#1D1B20', marginBottom: 16 },
-     inputLabel: { fontSize: 14, color: '#49454F', marginTop: 12, marginBottom: 10 },
-     input: { backgroundColor: '#F4EFF4', marginBottom: 8, },
+     contactItem: {
+          marginBottom: 16
+     },
+     name: {
+          fontWeight: '600'
+     },
+     relation: {
+          color: Colors.textSecondaryMaterial
+     },
+     callButton: {
+          borderRadius: 20
+     },
 });
