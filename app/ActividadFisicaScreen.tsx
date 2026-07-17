@@ -67,7 +67,7 @@ export default function ActividadFisicaScreen() {
       paddingVertical: 8,
     },
     cardTitle: {
-      color: Colors.white,
+      color: Colors.white_text,
       fontWeight: '500',
       marginBottom: 12,
       marginLeft: 4,
@@ -83,7 +83,7 @@ export default function ActividadFisicaScreen() {
       justifyContent: 'center',
     },
     infoText: {
-      color: Colors.white,
+      color: Colors.white_text,
       fontSize: 18,
       marginLeft: 4,
       fontWeight: 'bold',
@@ -115,7 +115,7 @@ export default function ActividadFisicaScreen() {
       marginRight: 8,
       backgroundColor: '#665200',
       borderRadius: 20,
-      color: Colors.white,
+      color: Colors.white_text,
       marginTop: 13
     },
     saveButton: {
@@ -260,7 +260,7 @@ export default function ActividadFisicaScreen() {
                 <IconButton
                   icon="delete"
                   size={20}
-                  iconColor={Colors.white}
+                  iconColor={Colors.white_text}
                   onPress={() => borrarObjetivoConfirm()}
                   style={styles.deleteIcon}
                 />
@@ -270,7 +270,7 @@ export default function ActividadFisicaScreen() {
             </Card.Content>
           </Card>
 
-          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: 'Colors.white' }}>{t('fitness.restart')}</Button>
+          <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: Colors.white_text }}>{t('fitness.restart')}</Button>
         </ScrollView>
 
         <FAB icon="plus" style={styles.fab} color='white' onPress={showModal} />
@@ -290,7 +290,7 @@ export default function ActividadFisicaScreen() {
                 <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   {t('common.cancel')}
                 </Button>
-                <Button mode='contained' onPress={saveObjetivo} style={styles.saveButton}>
+                <Button mode='contained' onPress={saveObjetivo} style={styles.saveButton} textColor={Colors.white_text}>
                   {t('common.save')}
                 </Button>
               </View>

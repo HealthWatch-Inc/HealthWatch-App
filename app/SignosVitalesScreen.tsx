@@ -72,13 +72,13 @@ export default function SignosVitalesScreen() {
       paddingVertical: 8
     },
     cardTitle: {
-      color: Colors.white,
+      color: Colors.white_text,
       fontWeight: '500',
       marginBottom: 12,
       marginLeft: 4
     },
     cardData: {
-      color: Colors.white,
+      color: Colors.white_text,
       fontSize: 24,
       fontWeight: 'bold',
       marginBottom: 12,
@@ -133,7 +133,7 @@ export default function SignosVitalesScreen() {
           <Appbar.Content title={t('common.back')} />
         </Appbar.Header>
 
-        <ScrollView style={globalStyles.content}>
+        <ScrollView style={globalStyles.content} contentContainerStyle={{ paddingBottom: 150 }}>
           <Text variant="headlineMedium" style={globalStyles.title}>{t('vitals.title')}</Text>
           <CardVitals titulo={t('vitals.heart_rate')} dato={telemetriaActual?.heart_rate} chart={heartRateData} unidad='BPM' />
           <CardVitals titulo={t('vitals.oxygen_level')} dato={telemetriaActual?.spo2} chart={spo2Data} unidad='%' />

@@ -55,7 +55,7 @@ export default function NotificationsScreen() {
   const [loadingMeds, setLoadingMeds] = useState(true);
   const [time, setTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const [frecuencia, setFrecuencia] = useState("Diario");
+  const [frecuencia, setFrecuencia] = useState("daily");
   const [menuVisible, setMenuVisible] = useState(false);
   const [medicamentoEditado, setMedicamentoEditado] = useState<Medication | null>(null);
 
@@ -281,6 +281,18 @@ export default function NotificationsScreen() {
       paddingVertical: 24,
       alignItems: 'center'
     },
+    cancelButton: {
+      flex: 1,
+      marginRight: 8,
+      backgroundColor: '#E6E1E5',
+      borderRadius: 20
+    },
+    saveButton: {
+      flex: 1,
+      marginLeft: 8,
+      backgroundColor: Colors.primary,
+      borderRadius: 20,
+    },
   });
 
   const CardMedicamento = ({ id, objeto, nombre, frecuencia, horas }: { id: string, objeto: Medication, nombre: string, frecuencia: string, horas: string[] }) => {
@@ -291,7 +303,7 @@ export default function NotificationsScreen() {
             <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
             <View style={styles.medTextWrapper}>
               <Text style={styles.medTitle}>{nombre}</Text>
-              <Text style={styles.medTime}>{frecuencia}</Text>
+              <Text style={styles.medTime}>{t(`alerts.${frecuencia}`)}</Text>
               <Text style={styles.medTime}>{horas}</Text>
             </View>
             {/* Botón para eliminar */}
@@ -380,16 +392,17 @@ export default function NotificationsScreen() {
             onDismiss={hideModal}
             contentContainerStyle={globalStyles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={globalStyles.modalTitle}>{medicamentoEditado ? t('alerts.edit_medication') : t('alerts.add_medication')}</Text>
+              <Text style={[globalStyles.modalTitle, {marginBottom: 10}]}>{medicamentoEditado ? t('alerts.edit_medication') : t('alerts.add_medication')}</Text>
 
-              <Text style={globalStyles.inputLabel}>{t('alerts.medication_name')}</Text>
+              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.medication_name')}</Text>
               <TextInput placeholder={t('alerts.example_medication')} value={medName} onChangeText={setMedName} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} />
 
-              <Text style={globalStyles.inputLabel}>{t('alerts.reminder_time')}</Text>
+              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.reminder_time')}</Text>
 
               <Button
                 mode="outlined"
                 onPress={abrirSelectorHora}
+                style={{marginBottom: 10}}
               >
                 {time.toLocaleTimeString([], {
                   hour: '2-digit',
@@ -407,7 +420,7 @@ export default function NotificationsScreen() {
                 />
               )}
 
-              <Text style={globalStyles.inputLabel}>{t('alerts.frequency')}</Text>
+              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.frequency')}</Text>
 
               <Menu
                 visible={menuVisible}
@@ -446,10 +459,10 @@ export default function NotificationsScreen() {
               </Menu>
 
               <View style={globalStyles.modalActions}>
-                <Button mode='contained' onPress={hideModal} style={[globalStyles.button, { backgroundColor: Colors.cancel }]} labelStyle={{ color: '#49454f' }}>
+                <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   {t('common.cancel')}
                 </Button>
-                <Button mode='contained' onPress={guardarMedicamento} style={[globalStyles.button, { backgroundColor: Colors.primary }]}>
+                <Button mode='contained' onPress={guardarMedicamento} style={styles.saveButton} textColor={Colors.white_text}>
                   {medicamentoEditado ? t('common.save') : t('common.add')}
                 </Button>
               </View>

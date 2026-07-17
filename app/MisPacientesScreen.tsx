@@ -34,7 +34,7 @@ export default function PacientesScreen() {
     loadingText: {
       width: '100%',
       textAlign: 'center',
-      color: Colors.modal,
+      color: Colors.textMain,
       marginVertical: 20,
     },
     gridContainer: {
@@ -64,13 +64,13 @@ export default function PacientesScreen() {
       width: 80,
       height: 80,
       borderRadius: 40,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white_text,
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 12,
     },
     patientName: {
-      color: Colors.white,
+      color: Colors.white_text,
       fontWeight: '700',
       letterSpacing: 0.5,
       textAlign: 'center',
@@ -158,43 +158,6 @@ export default function PacientesScreen() {
               No se encontraron pacientes registrados.
             </Text>
           ) : (
-            // pacientes.map((paciente) => (
-            //   <Surface
-            //     key={paciente.id}
-            //     style={styles.card}
-            //     elevation={1}
-            //   >
-            //     <TouchableRipple
-            //       onPress={() =>
-            //         router.push({
-            //           pathname: '/PrincipalScreen',
-            //           params: {
-            //             pacienteId: paciente.id,
-            //             nombre: paciente.nombre_completo || 'Paciente desconocido'
-            //           }
-            //         })
-            //       }
-            //       style={styles.ripple}
-            //       accessibilityRole="button"
-            //       accessibilityLabel={`Ver expediente de ${paciente.nombre_completo || 'paciente'}`}
-            //       borderless
-            //     >
-            //       <View style={styles.cardContent}>
-            //         {/* Icono de usuario en un círculo blanco */}
-            //         <View style={styles.iconContainer}>
-            //           <MaterialCommunityIcons name="account" size={60} color={Colors.primary} />
-            //         </View>
-            //         <Text variant="labelLarge" style={styles.patientName}>
-            //           {paciente.nombre_completo || 'Paciente desconocido'}
-            //         </Text>
-            //         <Text variant="labelLarge" style={styles.patientName}>
-            //           Edad: {paciente.edad} años
-            //         </Text>
-            //       </View>
-            //     </TouchableRipple>
-            //   </Surface>
-            // ))
-
             pacientes.map((paciente, index) => (
               <Animated.View
                 key={paciente.id}

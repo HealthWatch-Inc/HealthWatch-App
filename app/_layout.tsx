@@ -3,7 +3,7 @@ import { TelemetriaProvider } from '../context/TelemetriaContext';
 import { NotificationProvider } from "@/context/NotificationContext";
 import { PacienteProvider } from "@/context/PacienteContext";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { ThemeProvider } from "react-native-paper";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 export default function RootLayout() {
   return (

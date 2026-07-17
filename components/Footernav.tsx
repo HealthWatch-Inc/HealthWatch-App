@@ -41,7 +41,7 @@ const FooterNav = ({ activeTab }: FooterNavProps) => {
       flex: 1
     },
     navText: {
-      color: Colors.backgroundSettings,
+      color: Colors.navItem,
       fontWeight: '500'
     },
     navTextActive: {

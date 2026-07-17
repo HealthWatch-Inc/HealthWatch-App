@@ -98,47 +98,6 @@ const App = () => {
             {t('home.user_panel')}
           </Text>
 
-          {/* <View style={styles.grid}>
-            <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push({
-              pathname: '/SignosVitalesScreen',
-              params: { pacienteId, nombre }
-            })}>
-              <Card.Content>
-                <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.vital_signs')}</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate.toFixed(2) ?? '--'}</Text>
-              </Card.Content>
-            </Card>
-
-            <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/ActividadFisicaScreen')}>
-              <Card.Content>
-                <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.physical_activity')}</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>{t('fitness.goal')}: {objetivoHome || t('fitness.not_defined')} </Text>
-              </Card.Content>
-            </Card>
-
-            <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push({
-              pathname: '/AlertasScreen',
-              params: { pacienteId, nombre }
-            })}>
-              <Card.Content>
-                <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.alerts_notifications')}</Text>
-              </Card.Content>
-            </Card>
-
-            <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push({
-              pathname: '/ContactosScreen',
-              params: { pacienteId }
-            })}>
-              <Card.Content>
-                <MaterialCommunityIcons name="bell-ring-outline" size={24} color="white" />
-                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.emergency_contact')}</Text>
-              </Card.Content>
-            </Card>
-          </View> */}
-
           <View style={styles.grid}>
             <AnimatedCard
               onPress={() =>

@@ -172,7 +172,7 @@ export default function AjustesScreen() {
           {/* Botón Acción */}
           <Button
             mode="contained"
-            style={[globalStyles.button, { backgroundColor: "#E42C2C", paddingVertical: 16, }]}
+            style={[globalStyles.button, { backgroundColor: "#E42C2C", paddingVertical: 16}]}
             onPress={() => router.push('/InicioSesionScreen')}
           >
             {t('settings.logout')}
