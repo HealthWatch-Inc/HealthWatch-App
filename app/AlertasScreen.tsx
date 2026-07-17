@@ -13,13 +13,14 @@ import {
   TextInput,
   Button,
   ActivityIndicator,
-  Menu } from 'react-native-paper';
-import FooterNav from './Footernav';
+  Menu
+} from 'react-native-paper';
+import FooterNav from '../components/Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { usePaciente } from '@/context/PacienteContext';
-import { Colors, globalStyles, theme, chartConfig } from '@/constants/styles';
+import { useTheme } from '@/context/ThemeContext';
 import { t } from '../utils/i18n';
 
 const DATA = [
@@ -44,6 +45,7 @@ interface FallEvent {
 export default function NotificationsScreen() {
   const router = useRouter();
   const { pacienteId } = useLocalSearchParams();
+  const { theme, Colors, globalStyles, } = useTheme();
   const { actualizarMedicamentos } = useNotificationBanner();
   const { setPacienteId } = usePaciente();
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -229,6 +231,58 @@ export default function NotificationsScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    medsContainer: {
+      marginBottom: 16
+    },
+    medCard: {
+      backgroundColor: Colors.primary,
+      marginBottom: 12,
+      width: '100%'
+    },
+    medContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 8
+    },
+    medIcon: {
+      margin: 0
+    },
+    medTitle: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 16
+    },
+    medTime: {
+      color: 'white',
+      fontSize: 14
+    },
+    medTextWrapper: {
+      marginLeft: 4,
+      flex: 1
+    },
+    deleteMedBtn: {
+      margin: 0,
+      padding: 0
+    },
+    sectionTitle: {
+      marginBottom: 16,
+      fontWeight: 'bold',
+      marginTop: 8
+    },
+    fallItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: '#CAC4D0'
+    },
+    emptyContainer: {
+      paddingVertical: 24,
+      alignItems: 'center'
+    },
+  });
+
   const CardMedicamento = ({ id, objeto, nombre, frecuencia, horas }: { id: string, objeto: Medication, nombre: string, frecuencia: string, horas: string[] }) => {
     return (
       <>
@@ -298,13 +352,13 @@ export default function NotificationsScreen() {
         <Appbar.Content title={t('common.back')} />
       </Appbar.Header>
 
-      <View style={[globalStyles.container, { paddingHorizontal: 16, backgroundColor: Colors.backgroundSettings }]}>
+      <View style={globalStyles.container}>
         <FlatList
           data={falls}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={RenderHeader}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={globalStyles.content}
           renderItem={({ item }) => (
             <View style={styles.fallItem}>
               <Text variant="bodyLarge">{item.time}</Text>
@@ -407,55 +461,3 @@ export default function NotificationsScreen() {
     </PaperProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  medsContainer: {
-    marginBottom: 16
-  },
-  medCard: {
-    backgroundColor: Colors.primary,
-    marginBottom: 12,
-    width: '100%'
-  },
-  medContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8
-  },
-  medIcon: {
-    margin: 0
-  },
-  medTitle: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-  medTime: {
-    color: 'white',
-    fontSize: 14
-  },
-  medTextWrapper: {
-    marginLeft: 4,
-    flex: 1
-  },
-  deleteMedBtn: {
-    margin: 0,
-    padding: 0
-  },
-  sectionTitle: {
-    marginBottom: 16,
-    fontWeight: 'bold',
-    marginTop: 8
-  },
-  fallItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#CAC4D0'
-  },
-  emptyContainer: {
-    paddingVertical: 24,
-    alignItems: 'center'
-  },
-});

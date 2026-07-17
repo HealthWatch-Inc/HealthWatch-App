@@ -14,11 +14,11 @@ import {
 } from 'react-native-paper';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import FooterNav from './Footernav';
+import FooterNav from '../components/Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService } from '@/services/apiService';
-import { Colors, globalStyles, theme, chartConfig } from '@/constants/styles';
+import { useTheme } from '@/context/ThemeContext';
 import { t } from '../utils/i18n';
 
 /*
@@ -44,15 +44,87 @@ import { t } from '../utils/i18n';
 
 export default function ActividadFisicaScreen() {
   const router = useRouter();
+  const { theme, Colors, globalStyles, chartConfig } = useTheme();
   const { pacienteId } = useLocalSearchParams();
   const pacienteIdParam = Array.isArray(pacienteId) ? pacienteId[0] : pacienteId;
   const { pasosConteo, reiniciarPasos } = useTelemetria();
   const [visible, setVisible] = useState(false);
   const [objetivo, setObjetivo] = useState('');
   const [objetivoTemporal, setObjetivoTemporal] = useState('');
-
-  // Estado de ProgressChart
   const [dataChart, setDataChart] = useState([0]);
+
+  const styles = StyleSheet.create({
+    scrollContent: {
+      padding: 8,
+    },
+    modalInputLabel: {
+      marginTop: 12,
+      marginBottom: 10,
+    },
+    activityCard: {
+      backgroundColor: '#665200',
+      borderRadius: 28,
+      paddingVertical: 8,
+    },
+    cardTitle: {
+      color: Colors.white,
+      fontWeight: '500',
+      marginBottom: 12,
+      marginLeft: 4,
+    },
+    cardFlexContainer: {
+      flexDirection: 'row', alignItems: 'center',
+    },
+    deleteIcon: {
+      margin: 0
+    },
+    textContainer: {
+      marginLeft: 20,
+      justifyContent: 'center',
+    },
+    infoText: {
+      color: Colors.white,
+      fontSize: 18,
+      marginLeft: 4,
+      fontWeight: 'bold',
+      marginBottom: 13
+    },
+    fab: {
+      position: 'absolute',
+      margin: 16,
+      right: 0,
+      bottom: 90,
+      backgroundColor: '#665200',
+      borderRadius: 50,
+      zIndex: 10
+    },
+    inputLabel: {
+      fontSize: 14,
+      color: '#49454F',
+      marginTop: 12,
+      marginBottom: 10
+    },
+    cancelButton: {
+      flex: 1,
+      marginRight: 8,
+      backgroundColor: '#E6E1E5',
+      borderRadius: 20
+    },
+    restartButton: {
+      flex: 1,
+      marginRight: 8,
+      backgroundColor: '#665200',
+      borderRadius: 20,
+      color: Colors.white,
+      marginTop: 13
+    },
+    saveButton: {
+      flex: 1,
+      marginLeft: 8,
+      backgroundColor: Colors.primary,
+      borderRadius: 20,
+    },
+  });
 
   const showModal = () => {
     setObjetivoTemporal(objetivo);
@@ -92,7 +164,6 @@ export default function ActividadFisicaScreen() {
       if (pacienteIdParam) {
         await apiService.delete(`/api/actividad-fisica/${pacienteIdParam}`);
       }
-
       await AsyncStorage.removeItem('@objetivo_pasos');
       setObjetivo('');
       setDataChart([0]);
@@ -161,15 +232,17 @@ export default function ActividadFisicaScreen() {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView style={globalStyles.container}>
+      <SafeAreaView style={[globalStyles.container, { backgroundColor: Colors.backgroundSettings }]}>
 
         {/* Barra Superior con botón para regresar */}
-        <Appbar.Header style={globalStyles.header}>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title={t('common.back')} />
+        <Appbar.Header style={[globalStyles.header, { backgroundColor: Colors.backgroundSettings }]}>
+          <Appbar.BackAction onPress={() => router.back()} iconColor={Colors.black} />
+          <Appbar.Content
+            title={t('common.back')}
+            titleStyle={{ color: Colors.black }} />
         </Appbar.Header>
 
-        <ScrollView style={globalStyles.container} contentContainerStyle={styles.scrollContent}>
+        <ScrollView style={globalStyles.content}>
           <Text variant="headlineMedium" style={[globalStyles.title, { marginBottom: 20 }]}>
             {t('fitness.title')}
           </Text>
@@ -187,7 +260,7 @@ export default function ActividadFisicaScreen() {
                 <IconButton
                   icon="delete"
                   size={20}
-                  iconColor='Colors.white'
+                  iconColor={Colors.white}
                   onPress={() => borrarObjetivoConfirm()}
                   style={styles.deleteIcon}
                 />
@@ -208,7 +281,7 @@ export default function ActividadFisicaScreen() {
             onDismiss={hideModal}
             contentContainerStyle={globalStyles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={globalStyles.modalTitle}>{t('fitness.new_goal')}</Text>
+              <Text style={[globalStyles.modalTitle, { fontSize: 20 }]}>{t('fitness.new_goal')}</Text>
 
               <Text style={[globalStyles.inputLabel, styles.modalInputLabel]}>{t('fitness.step_goal_label')}</Text>
               <TextInput keyboardType='numeric' placeholder={t('fitness.example_goal')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor='#004A60' value={objetivoTemporal} onChangeText={handleTextChange} />
@@ -230,77 +303,3 @@ export default function ActividadFisicaScreen() {
     </PaperProvider>
   );
 }
-
-// --- ESTILOS ---
-const styles = StyleSheet.create({
-  scrollContent: {
-    padding: 16,
-  },
-  modalInputLabel: {
-    marginTop: 12,
-    marginBottom: 10,
-  },
-  activityCard: {
-    backgroundColor: '#665200',
-    borderRadius: 28,
-    paddingVertical: 8,
-  },
-  cardTitle: {
-    color: Colors.white,
-    fontWeight: '500',
-    marginBottom: 12,
-    marginLeft: 4,
-  },
-  cardFlexContainer: {
-    flexDirection: 'row', alignItems: 'center',
-  },
-  deleteIcon: {
-    margin: 0
-  },
-  textContainer: {
-    marginLeft: 20,
-    justifyContent: 'center',
-  },
-  infoText: {
-    color: Colors.white,
-    fontSize: 22,
-    marginLeft: 4,
-    fontWeight: 'bold',
-    marginBottom: 13
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 90,
-    backgroundColor: '#665200',
-    borderRadius: 50,
-    zIndex: 10
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#49454F',
-    marginTop: 12,
-    marginBottom: 10
-  },
-  cancelButton: {
-    flex: 1,
-    marginRight: 8,
-    backgroundColor: '#E6E1E5',
-    borderRadius: 20
-  },
-  restartButton: {
-    flex: 1,
-    marginRight: 8,
-    backgroundColor: '#665200',
-    borderRadius: 20,
-    color: Colors.white,
-    marginTop: 13
-  },
-  saveButton: {
-    flex: 1,
-    marginLeft: 8,
-    backgroundColor: Colors.primary,
-    borderRadius: 20,
-  },
-});

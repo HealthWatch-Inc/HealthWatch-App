@@ -12,18 +12,21 @@ import {
   RadioButton,
   List,
   IconButton,
-  TextInput
+  TextInput,
+  Switch,
 } from 'react-native-paper';
 import { t } from '../utils/i18n';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '@/context/LanguageContext';
 import { apiService } from '@/services/apiService';
-import { globalStyles, Colors, theme } from '@/constants/styles';
+import { useTheme } from '@/context/ThemeContext';
+import { lightTheme, darkTheme, LightColors, DarkColors, getGlobalStyles } from '@/constants/styles';
 
 // Definición de tipos para las filas de datos
 interface SettingRowProps {
   label: string;
   value: string;
+  colors: typeof LightColors;
 }
 
 interface Usuario {
@@ -34,22 +37,30 @@ interface Usuario {
   telefono: string;
 }
 
-const SettingRow = ({ label, value }: SettingRowProps) => (
-  <View style={globalStyles.row}>
-    <Text variant="bodyMedium" style={{ color: Colors.textSecondaryMaterial }}>{label}</Text>
-    <Surface style={styles.valueContainer} elevation={0}>
-      <Text variant="bodyMedium">{value}</Text>
-    </Surface>
-  </View>
-);
+const SettingRow = ({ label, value, colors }: SettingRowProps) => {
+  const localStyles = createStyles(colors);
+  return (
+    <View style={getGlobalStyles(colors).row}>
+      <Text variant="bodyMedium" style={{ color: colors.textSecondaryMaterial }}>{label}</Text>
+      <Surface style={localStyles.valueContainer} elevation={0}>
+        <Text variant="bodyMedium" style={{ color: colors.textMain }}>{value}</Text>
+      </Surface>
+    </View>
+  )
+};
 
 export default function AjustesScreen() {
   const router = useRouter();
+  const { isDark, Colors, theme, globalStyles, toggleTheme } = useTheme();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const { language, changeLanguage } = useLanguage();
   const [langDialogVisible, setLangDialogVisible] = useState(false);
   const [editPhoneVisible, setEditPhoneVisible] = useState(false);
   const [telefono, setTelefono] = useState("");
+
+  const activeColors = Colors;
+  const activeTheme = theme;
+  const styles = createStyles(activeColors);
 
   useEffect(() => {
     const cargarPerfil = async () => {
@@ -68,11 +79,7 @@ export default function AjustesScreen() {
       await apiService.put("/api/usuarios/telefono", {
         telefono,
       });
-
       setUsuario(prev => prev ? { ...prev, telefono, } : prev);
-
-      console.log("Guardando teléfono")
-
       setEditPhoneVisible(false);
     } catch (error) {
       console.error(error);
@@ -80,28 +87,28 @@ export default function AjustesScreen() {
   }
 
   return (
-    <PaperProvider key={language} theme={theme}>
-      <View style={{ flex: 1 }}>
+    <PaperProvider key={`${language}-${isDark}`} theme={activeTheme}>
+      <View style={[globalStyles.container, { backgroundColor: activeColors.backgroundSettings }]}>
         <Appbar.Header style={globalStyles.header}>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title={t('settings.back')} />
+          <Appbar.BackAction onPress={() => router.back()} iconColor={activeColors.textMain} />
+          <Appbar.Content title={t('settings.back')} titleStyle={{ color: activeColors.textMain }} />
         </Appbar.Header>
 
-        <ScrollView contentContainerStyle={globalStyles.container}>
+        <ScrollView contentContainerStyle={globalStyles.content}>
           <Text variant="headlineSmall" style={globalStyles.title}>{t('settings.title')}</Text>
 
           {/* Sección Perfil */}
           <Text variant="titleMedium" style={styles.sectionHeader}>{t('settings.profile')}</Text>
-          <SettingRow label={t('settings.user')} value={usuario?.nombre_completo || "José García"} />
-          <SettingRow label={t('settings.role')} value={usuario?.rol || t('settings.caregiver')} />
+          <SettingRow label={t('settings.user')} value={usuario?.nombre_completo || "Cargando"} colors={activeColors} />
+          <SettingRow label={t('settings.role')} value={usuario?.rol || "Cargando"} colors={activeColors} />
 
           <View style={globalStyles.row}>
-            <Text variant='bodyMedium' style={{ color: Colors.textSecondaryMaterial }}>
+            <Text variant='bodyMedium' style={{ color: activeColors.textSecondaryMaterial }}>
               {t('settings.contact')}
             </Text>
 
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text>{usuario?.telefono ?? ""}</Text>
+              <Text>{usuario?.telefono ?? "Cargando"}</Text>
 
               <IconButton icon="pencil" size={18} onPress={() => setEditPhoneVisible(true)} />
             </View>
@@ -119,14 +126,29 @@ export default function AjustesScreen() {
             </Dialog>
           </Portal>
 
-          <Divider style={globalStyles.divider} />
+          <Divider style={[globalStyles.divider, { backgroundColor: activeColors.textSecondaryMaterial }]} />
 
           {/* Sección Preferencias */}
           <Text variant="titleMedium" style={styles.sectionHeader}>{t('settings.preferences')}</Text>
+
+          {/* Fila de Idioma */}
           <View style={globalStyles.row}>
-            <Text variant="bodyMedium" style={{ color: Colors.textSecondaryMaterial }}>{t('settings.language')}</Text>
+            <Text variant="bodyMedium" style={{ color: activeColors.textSecondaryMaterial }}>{t('settings.language')}</Text>
             <Button mode="text" onPress={() => setLangDialogVisible(true)}>{language === 'es' ? 'Español' : 'English'}</Button>
           </View>
+
+          {/* Selección de Modo Oscuro */}
+          <View style={globalStyles.row}>
+            <Text variant='bodyMedium' style={{ color: activeColors.textSecondaryMaterial }}>
+              {isDark ? 'Modo Oscuro' : 'Modo Claro'}
+            </Text>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              color={activeColors.primary}
+            />
+          </View>
+
           <Portal>
             <Dialog visible={langDialogVisible} onDismiss={() => setLangDialogVisible(false)}>
               <Dialog.Title>{t('settings.select_language')}</Dialog.Title>
@@ -144,13 +166,13 @@ export default function AjustesScreen() {
               </Dialog.Actions>
             </Dialog>
           </Portal>
-          <Divider style={globalStyles.divider} />
+
+          <Divider style={[globalStyles.divider, { backgroundColor: activeColors.textSecondaryMaterial }]} />
 
           {/* Botón Acción */}
           <Button
             mode="contained"
-            buttonColor="#E42C2C"
-            style={globalStyles.button}
+            style={[globalStyles.button, { backgroundColor: "#E42C2C", paddingVertical: 16, }]}
             onPress={() => router.push('/InicioSesionScreen')}
           >
             {t('settings.logout')}
@@ -161,7 +183,8 @@ export default function AjustesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+// Convertimos los estilos locales en una función para inyectar la paleta de colores activa
+const createStyles = (colors: typeof LightColors) => StyleSheet.create({
   mainTitle: {
     fontWeight: 'bold',
     marginBottom: 20
@@ -173,7 +196,7 @@ const styles = StyleSheet.create({
   valueContainer: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#F1F1F1',
+    backgroundColor: colors.inputBg,
     borderRadius: 4
   },
 });

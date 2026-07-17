@@ -1,25 +1,35 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
-import { 
-  Text, 
-  Appbar, 
-  Avatar, 
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  Text,
+  Appbar,
+  Avatar,
   Card,
-  Provider as PaperProvider 
+  Provider as PaperProvider
 } from 'react-native-paper';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FooterNav from './Footernav';
+import FooterNav from '../components/Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePaciente } from '@/context/PacienteContext';
+import { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import AnimatedCard from '@/components/AnimatedCard';
+import { useTheme } from '@/context/ThemeContext';
 import { t } from '../utils/i18n';
 
 const App = () => {
   const router = useRouter();
   const { pacienteId, nombre } = useLocalSearchParams();
-  const { telemetriaActual} = useTelemetria();
+  const { telemetriaActual } = useTelemetria();
   const { setPacienteId } = usePaciente();
+  const { theme, Colors, globalStyles } = useTheme();
 
   // Estado para objetivo y pasos en la pantalla Home
   const [objetivoHome, setObjetivoHome] = useState('');
@@ -32,7 +42,7 @@ const App = () => {
   useFocusEffect(
     useCallback(() => {
       const obtenerDatosPersistidos = async () => {
-        try{
+        try {
           const objGuardado = await AsyncStorage.getItem('@objetivo_pasos');
           const pasosGuardados = await AsyncStorage.getItem('@pasos_conteo');
 
@@ -59,38 +69,36 @@ const App = () => {
   console.log("telemetriaActual:", telemetriaActual);
 
   return (
-    <PaperProvider>
-      <SafeAreaView style={styles.container}>
+    <PaperProvider theme={theme}>
+      <SafeAreaView style={globalStyles.container}>
         {/* Header / Appbar */}
-        <Appbar.Header style={styles.header}>
-          <Appbar.Action icon="menu" onPress={() => {}} />
-          <Appbar.Content title={t('patients.app_name')} titleStyle={styles.headerTitle} />
-          <TouchableOpacity 
+        <Appbar.Header style={globalStyles.header}>
+          <Appbar.Action icon="menu" onPress={() => { }} />
+          <Appbar.Content title={t('patients.app_name')} titleStyle={globalStyles.headerTitle} />
+          <TouchableOpacity
             onPress={() => router.push({ pathname: '/AjustesScreen' })}
             activeOpacity={0.7}
           >
-            <Avatar.Icon 
-              size={40} 
-              icon="account" 
-              style={styles.avatar} 
+            <Avatar.Icon
+              size={40}
+              icon="account"
+              style={globalStyles.avatar}
               color="white"
             />
           </TouchableOpacity>
         </Appbar.Header>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Bienvenida */}
-          <Text variant="headlineMedium" style={styles.welcomeText}>
+        <ScrollView style={globalStyles.content}>
+          <Text variant="headlineMedium" style={globalStyles.title}>
             {t('home.patient_label')}: {nombre || t('patients.unknown_patient')}
           </Text>
 
           {/* Sección: Panel del usuario */}
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text variant="titleMedium" style={[globalStyles.title, { fontSize: 18 }]}>
             {t('home.user_panel')}
           </Text>
-          
-          <View style={styles.grid}>
-            {/* Tarjeta Signos Vitales */}
+
+          {/* <View style={styles.grid}>
             <Card style={[styles.card, { backgroundColor: '#801a1a' }]} onPress={() => router.push({
               pathname: '/SignosVitalesScreen',
               params: { pacienteId, nombre }
@@ -102,7 +110,6 @@ const App = () => {
               </Card.Content>
             </Card>
 
-            {/* Tarjeta Actividad física */}
             <Card style={[styles.card, { backgroundColor: '#7a6200' }]} onPress={() => router.push('/ActividadFisicaScreen')}>
               <Card.Content>
                 <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
@@ -111,7 +118,6 @@ const App = () => {
               </Card.Content>
             </Card>
 
-            {/* Tarjeta Alertas */}
             <Card style={[styles.card, { backgroundColor: '#003e5c' }]} onPress={() => router.push({
               pathname: '/AlertasScreen',
               params: { pacienteId, nombre }
@@ -122,7 +128,6 @@ const App = () => {
               </Card.Content>
             </Card>
 
-            {/* Tarjeta Contacto */}
             <Card style={[styles.card, { backgroundColor: '#6a0050' }]} onPress={() => router.push({
               pathname: '/ContactosScreen',
               params: { pacienteId }
@@ -132,13 +137,75 @@ const App = () => {
                 <Text variant="labelLarge" style={styles.cardLabel}>{t('home.emergency_contact')}</Text>
               </Card.Content>
             </Card>
+          </View> */}
+
+          <View style={styles.grid}>
+            <AnimatedCard
+              onPress={() =>
+                router.push({
+                  pathname: "/SignosVitalesScreen",
+                  params: { pacienteId, nombre }
+                })
+              }
+              background={"#801a1a"}
+              delay={0}
+            >
+              <Card.Content>
+                <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.vital_signs')}</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.heart_rate.toFixed(2) ?? '--'}</Text>
+              </Card.Content>
+            </AnimatedCard>
+
+            {/* Tarjeta Actividad física */}
+            <AnimatedCard
+              onPress={() =>
+                router.push("/ActividadFisicaScreen")
+              }
+              background={"#7a6200"}
+              delay={100}
+            >
+              <Card.Content>
+                <MaterialCommunityIcons name="heart-pulse" size={24} color="white" />
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.physical_activity')}</Text>
+                <Text variant="titleLarge" style={styles.cardValue}>{t('fitness.goal')}: {objetivoHome || t('fitness.not_defined')} </Text>
+              </Card.Content>
+            </AnimatedCard>
+
+            <AnimatedCard
+              onPress={() => router.push({
+                pathname: '/AlertasScreen',
+                params: { pacienteId, nombre }
+              })}
+              background={"#003e5c"}
+              delay={200}
+            >
+              <Card.Content>
+                <MaterialCommunityIcons name="bell-outline" size={24} color="white" />
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.alerts_notifications')}</Text>
+              </Card.Content>
+            </AnimatedCard>
+
+            <AnimatedCard
+              onPress={() => router.push({
+                pathname: '/ContactosScreen',
+                params: { pacienteId }
+              })}
+              background={"#6a0050"}
+              delay={300}
+            >
+              <Card.Content>
+                <MaterialCommunityIcons name="bell-ring-outline" size={24} color="white" />
+                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.emergency_contact')}</Text>
+              </Card.Content>
+            </AnimatedCard>
           </View>
 
           {/* Sección: Datos del dispositivo */}
-          <Text variant="titleMedium" style={[styles.sectionTitle, { marginTop: 24 }]}>
+          <Text variant="titleMedium" style={[globalStyles.title, { marginTop: 24 }]}>
             {t('home.device_data')}
           </Text>
-          
+
           <Card style={[styles.wideCard, { backgroundColor: '#3d7a3d' }]}>
             <Card.Content style={styles.wideCardContent}>
               <MaterialCommunityIcons name="battery-70" size={24} color="white" />
@@ -149,7 +216,6 @@ const App = () => {
             </Card.Content>
           </Card>
         </ScrollView>
-
         <FooterNav activeTab="inicio" />
       </SafeAreaView>
     </PaperProvider>
@@ -157,38 +223,8 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-  },
-  header: {
-    backgroundColor: '#f9f9f9',
-    elevation: 0,
-    justifyContent: 'space-between',
-    shadowOpacity: 0,
-    borderBottomWidth: 0,
-  },
-  headerTitle: {
-    textAlign: 'center',
-    fontWeight: '400',
-    color: '#1a1a1a'
-  },
-  avatar: {
-    backgroundColor: '#ff8a65',
-    marginRight: 16,
-  },
   scrollContent: {
-    padding: 20,
-  },
-  welcomeText: {
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#1a1a1a',
-  },
-  sectionTitle: {
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#1a1a1a'
+    padding: 8,
   },
   grid: {
     flexDirection: 'row',
@@ -196,10 +232,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   card: {
-    width: '48%',
+    width: '100%',
     height: 120,
     marginBottom: 16,
-    borderRadius: 28, // Estilo redondeado de Material 3
+    borderRadius: 28,
     justifyContent: 'center',
   },
   wideCard: {
@@ -220,31 +256,6 @@ const styles = StyleSheet.create({
   cardValue: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  bottomNav: {
-    height: 80,
-    backgroundColor: '#004d61',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navText: {
-    color: '#ffffffaa',
-    fontWeight: '500',
-  },
-  navTextActive: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  activeIndicator: {
-    height: 3,
-    width: 30,
-    backgroundColor: 'white',
-    marginTop: 4,
-    borderRadius: 2,
   },
 });
 

@@ -1,53 +1,93 @@
 import { Platform, StyleSheet } from 'react-native';
-import { MD3LightTheme } from 'react-native-paper';
+import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 
-export const chartConfig = {
-  backgroundGradientFrom: "#1E2923",
-  backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: "#08130D",
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(256, 256, 256, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  fontFamily: 'Arial Black',
-  propsForLabels: {
-    fontFamily: 'Arial Black',
-  }
-}
-
-export const Colors = {
+// Paleta base de Modo Claro
+export const LightColors = {
   primary: '#005063',
   inputBg: '#EAE6F0',
-  textMain: '#1a1a1a',
+  textMain: '#1A1A1A',
   textSecondary: '#666',
   textLight: '#444',
-  white: '#fff',
+  white: '#FFF',
   black: '#000',
-  logoBg: '#f0f4f5',
+  logoBg: '#F0F4F5',
   cardBrown: "#665200",
   backgroundSettings: '#FEF7FF',
+  background: "#F9F9F9",
   textSecondaryMaterial: '#49454F',
   cancel: "#E6E1E5",
   danger: "#B3261E",
   modal: '#1D1B20',
 };
 
-export const theme = {
+// Paleta adaptada para Modo Oscuro
+export const DarkColors = {
+  primary: '#007A96',
+  inputBg: '#2D2930',
+  textMain: '#E6E1E5',
+  textSecondary: '#A8A29E',
+  textLight: '#CCC',
+  white: '#1A1A1A', // Se invierte para fondos oscuros de tarjetas alternas
+  black: '#FFF',
+  logoBg: '#1F2425',
+  cardBrown: "#806600",
+  backgroundSettings: '#121212',
+  background: "#1C1C1C",
+  textSecondaryMaterial: '#CAC4D0',
+  cancel: '#36343B',
+  danger: '#F2B8B5',
+  modal: '#2B2930',
+};
+
+// Temas completos para React Native Paper
+export const lightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    background: Colors.backgroundSettings,
-    surface: Colors.backgroundSettings,
-    onSurface: Colors.black,
-    onSurfaceVariant: Colors.black,
+    background: LightColors.backgroundSettings,
+    surface: LightColors.backgroundSettings,
+    onSurface: LightColors.black,
+    onSurfaceVariant: LightColors.black,
+    primary: LightColors.primary,
   },
 };
 
-export const globalStyles = StyleSheet.create({
+export const darkTheme = {
+  ...MD3DarkTheme,
+  colors: {
+    ...MD3DarkTheme.colors,
+    background: DarkColors.backgroundSettings,
+    surface: DarkColors.backgroundSettings,
+    onSurface: DarkColors.black, // En MD3DarkTheme esto mapea al texto principal claro
+    onSurfaceVariant: DarkColors.black,
+    primary: DarkColors.primary,
+  },
+};
+
+export const getChartConfig = (isDark: boolean) => ({
+  backgroundGradientFrom: isDark ? "#121212" : "#1E2923",
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientTo: isDark ? "#1C1C1C" : "#08130D",
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 74, 96, ${opacity})`,
+  strokeWidth: 2,
+  barPercentage: 0.5,
+  useShadowColorFromDataset: false,
+  fontFamily: Platform.OS === 'ios' ? 'Arial' : 'sans-serif-condensed',
+  propsForLabels: {
+    fontFamily: Platform.OS === 'ios' ? 'Arial' : 'sans-serif-condensed',
+  }
+});
+
+export const getGlobalStyles = (Colors: typeof LightColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    paddingHorizontal: 10,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   form: {
     width: '100%',
@@ -58,12 +98,12 @@ export const globalStyles = StyleSheet.create({
     borderBottomWidth: 0
   },
   inputWrapper: {
-    marginBottom: 20, 
+    marginBottom: 20,
   },
-  title: { 
-    fontSize: 28,
-    fontWeight: '700', 
-    marginBottom: 30, 
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 15,
     color: Colors.textMain,
   },
   inputContainer: {
@@ -80,8 +120,6 @@ export const globalStyles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondaryMaterial,
     fontWeight: '600',
-    marginTop: 12,
-    marginBottom: 10,
   },
   input: {
     fontSize: 16,
@@ -89,7 +127,6 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: Colors.backgroundSettings,
     marginTop: 2,
     marginBottom: 8,
-    minHeight: 24,
   },
   helperText: {
     fontSize: 11,
@@ -102,10 +139,12 @@ export const globalStyles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 20,
     alignItems: 'center',
-    marginTop: 10,
-    ...Platform.select({
-      android: { elevation: 3 },
-    }),
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    marginRight: 8,
+    borderRadius: 20
   },
   buttonText: {
     color: Colors.white,
@@ -161,4 +200,13 @@ export const globalStyles = StyleSheet.create({
     marginTop: 16,
     backgroundColor: '#CAC4D0'
   },
-});
+  avatar: {
+    backgroundColor: '#ff8a65',
+    marginRight: 16,
+  },
+  headerTitle: {
+    textAlign: 'center',
+    fontWeight: '400',
+    color: Colors.textMain,
+  },
+})

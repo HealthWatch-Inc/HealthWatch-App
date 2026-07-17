@@ -1,4 +1,3 @@
-import { Colors, globalStyles } from '@/constants/styles';
 import { authService } from '@/services/authService';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
@@ -13,16 +12,18 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { Colors, globalStyles } = useTheme();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -56,13 +57,75 @@ export default function LoginScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    scrollContent: {
+      paddingHorizontal: 30,
+      justifyContent: 'center',
+      paddingVertical: 40,
+    },
+    logoContainer: {
+      alignItems: 'center',
+      marginBottom: 40,
+    },
+    logoPlaceholder: {
+      width: 120,
+      height: 120,
+      backgroundColor: '#f0f4f5',
+      borderRadius: 60,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    brandName: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: Colors.primary,
+      letterSpacing: 1,
+    },
+    brandSlogan: {
+      fontSize: 12,
+      color: '#888',
+    },
+    googleLoginWrapper: {
+      alignItems: 'center',
+      marginTop: 25,
+    },
+    googleButton: {
+      width: 64,
+      height: 64,
+      backgroundColor: '#fff',
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: '#ddd',
+      justifyContent: 'center',
+      alignItems: 'center',
+      boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.52)',
+      elevation: 2,
+    },
+    googleLogo: {
+      width: 48,
+      height: 48,
+    },
+    googleLabel: {
+      marginTop: 10,
+      color: Colors.textMain,
+      fontSize: 16,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+    centerText: {
+      textAlign: 'center',
+    },
+  });
+
+
   return (
     <SafeAreaView style={globalStyles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "android" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView style={globalStyles.content}>
           {/* Logo Container */}
           <View style={styles.logoContainer}>
             <View style={styles.logoPlaceholder}>
@@ -160,64 +223,3 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 30,
-    justifyContent: 'center',
-    paddingVertical: 40,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoPlaceholder: {
-    width: 120,
-    height: 120,
-    backgroundColor: '#f0f4f5',
-    borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  brandName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.primary,
-    letterSpacing: 1,
-  },
-  brandSlogan: {
-    fontSize: 12,
-    color: '#888',
-  },
-  googleLoginWrapper: {
-    alignItems: 'center',
-    marginTop: 25,
-  },
-  googleButton: {
-    width: 64,
-    height: 64,
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.52)',
-    elevation: 2,
-  },
-  googleLogo: {
-    width: 48,
-    height: 48,
-  },
-  googleLabel: {
-    marginTop: 10,
-    color: Colors.textMain,
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  centerText: {
-    textAlign: 'center',
-  },
-});
