@@ -120,8 +120,8 @@ export default function AjustesScreen() {
                 <TextInput label="Número" value={telefono} keyboardType='phone-pad' onChangeText={setTelefono} />
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={() => setEditPhoneVisible(false)}>{t('settings.cancel')}</Button>
-                <Button onPress={guardarTelefono}>{t('settings.accept')}</Button>
+                <Button onPress={() => setEditPhoneVisible(false)} textColor={Colors.black}>{t('settings.cancel')}</Button>
+                <Button onPress={guardarTelefono} textColor={Colors.black}>{t('settings.accept')}</Button>
               </Dialog.Actions>
             </Dialog>
           </Portal>
@@ -134,7 +134,7 @@ export default function AjustesScreen() {
           {/* Fila de Idioma */}
           <View style={globalStyles.row}>
             <Text variant="bodyMedium" style={{ color: activeColors.textSecondaryMaterial }}>{t('settings.language')}</Text>
-            <Button mode="text" onPress={() => setLangDialogVisible(true)}>{language === 'es' ? 'Español' : 'English'}</Button>
+            <Button mode="text" onPress={() => setLangDialogVisible(true)} textColor={Colors.black}>{language === 'es' ? 'Español' : 'English'}</Button>
           </View>
 
           {/* Selección de Modo Oscuro */}
@@ -145,7 +145,7 @@ export default function AjustesScreen() {
             <Switch
               value={isDark}
               onValueChange={toggleTheme}
-              color={activeColors.primary}
+              color={activeColors.black}
             />
           </View>
 
@@ -157,12 +157,12 @@ export default function AjustesScreen() {
                   await changeLanguage(val);
                   setLangDialogVisible(false);
                 }}>
-                  <List.Item title="Español" description="Español (predeterminado)" left={() => <RadioButton value="es" />} />
-                  <List.Item title="English" description="English" left={() => <RadioButton value="en" />} />
+                  <List.Item title="Español" description="Español (predeterminado)" left={() => <RadioButton value="es" color={Colors.black}/>}/>
+                  <List.Item title="English" description="English" left={() => <RadioButton value="en" color={Colors.black}/>} />
                 </RadioButton.Group>
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={() => setLangDialogVisible(false)}>{t('settings.accept')}</Button>
+                <Button onPress={() => setLangDialogVisible(false)} textColor={Colors.black}>{t('settings.accept')}</Button>
               </Dialog.Actions>
             </Dialog>
           </Portal>
@@ -172,8 +172,15 @@ export default function AjustesScreen() {
           {/* Botón Acción */}
           <Button
             mode="contained"
-            style={[globalStyles.button, { backgroundColor: "#E42C2C", paddingVertical: 16}]}
             onPress={() => router.push('/InicioSesionScreen')}
+            style={[
+              globalStyles.button,
+              {
+                backgroundColor: "#E42C2C",
+                width: "100%",
+              }
+            ]}
+            textColor={Colors.white_text}
           >
             {t('settings.logout')}
           </Button>
@@ -190,7 +197,7 @@ const createStyles = (colors: typeof LightColors) => StyleSheet.create({
     marginBottom: 20
   },
   sectionHeader: {
-    marginBottom: 15,
+    marginVertical: 15,
     fontWeight: '600'
   },
   valueContainer: {

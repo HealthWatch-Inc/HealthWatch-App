@@ -100,12 +100,12 @@ const App = () => {
 
           <View style={styles.grid}>
             <AnimatedCard
-              onPress={() =>
+              onPress={() => {
                 router.push({
                   pathname: "/SignosVitalesScreen",
                   params: { pacienteId, nombre }
-                })
-              }
+                });
+              }}
               background={"#801a1a"}
               delay={0}
             >
@@ -165,15 +165,23 @@ const App = () => {
             {t('home.device_data')}
           </Text>
 
-          <Card style={[styles.wideCard, { backgroundColor: '#3d7a3d' }]}>
+          <AnimatedCard
+            background="#3d7a3d"
+            delay={400}
+            fullWidth
+          >
             <Card.Content style={styles.wideCardContent}>
               <MaterialCommunityIcons name="battery-70" size={24} color="white" />
               <View style={{ marginLeft: 12 }}>
-                <Text variant="labelLarge" style={styles.cardLabel}>{t('home.watch_battery')}</Text>
-                <Text variant="titleLarge" style={styles.cardValue}>{telemetriaActual?.battery || 0}%</Text>
+                <Text variant="labelLarge" style={styles.cardLabel}>
+                  {t('home.watch_battery')}
+                </Text>
+                <Text variant="titleLarge" style={styles.cardValue}>
+                  {telemetriaActual?.battery || 0}%
+                </Text>
               </View>
             </Card.Content>
-          </Card>
+          </AnimatedCard>
         </ScrollView>
         <FooterNav activeTab="inicio" />
       </SafeAreaView>

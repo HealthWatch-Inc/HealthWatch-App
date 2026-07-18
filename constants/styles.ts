@@ -18,6 +18,7 @@ export const LightColors = {
   background: "#F9F9F9",
   textSecondaryMaterial: '#49454F',
   inputLabel: '#161518',
+  inputLogin: '#161518',
   cancel: "#E6E1E5",
   danger: "#B3261E",
   modal: '#1D1B20',
@@ -40,8 +41,9 @@ export const DarkColors = {
   background: "#1C1C1C",
   textSecondaryMaterial: '#CAC4D0',
   inputLabel: '#161518',
+  inputLogin: '#ffe',
   cancel: '#36343B',
-  danger: '#F2B8B5',
+  danger: '#B3261E',
   modal: '#2B2930',
 };
 
@@ -153,7 +155,7 @@ export const getGlobalStyles = (Colors: typeof LightColors) => StyleSheet.create
     borderRadius: 20
   },
   buttonText: {
-    color: Colors.white,
+    color: Colors.white_text,
     fontSize: 16,
     fontWeight: 'bold',
   },

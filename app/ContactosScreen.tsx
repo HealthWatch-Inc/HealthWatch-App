@@ -185,6 +185,20 @@ export default function EmergencyContactsScreen() {
     callButton: {
       borderRadius: 20
     },
+
+    cancelButton: {
+      flex: 1,
+      marginRight: 8,
+      backgroundColor: '#E6E1E5',
+      borderRadius: 20,
+      width: '100%',
+    },
+    saveButton: {
+      flex: 1,
+      marginLeft: 8,
+      backgroundColor: Colors.primary,
+      borderRadius: 20,
+    },
   });
 
   return (
@@ -228,19 +242,22 @@ export default function EmergencyContactsScreen() {
                     onPress={() => makeCall(item.phone)}
                     buttonColor={Colors.danger}
                     style={styles.callButton}
+                    textColor={Colors.white_text}
                   >
                     {t('contacts.call')}
                   </Button>
 
                   <Button
-                    mode='outlined'
-                    onPress={() => editContacto(item)}>
+                    mode='contained'
+                    onPress={() => editContacto(item)}
+                    textColor={Colors.white_text}>
                     {t('contacts.edit')}
                   </Button>
 
                   <Button
-                    mode='outlined'
-                    onPress={() => deleteContacto(item.id, item.name)}>
+                    mode='contained'
+                    onPress={() => deleteContacto(item.id, item.name)}
+                    textColor={Colors.white_text}>
                     {t('contacts.delete')}
                   </Button>
                 </View>
@@ -255,24 +272,24 @@ export default function EmergencyContactsScreen() {
         <Portal>
           <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={globalStyles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={[globalStyles.modalTitle, { fontSize: 20 }]}>{contactoEditado ? t('contacts.edit_contact') : t('contacts.add_contact')}</Text>
+              <Text style={[globalStyles.modalTitle, { fontSize: 20, marginBottom: 16 }]}>{contactoEditado ? t('contacts.edit_contact') : t('contacts.add_contact')}</Text>
 
-              <Text style={globalStyles.inputLabel}>{t('contacts.name')}</Text>
-              <TextInput keyboardType='default' placeholder={t('contacts.placeholder_name')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={nombreContacto} onChangeText={setNombreContacto} />
+              <Text style={[globalStyles.inputLabel, {marginBottom: 8}]}>{t('contacts.name')}</Text>
+              <TextInput keyboardType='default' placeholder={t('contacts.placeholder_name')} mode='outlined' style={[globalStyles.input, {marginBottom: 16}]} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={nombreContacto} onChangeText={setNombreContacto} />
 
-              <Text style={globalStyles.inputLabel}>{t('contacts.phone')}</Text>
-              <TextInput keyboardType='numeric' placeholder={t('contacts.placeholder_phone')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={telefonoContacto} onChangeText={handleNumberChange} />
+              <Text style={[globalStyles.inputLabel, {marginBottom: 8}]}>{t('contacts.phone')}</Text>
+              <TextInput keyboardType='numeric' placeholder={t('contacts.placeholder_phone')} mode='outlined' style={[globalStyles.input, {marginBottom: 16}]} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={telefonoContacto} onChangeText={handleNumberChange} />
 
-              <Text style={globalStyles.inputLabel}>{t('contacts.relation')}</Text>
+              <Text style={[globalStyles.inputLabel, {marginBottom: 8}]}>{t('contacts.relation')}</Text>
               <TextInput keyboardType='default' placeholder={t('contacts.placeholder_relation')} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} value={relacionContacto} onChangeText={setRelacionContacto} />
 
               <View style={globalStyles.modalActions}>
-                <Button mode='contained' onPress={hideModal} style={[globalStyles.modalButton, { backgroundColor: Colors.cancel }]} labelStyle={{ color: Colors.textSecondaryMaterial }}>
+                <Button mode='contained' onPress={hideModal} style={styles.cancelButton} labelStyle={{ color: '#49454f' }}>
                   {t('common.cancel')}
                 </Button>
                 <Button
                   mode='contained'
-                  onPress={contactoEditado ? updateContacto : createContacto} style={[globalStyles.modalButton, { backgroundColor: Colors.primary }]}>
+                  onPress={contactoEditado ? updateContacto : createContacto} style={styles.saveButton} textColor={Colors.white_text}>
                   {contactoEditado ? t('common.save') : t('common.add')}
                 </Button>
               </View>

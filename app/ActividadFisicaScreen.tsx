@@ -19,6 +19,7 @@ import { useTelemetria } from '../context/TelemetriaContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiService } from '@/services/apiService';
 import { useTheme } from '@/context/ThemeContext';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { t } from '../utils/i18n';
 
 /*
@@ -41,6 +42,8 @@ import { t } from '../utils/i18n';
   
   Un α cercano a 1 (ej. 0.8) genera un filtrado rápido que reacciona casi de inmediato a los cambios (ideal para señales dinámicas).
 */
+
+const AnimatedCard = Animated.createAnimatedComponent(Card);
 
 export default function ActividadFisicaScreen() {
   const router = useRouter();
@@ -248,27 +251,27 @@ export default function ActividadFisicaScreen() {
           </Text>
 
           {/* Tarjeta de Pasos (Estilo mostaza/marrón de la imagen) */}
-          <Card style={styles.activityCard}>
+          <AnimatedCard style={styles.activityCard} entering={FadeIn.duration(800)}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.cardTitle}>
-                Pasos
-              </Text>
+                <Text variant="titleMedium" style={styles.cardTitle}>
+                  Pasos
+                </Text>
 
-              <Text variant='titleMedium' style={styles.infoText}>Actual: {pasosConteo}</Text>
-              <View style={globalStyles.row}>
-                <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
-                <IconButton
-                  icon="delete"
-                  size={20}
-                  iconColor={Colors.white_text}
-                  onPress={() => borrarObjetivoConfirm()}
-                  style={styles.deleteIcon}
-                />
-              </View>
+                <Text variant='titleMedium' style={styles.infoText}>Actual: {pasosConteo}</Text>
+                <View style={globalStyles.row}>
+                  <Text variant='titleMedium' style={styles.infoText}>Objetivo: {objetivo ? objetivo : 'Por definir'}</Text>
+                  <IconButton
+                    icon="delete"
+                    size={20}
+                    iconColor={Colors.white_text}
+                    onPress={() => borrarObjetivoConfirm()}
+                    style={styles.deleteIcon}
+                  />
+                </View>
 
-              <ProgressChart data={dataChart} width={350} height={210} strokeWidth={16} radius={82} chartConfig={chartConfig} hideLegend={false} />
-            </Card.Content>
-          </Card>
+                <ProgressChart data={dataChart} width={350} height={210} strokeWidth={16} radius={82} chartConfig={chartConfig} hideLegend={false} />
+              </Card.Content>
+          </AnimatedCard>
 
           <Button mode='contained' onPress={reiniciarPasos} style={styles.restartButton} labelStyle={{ color: Colors.white_text }}>{t('fitness.restart')}</Button>
         </ScrollView>

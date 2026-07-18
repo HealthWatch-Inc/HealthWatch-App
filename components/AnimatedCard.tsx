@@ -5,7 +5,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Card } from 'react-native-paper';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { GestureResponderEvent, StyleSheet } from 'react-native';
 
 interface AnimatedCardProps {
@@ -13,10 +13,12 @@ interface AnimatedCardProps {
   background?: string;
   onPress?: (event: GestureResponderEvent) => void;
   delay?: number;
+  fullWidth?: boolean;
 }
 
-const AnimatedCard = ({ children, onPress, background, delay = 0, }: AnimatedCardProps) => {
+const AnimatedCard = ({ children, onPress, background, delay = 0, fullWidth = false}: AnimatedCardProps) => {
   const scale = useSharedValue(1);
+  const [disabled, setDisabled] = useState(false);
 
   const style = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -25,9 +27,9 @@ const AnimatedCard = ({ children, onPress, background, delay = 0, }: AnimatedCar
   return (
     <Animated.View
       entering={FadeIn.duration(1500)}
-      style={[style, styles.container, { backgroundColor: background, borderRadius: 28 }]}>
+      style={[style, styles.container, fullWidth && styles.fullWidth, { backgroundColor: background, borderRadius: 28 }]}>
       <Card
-        style={[styles.card, { backgroundColor: background }]}
+        style={[styles.card, fullWidth && styles.fullCard, { backgroundColor: background, }]}
         elevation={0}
         onPressIn={() => {
           scale.value = withSpring(0.90);
@@ -35,7 +37,22 @@ const AnimatedCard = ({ children, onPress, background, delay = 0, }: AnimatedCar
         onPressOut={() => {
           scale.value = withSpring(1);
         }}
-        onPress={onPress}
+        onPress={async (event) => {
+          if (disabled) return;
+
+          setDisabled(true);
+
+          scale.value = withSpring(0.90);
+
+          setTimeout(() => {
+            scale.value = withSpring(1);
+
+            setTimeout(() => {
+              onPress?.(event);
+              setDisabled(false);
+            }, 120);
+          }, 120);
+        }}
       >
         {children}
       </Card>
@@ -52,10 +69,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: 'hidden',
   },
+  fullWidth: {
+    width: '100%',
+  },
   card: {
     width: '100%',
     height: 120,
     borderRadius: 28,
     justifyContent: 'center',
+  },
+  fullCard: {
+    width: '100%',
   },
 });

@@ -144,7 +144,7 @@ export default function LoginScreen() {
             <View style={globalStyles.inputWrapper}>
               <View style={globalStyles.inputContainer}>
                 <View style={{ flex: 1 }}>
-                  <Text style={globalStyles.inputLabel}>Correo</Text>
+                  <Text style={{color: Colors.inputLogin}}>Correo</Text>
                   <TextInput
                     style={globalStyles.input}
                     placeholder="example@email.com"
@@ -165,7 +165,7 @@ export default function LoginScreen() {
             <View style={globalStyles.inputWrapper}>
               <View style={globalStyles.inputContainer}>
                 <View style={{ flex: 1 }}>
-                  <Text style={globalStyles.inputLabel}>Contraseña</Text>
+                  <Text style={{color: Colors.inputLogin}}>Contraseña</Text>
                   <TextInput
                     style={globalStyles.input}
                     placeholder="**************"

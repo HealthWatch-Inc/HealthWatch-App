@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, ScrollView, SafeAreaView, InteractionManager, ActivityIndicator } from 'react-native';
 import { Provider as PaperProvider, Appbar, Text, Card } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -7,6 +7,7 @@ import FooterNav from '../components/Footernav';
 import { useTelemetria } from '../context/TelemetriaContext';
 import { usePaciente } from '@/context/PacienteContext';
 import { useTheme } from '@/context/ThemeContext';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { t } from '../utils/i18n';
 
 interface ChartData {
@@ -28,11 +29,21 @@ export default function SignosVitalesScreen() {
   const { pacienteId } = useLocalSearchParams();
   const { telemetriaActual } = useTelemetria();
   const { setPacienteId } = usePaciente();
-  const {theme, Colors, globalStyles, chartConfig } = useTheme();
+  const { theme, Colors, globalStyles, chartConfig } = useTheme();
+
+  // Contrar que la animación del router terminó
+  const [isTransitionFinished, setIsTransitionFinished] = useState(false);
 
   // Estados por cada gráfico
   const [heartRateData, setHeartRateData] = useState<ChartData>(initialChartState);
   const [spo2Data, setSpo2Data] = useState<ChartData>(initialChartState);
+
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      setIsTransitionFinished(true);
+    });
+    return () => task.cancel();
+  }, []);
 
   const actualizarGrafico = (
     tipo: TelemetriaKey,
@@ -52,7 +63,6 @@ export default function SignosVitalesScreen() {
         newLabels.shift();
         newData.shift();
       }
-
       return {
         labels: newLabels,
         datasets: [{ data: newData }],
@@ -84,15 +94,20 @@ export default function SignosVitalesScreen() {
       marginBottom: 12,
       marginLeft: 4
     },
+    loaderContainer: {
+      height: 200,
+      justifyContent: 'center',
+      alignItems: 'center'
+    }
   });
 
   // Un Effect dispara los 2 gráficos
   useEffect(() => {
-    if (telemetriaActual) {
+    if (telemetriaActual && isTransitionFinished) {
       actualizarGrafico('heart_rate', setHeartRateData);
       actualizarGrafico('spo2', setSpo2Data);
     }
-  }, [telemetriaActual]);
+  }, [telemetriaActual, isTransitionFinished]);
 
 
   useEffect(() => {
@@ -102,25 +117,32 @@ export default function SignosVitalesScreen() {
   const CardVitals = ({ titulo, dato, chart, unidad }: { titulo: string, dato: number | undefined, chart: ChartData, unidad: string }) => {
     return (
       <>
-        <Card style={styles.vitalsCard}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.cardTitle}>{titulo}</Text>
+        <Animated.View entering={FadeIn.duration(300)}>
+          <Card style={styles.vitalsCard} elevation={0}>
+            <Card.Content>
+              <Text variant="titleMedium" style={styles.cardTitle}>{titulo}</Text>
 
-            <Text variant="titleMedium" style={styles.cardData}>
-              {dato ? `${dato.toFixed(2)} ${unidad}` : `-- ${unidad}`}
-            </Text>
+              <Text variant="titleMedium" style={styles.cardData}>
+                {dato ? `${dato.toFixed(2)} ${unidad}` : `0 ${unidad}`}
+              </Text>
 
-            {chart.labels.length > 0 && (
-              <LineChart data={chart}
-                width={350}
-                height={300}
-                verticalLabelRotation={30}
-                chartConfig={chartConfig}
-                bezier
-              />
-            )}
-          </Card.Content>
-        </Card>
+              {!isTransitionFinished ? (
+                <Animated.View entering={FadeIn} style={styles.loaderContainer}>
+                  <ActivityIndicator animating={true} color={Colors.white_text} />
+                </Animated.View>
+              ) : (
+                chart.labels.length > 0 && (
+                <LineChart data={chart}
+                  width={350}
+                  height={300}
+                  verticalLabelRotation={30}
+                  chartConfig={chartConfig}
+                  bezier
+                />
+              ))}
+            </Card.Content>
+          </Card>
+        </Animated.View>
       </>
     )
   }

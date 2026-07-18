@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, ScrollView, Alert } from 'react-native';
+import { View, FlatList, ScrollView, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   Appbar,
-  Card,
   Text,
-  IconButton,
   Provider as PaperProvider,
   FAB,
   Portal,
@@ -21,6 +19,8 @@ import { useNotificationBanner } from '@/context/NotificationContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { usePaciente } from '@/context/PacienteContext';
 import { useTheme } from '@/context/ThemeContext';
+import { CardMedicamento } from '@/components/CardMedicamento';
+import { getNotificationsStyles } from "@/constants/notificationsStyles"
 import { t } from '../utils/i18n';
 
 const DATA = [
@@ -46,6 +46,7 @@ export default function NotificationsScreen() {
   const router = useRouter();
   const { pacienteId } = useLocalSearchParams();
   const { theme, Colors, globalStyles, } = useTheme();
+  const styles = getNotificationsStyles(Colors);
   const { actualizarMedicamentos } = useNotificationBanner();
   const { setPacienteId } = usePaciente();
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -196,10 +197,6 @@ export default function NotificationsScreen() {
     setVisible(true);
   };
 
-  const updateMedication = async () => {
-    await guardarMedicamento();
-  };
-
   // Función para eliminar un medicamento con confirmación previa
   const deleteMedication = (id: string, name: string) => {
     const mensaje = t('alerts.delete_medication_message', { name });
@@ -231,132 +228,6 @@ export default function NotificationsScreen() {
     }
   };
 
-  const styles = StyleSheet.create({
-    medsContainer: {
-      marginBottom: 16
-    },
-    medCard: {
-      backgroundColor: Colors.primary,
-      marginBottom: 12,
-      width: '100%'
-    },
-    medContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 8
-    },
-    medIcon: {
-      margin: 0
-    },
-    medTitle: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 16
-    },
-    medTime: {
-      color: 'white',
-      fontSize: 14
-    },
-    medTextWrapper: {
-      marginLeft: 4,
-      flex: 1
-    },
-    deleteMedBtn: {
-      margin: 0,
-      padding: 0
-    },
-    sectionTitle: {
-      marginBottom: 16,
-      fontWeight: 'bold',
-      marginTop: 8
-    },
-    fallItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingVertical: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: '#CAC4D0'
-    },
-    emptyContainer: {
-      paddingVertical: 24,
-      alignItems: 'center'
-    },
-    cancelButton: {
-      flex: 1,
-      marginRight: 8,
-      backgroundColor: '#E6E1E5',
-      borderRadius: 20
-    },
-    saveButton: {
-      flex: 1,
-      marginLeft: 8,
-      backgroundColor: Colors.primary,
-      borderRadius: 20,
-    },
-  });
-
-  const CardMedicamento = ({ id, objeto, nombre, frecuencia, horas }: { id: string, objeto: Medication, nombre: string, frecuencia: string, horas: string[] }) => {
-    return (
-      <>
-        <Card key={id} style={styles.medCard}>
-          <Card.Content style={styles.medContent}>
-            <IconButton icon="pill" iconColor="white" size={24} style={styles.medIcon} />
-            <View style={styles.medTextWrapper}>
-              <Text style={styles.medTitle}>{nombre}</Text>
-              <Text style={styles.medTime}>{t(`alerts.${frecuencia}`)}</Text>
-              <Text style={styles.medTime}>{horas}</Text>
-            </View>
-            {/* Botón para eliminar */}
-            <IconButton
-              icon="pencil"
-              iconColor="#ffffff"
-              size={22}
-              onPress={() => editMedication(objeto)}
-            />
-
-            <IconButton
-              icon="delete"
-              iconColor="#FF8A8A"
-              size={22}
-              onPress={() => deleteMedication(id, nombre)}
-              style={styles.deleteMedBtn}
-            />
-          </Card.Content>
-        </Card>
-      </>
-    )
-  }
-
-  const RenderHeader = () => (
-    <View>
-      <Text variant="headlineSmall" style={globalStyles.title}>{t('alerts.title')}</Text>
-
-      {/* Recordatorio de Medicamento */}
-      <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.medication_reminder')}</Text>
-
-      <View style={styles.medsContainer}>
-        {loadingMeds ? (
-          // Sesión Loading Activada
-          <View>
-            <ActivityIndicator animating={true} color={Colors.primary} size='small' />
-          </View>
-        ) : medications.length === 0 ? (
-          // Si no hay medicamentos
-          <View>
-            <Text variant='bodyMedium'>{t('alerts.no_medications')}</Text>
-          </View>
-        ) : (
-          medications.map((item) => (
-            <CardMedicamento key={item.id} id={item.id} objeto={item} nombre={item.nombre} frecuencia={item.frecuencia} horas={item.horas} />
-          ))
-        )}
-      </View>
-
-      {/* Título de la sección inferior */}
-      <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.falls_detected')}</Text>
-    </View>
-  );
-
   return (
     <PaperProvider theme={theme}>
       <Appbar.Header style={globalStyles.header}>
@@ -365,10 +236,37 @@ export default function NotificationsScreen() {
       </Appbar.Header>
 
       <View style={globalStyles.container}>
+
+        <View style={globalStyles.content}>
+          <Text variant="headlineSmall" style={globalStyles.title}>{t('alerts.title')}</Text>
+
+          {/* Recordatorio de Medicamento */}
+          <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.medication_reminder')}</Text>
+
+          <View style={styles.medsContainer}>
+            {loadingMeds ? (
+              // Sesión Loading Activada
+              <View>
+                <ActivityIndicator animating={true} color={Colors.primary} size='small' />
+              </View>
+            ) : medications.length === 0 ? (
+              // Si no hay medicamentos
+              <View>
+                <Text variant='bodyMedium'>{t('alerts.no_medications')}</Text>
+              </View>
+            ) : (
+              medications.map((item) => (
+                <CardMedicamento key={item.id} id={item.id} objeto={item} nombre={item.nombre} frecuencia={item.frecuencia} horas={item.horas} onEdit={editMedication} onDelete={deleteMedication} />
+              ))
+            )}
+          </View>
+          {/* Título de la sección inferior */}
+          <Text variant="titleMedium" style={styles.sectionTitle}>{t('alerts.falls_detected')}</Text>
+        </View>
+
         <FlatList
           data={falls}
           keyExtractor={(item) => item.id}
-          ListHeaderComponent={RenderHeader}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={globalStyles.content}
           renderItem={({ item }) => (
@@ -392,17 +290,32 @@ export default function NotificationsScreen() {
             onDismiss={hideModal}
             contentContainerStyle={globalStyles.modalContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={[globalStyles.modalTitle, {marginBottom: 10}]}>{medicamentoEditado ? t('alerts.edit_medication') : t('alerts.add_medication')}</Text>
+              <Text
+                style={[globalStyles.modalTitle, { marginBottom: 10 }]}>
+                {medicamentoEditado ? t('alerts.edit_medication') : t('alerts.add_medication')}
+              </Text>
 
-              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.medication_name')}</Text>
-              <TextInput placeholder={t('alerts.example_medication')} value={medName} onChangeText={setMedName} mode='outlined' style={globalStyles.input} outlineColor='#CAC4D0' activeOutlineColor={Colors.primary} />
+              <Text
+                style={[globalStyles.inputLabel, { marginBottom: 10 }]}>
+                {t('alerts.medication_name')}
+              </Text>
 
-              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.reminder_time')}</Text>
+              <TextInput
+                placeholder={t('alerts.example_medication')}
+                value={medName}
+                onChangeText={setMedName}
+                mode='outlined'
+                style={globalStyles.input}
+                outlineColor='#CAC4D0'
+                activeOutlineColor={Colors.primary}
+              />
+
+              <Text style={[globalStyles.inputLabel, { marginBottom: 10 }]}>{t('alerts.reminder_time')}</Text>
 
               <Button
                 mode="outlined"
                 onPress={abrirSelectorHora}
-                style={{marginBottom: 10}}
+                style={{ marginBottom: 10 }}
               >
                 {time.toLocaleTimeString([], {
                   hour: '2-digit',
@@ -420,7 +333,7 @@ export default function NotificationsScreen() {
                 />
               )}
 
-              <Text style={[globalStyles.inputLabel, {marginBottom: 10}]}>{t('alerts.frequency')}</Text>
+              <Text style={[globalStyles.inputLabel, { marginBottom: 10 }]}>{t('alerts.frequency')}</Text>
 
               <Menu
                 visible={menuVisible}
