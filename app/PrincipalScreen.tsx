@@ -66,7 +66,7 @@ const App = () => {
     }, [])
   );
 
-  console.log("telemetriaActual:", telemetriaActual);
+  // console.log("telemetriaActual:", telemetriaActual);
 
   return (
     <PaperProvider theme={theme}>

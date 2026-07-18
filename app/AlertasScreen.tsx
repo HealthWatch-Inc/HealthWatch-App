@@ -16,7 +16,8 @@ import {
 import FooterNav from '../components/Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { usePaciente } from '@/context/PacienteContext';
 import { useTheme } from '@/context/ThemeContext';
 import { CardMedicamento } from '@/components/CardMedicamento';
@@ -61,33 +62,12 @@ export default function NotificationsScreen() {
   const [medicamentoEditado, setMedicamentoEditado] = useState<Medication | null>(null);
 
   useEffect(() => {
-    console.log("LOAD EFFECT")
-
     if (!pacienteId) return;
 
     setPacienteId(String(pacienteId));
     loadMedications();
 
   }, [pacienteId, setPacienteId]);
-
-  const onChangeTime = (event: any, selectedTime?: Date) => {
-    console.log("onChangeTime");
-    console.log("event:", event.type);
-
-    if (selectedTime) {
-      console.log("Nueva hora:", selectedTime.toLocaleTimeString());
-    }
-
-    if (event?.type === "dismissed") {
-      setShowPicker(false);
-      return;
-    }
-
-    if (selectedTime) {
-      cambiarHora(selectedTime, "DateTimePicker");
-      setShowPicker(false);
-    }
-  };
 
   const loadMedications = async () => {
     if (!pacienteId) {
@@ -114,7 +94,6 @@ export default function NotificationsScreen() {
   };
 
   const cambiarHora = (date: Date, origen: string) => {
-    console.log("setTime desde", origen, formatHour(date));
     setTime(date);
   };
 
@@ -124,7 +103,19 @@ export default function NotificationsScreen() {
   };
 
   const abrirSelectorHora = () => {
-    setShowPicker(true);
+    // setShowPicker(true);
+
+    DateTimePickerAndroid.open({
+      value: time,
+      mode: 'time',
+      is24Hour: true,
+      display: 'clock',
+      onChange: (event, selectedTime) => {
+        if (event.type === 'set' && selectedTime) {
+          cambiarHora(selectedTime, 'DateTimePickerAndroid');
+        }
+      },
+    });
   };
 
   const hideModal = () => {
@@ -171,8 +162,6 @@ export default function NotificationsScreen() {
   };
 
   const editMedication = (medication: Medication) => {
-    console.log("EDIT", medication.horas[0]);
-
     setMedicamentoEditado(medication);
     setMedName(medication.nombre);
 
@@ -322,16 +311,6 @@ export default function NotificationsScreen() {
                   minute: '2-digit'
                 })}
               </Button>
-
-              {showPicker && (
-                <DateTimePicker
-                  value={time}
-                  mode="time"
-                  is24Hour={true}
-                  display="default"
-                  onChange={onChangeTime}
-                />
-              )}
 
               <Text style={[globalStyles.inputLabel, { marginBottom: 10 }]}>{t('alerts.frequency')}</Text>
 

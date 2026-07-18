@@ -132,8 +132,6 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
 
     const { ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0 } = telemetriaActual;
 
-    console.log('Telemetria recibida:', { ax, ay, az, gx, gy, gz });
-
     // Magnitud de aceleración y giro
     const aceleracion = Math.sqrt(ax * ax + ay * ay + az * az);
 
@@ -146,8 +144,6 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
     // Filtrado
     const acelFiltrada = filtroExponencial(movimiento, acelAnterior, 0.3);
     const ahora = Date.now();
-
-    console.log(`acelFiltrada=${acelFiltrada.toFixed(3)} giro=${giro.toFixed(3)} umbral_subida=${UMBRAL_SUBIDA} umbral_bajada=${UMBRAL_BAJADA} pasos_actual=${pasosConteo}`);
 
     // Detectar inicio del pico
     if (!arribaUmbral.current && acelFiltrada > UMBRAL_SUBIDA) {

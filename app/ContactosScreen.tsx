@@ -41,8 +41,6 @@ export default function EmergencyContactsScreen() {
   const makeCall = async (phone: string) => {
     try {
       const phoneNumber = phone.replace(/\s/g, '');
-      console.log(`tel:${phoneNumber}`);
-
       await Linking.openURL(`tel:${phoneNumber}`);
     } catch (e) {
       console.error(e);
