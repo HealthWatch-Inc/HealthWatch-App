@@ -9,7 +9,7 @@ import Constants from 'expo-constants';
 import { useTelemetria } from './TelemetriaContext';
 import { useRouter } from 'expo-router';
 import { usePaciente } from './PacienteContext';
-import type { Medication, NotificationContextType } from '@/types/types';
+import type { Medication, NotificationContextType, NotificationContextProps } from '@/types/types';
 
 // Propiedades nativas para las notificaciones
 Notifications.setNotificationHandler({
@@ -32,10 +32,6 @@ export const useNotificationBanner = () => {
   }
   return context;
 };
-
-interface NotificationContextProps {
-  children: React.ReactNode;
-}
 
 export const NotificationProvider = ({ children }: NotificationContextProps) => {
   const { pacienteId } = usePaciente();

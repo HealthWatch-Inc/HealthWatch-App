@@ -84,3 +84,38 @@ export interface LanguageContextType {
 export interface NotificationContextType {
   actualizarMedicamentos: (meds: Medication[]) => Promise<void>;
 }
+
+// Props de notificaciones
+export interface NotificationContextProps {
+  children: React.ReactNode;
+}
+
+// Contexto de paciente
+export interface PacienteContextValue {
+  pacienteId?: string;
+  setPacienteId: (id: string | undefined) => void;
+}
+
+// Datos de telemetría
+export interface Telemetria {
+  time: string;
+  heart_rate: number;
+  spo2: number;
+  battery: number;
+  ax: number;
+  ay: number;
+  az: number;
+  gx: number;
+  gy: number;
+  gz: number;
+}
+
+// Contexto de telemetría
+export interface TelemetriaContextValue {
+  telemetrias: Telemetria[];
+  telemetriaActual: Telemetria | null;
+  pasosConteo: number;
+  reiniciarPasos: () => Promise<void>;
+  refreshTelemetria: () => Promise<void>;
+  pacienteId?: string;
+}

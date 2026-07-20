@@ -1,9 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-
-interface PacienteContextValue {
-    pacienteId?: string;
-    setPacienteId: (id: string | undefined) => void;
-}
+import type { PacienteContextValue } from "@/types/types";
 
 const PacienteContext = createContext<PacienteContextValue | undefined>(undefined);
 

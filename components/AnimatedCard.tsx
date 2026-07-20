@@ -5,8 +5,8 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { Card } from 'react-native-paper';
-import React, { ReactNode, useState } from 'react';
-import { GestureResponderEvent, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 import type { AnimatedCardProps } from '@/types/types';
 
 const AnimatedCard = ({ children, onPress, background, delay = 0, fullWidth = false}: AnimatedCardProps) => {

@@ -2,28 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useRef, useStat
 import { apiService } from '@/services/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePaciente } from './PacienteContext';
-
-export interface Telemetria {
-  time: string;
-  heart_rate: number;
-  spo2: number;
-  battery: number;
-  ax: number;
-  ay: number;
-  az: number;
-  gx: number;
-  gy: number;
-  gz: number;
-}
-
-interface TelemetriaContextValue {
-  telemetrias: Telemetria[];
-  telemetriaActual: Telemetria | null;
-  pasosConteo: number;
-  reiniciarPasos: () => Promise<void>;
-  refreshTelemetria: () => Promise<void>;
-  pacienteId?: string;
-}
+import type { Telemetria, TelemetriaContextValue } from '@/types/types';
 
 const TelemetriaContext = createContext<TelemetriaContextValue | undefined>(undefined);
 
