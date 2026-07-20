@@ -16,12 +16,12 @@ import {
 import FooterNav from '../components/Footernav';
 import { apiService } from '@/services/apiService';
 import { useNotificationBanner } from '@/context/NotificationContext';
-// import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { usePaciente } from '@/context/PacienteContext';
 import { useTheme } from '@/context/ThemeContext';
 import { CardMedicamento } from '@/components/CardMedicamento';
 import { getNotificationsStyles } from "@/constants/notificationsStyles"
+import type {Medication, FallEvent} from './../types/types';
 import { t } from '../utils/i18n';
 
 const DATA = [
@@ -29,19 +29,6 @@ const DATA = [
   { id: '2', time: '6:07 a. m.', date: '2/3/2026' },
   { id: '3', time: '12:01 p. m.', date: '9/1/2026' },
 ];
-
-interface Medication {
-  id: string;
-  nombre: string;
-  horas: string[];
-  frecuencia: string;
-}
-
-interface FallEvent {
-  id: string;
-  time: string;
-  date: string;
-}
 
 export default function NotificationsScreen() {
   const router = useRouter();

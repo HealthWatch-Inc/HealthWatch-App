@@ -7,14 +7,7 @@ import Animated, {
 import { Card } from 'react-native-paper';
 import React, { ReactNode, useState } from 'react';
 import { GestureResponderEvent, StyleSheet } from 'react-native';
-
-interface AnimatedCardProps {
-  children: ReactNode;
-  background?: string;
-  onPress?: (event: GestureResponderEvent) => void;
-  delay?: number;
-  fullWidth?: boolean;
-}
+import type { AnimatedCardProps } from '@/types/types';
 
 const AnimatedCard = ({ children, onPress, background, delay = 0, fullWidth = false}: AnimatedCardProps) => {
   const scale = useSharedValue(1);

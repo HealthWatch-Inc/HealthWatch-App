@@ -9,6 +9,7 @@ import Constants from 'expo-constants';
 import { useTelemetria } from './TelemetriaContext';
 import { useRouter } from 'expo-router';
 import { usePaciente } from './PacienteContext';
+import type { Medication, NotificationContextType } from '@/types/types';
 
 // Propiedades nativas para las notificaciones
 Notifications.setNotificationHandler({
@@ -20,17 +21,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-interface Medication {
-  id: string;
-  nombre: string;
-  horas: string[];
-  frecuencia: string;
-}
-
-interface NotificationContextType {
-  actualizarMedicamentos: (meds: Medication[]) => Promise<void>;
-}
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
 

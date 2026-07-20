@@ -18,13 +18,7 @@ import { useState, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { t } from '../utils/i18n';
 import { useTheme } from '@/context/ThemeContext';
-
-interface Contacto {
-  id: string;
-  name: string;
-  phone: string;
-  relation: string;
-}
+import type { Contacto } from '@/types/types';
 
 export default function EmergencyContactsScreen() {
   const router = useRouter();

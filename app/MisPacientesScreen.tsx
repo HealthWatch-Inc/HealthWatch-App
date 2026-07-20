@@ -7,14 +7,7 @@ import { apiService } from '@/services/apiService';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { auth } from '@/config/firebase';
 import { useTheme } from '@/context/ThemeContext';
-
-interface Usuario {
-  uid: string;
-  nombre_completo: string,
-  correo: string;
-  rol: string;
-  telefono: string;
-}
+import type { Usuario } from '@/types/types';
 
 export default function PacientesScreen() {
   const router = useRouter();

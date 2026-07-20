@@ -8,14 +8,8 @@ import { useTelemetria } from '../context/TelemetriaContext';
 import { usePaciente } from '@/context/PacienteContext';
 import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import type { ChartData } from '@/types/types';
 import { t } from '../utils/i18n';
-
-interface ChartData {
-  labels: string[],
-  datasets: {
-    data: number[],
-  }[];
-}
 
 type TelemetriaKey = "heart_rate" | "spo2";
 

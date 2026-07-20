@@ -5,10 +5,7 @@ import { useRouter } from 'expo-router';
 import { t } from '../utils/i18n';
 import { LightColors, DarkColors, getGlobalStyles } from '@/constants/styles';
 import { useLanguage } from '../context/LanguageContext';
-
-interface FooterNavProps {
-  activeTab: 'inicio' | 'datos' | 'pacientes';
-}
+import type { FooterNavProps } from '@/types/types';
 
 const FooterNav = ({ activeTab }: FooterNavProps) => {
   const router = useRouter();

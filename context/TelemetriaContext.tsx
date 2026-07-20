@@ -120,7 +120,7 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
 
   // Estado del filtro
   const acelAnterior = useRef(0);
-  const giroAnterior = useRef(0);
+  // const giroAnterior = useRef(0);
   const ultimoPaso = useRef(0); // Último paso detectado
   const arribaUmbral = useRef(false); //Para detectar el cruce del umbral
 
@@ -139,7 +139,7 @@ export const TelemetriaProvider = ({ children }: { children: ReactNode }) => {
     const movimiento = Math.abs(aceleracion - GRAVEDAD);
 
     // Magnitud de giroscopio
-    const giro = Math.sqrt(gx * gx + gy * gy + gz * gz);
+    // const giro = Math.sqrt(gx * gx + gy * gy + gz * gz);
 
     // Filtrado
     const acelFiltrada = filtroExponencial(movimiento, acelAnterior, 0.3);

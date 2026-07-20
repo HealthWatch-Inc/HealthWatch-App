@@ -7,11 +7,7 @@ import React, {
 } from 'react';
 
 import { initI18n, setLocale } from '../utils/i18n';
-
-interface LanguageContextType {
-  language: string;
-  changeLanguage: (lang: string) => Promise<void>;
-}
+import type { LanguageContextType } from '@/types/types';
 
 const LanguageContext = createContext<LanguageContextType>({
   language: 'es',

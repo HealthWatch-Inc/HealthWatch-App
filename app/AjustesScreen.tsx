@@ -20,22 +20,8 @@ import { useRouter } from 'expo-router';
 import { useLanguage } from '@/context/LanguageContext';
 import { apiService } from '@/services/apiService';
 import { useTheme } from '@/context/ThemeContext';
-import { lightTheme, darkTheme, LightColors, DarkColors, getGlobalStyles } from '@/constants/styles';
-
-// Definición de tipos para las filas de datos
-interface SettingRowProps {
-  label: string;
-  value: string;
-  colors: typeof LightColors;
-}
-
-interface Usuario {
-  uid: string;
-  nombre_completo: string,
-  correo: string;
-  rol: string;
-  telefono: string;
-}
+import { LightColors, getGlobalStyles } from '@/constants/styles';
+import type {SettingRowProps, Usuario} from './../types/types';
 
 const SettingRow = ({ label, value, colors }: SettingRowProps) => {
   const localStyles = createStyles(colors);
