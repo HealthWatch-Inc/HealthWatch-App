@@ -1,0 +1,35 @@
+0000000000000000000000000000000000000000 eb6a1265d89cdc209707e5424c9ee0f8d01dc688 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1778342095 -0500	clone: from https://github.com/HealthWatch-Inc/HealthWatch-App.git
+eb6a1265d89cdc209707e5424c9ee0f8d01dc688 8230904ebba1f5487f709263e8fd3dcaaa2b8c1c AcherPlus <enmanuel.obando@unmsm.edu.pe> 1778342566 -0500	commit: pantalla home
+8230904ebba1f5487f709263e8fd3dcaaa2b8c1c 5d0c4ba13a59a5d73c720db0cf8f993f9e7e3cac AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779219829 -0500	pull: Fast-forward
+5d0c4ba13a59a5d73c720db0cf8f993f9e7e3cac bd1188e90b27125f8031b6ead1e6e580aaf0161c AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779221194 -0500	commit: env funciona
+bd1188e90b27125f8031b6ead1e6e580aaf0161c e4713b1c45aa18ff119a5e8b8e2abc2bf63a656f AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779804353 -0500	commit: nuevas pantallas
+e4713b1c45aa18ff119a5e8b8e2abc2bf63a656f bdee6f0a2272c4d6fd9bac43e8b18ee57305886e AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779806544 -0500	commit: cambios
+bdee6f0a2272c4d6fd9bac43e8b18ee57305886e ac10e7c817d1a0bd478dedb6818071c9a53f464d AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779810252 -0500	commit: cambios en pantallas
+ac10e7c817d1a0bd478dedb6818071c9a53f464d 163872d3a272153b85525906be3ffdcc94cc762c AcherPlus <enmanuel.obando@unmsm.edu.pe> 1779825262 -0500	commit: antes de la conexion
+163872d3a272153b85525906be3ffdcc94cc762c 6584296895c95eae75ded22e9d770211f25baf49 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780064658 -0500	commit: nueva pantalla mis pacientes
+6584296895c95eae75ded22e9d770211f25baf49 cb74b41befa379d3aaa3eee304c2465f02624c54 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780363064 -0500	commit: pantallas ultima presentacion
+cb74b41befa379d3aaa3eee304c2465f02624c54 627b672a3de966ad852fd55548ad9124c049f348 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780363080 -0500	pull: Merge made by the 'ort' strategy.
+627b672a3de966ad852fd55548ad9124c049f348 a64d1339ef938fa293312ade1a9e72cc1f2b5d29 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780682423 -0500	commit: modal
+a64d1339ef938fa293312ade1a9e72cc1f2b5d29 34706c3bc17bbfa0b699c437044e7f7021d904ae AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780692434 -0500	commit: cambios
+34706c3bc17bbfa0b699c437044e7f7021d904ae 39747b6cf63f23e0873b381148ffa0f1e2ef05d9 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780698548 -0500	commit: logica pantallas signos vitales y alertas
+39747b6cf63f23e0873b381148ffa0f1e2ef05d9 d2d31c31037dcb87be6b80a612ba0f0f8afe900c AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780754617 -0500	commit: cambios pantallas
+d2d31c31037dcb87be6b80a612ba0f0f8afe900c eff45fde529d486ae2d92dd681718d3f2db13a34 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1780760404 -0500	commit: logica api alerts
+eff45fde529d486ae2d92dd681718d3f2db13a34 9d31fa20d5d8eefdd67332b79fa2fdc41c70f4d2 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1781024893 -0500	commit: notificaciones frontend
+9d31fa20d5d8eefdd67332b79fa2fdc41c70f4d2 26183a414a99fd08f582bfc96daebc6e20c5d83d AcherPlus <enmanuel.obando@unmsm.edu.pe> 1782456523 -0500	commit: graficos bpm spo2
+26183a414a99fd08f582bfc96daebc6e20c5d83d 893f87d710d02514dd457a40803c6b35d0ac18df AcherPlus <enmanuel.obando@unmsm.edu.pe> 1782506537 -0500	commit: charts bpm spo2 pasos
+893f87d710d02514dd457a40803c6b35d0ac18df 842cb51de20a4c616644af04805aec93edc185df AcherPlus <enmanuel.obando@unmsm.edu.pe> 1782859731 -0500	commit: conectando al backend desplegado
+842cb51de20a4c616644af04805aec93edc185df e2a25f7b73a156f44ec09133cbf017f663473e7c AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783148634 -0500	commit: cambio de react native firebase a expo notifications
+e2a25f7b73a156f44ec09133cbf017f663473e7c 20abd37c22734df68be7e7d9d63f2ac72ed04352 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783284270 -0500	commit: cambios del sabado frony
+20abd37c22734df68be7e7d9d63f2ac72ed04352 d86928fda74dd1fc150f3c852a2280cd3e3b4ef4 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783311520 -0500	commit: crud front agregado alerts contacts
+d86928fda74dd1fc150f3c852a2280cd3e3b4ef4 60f105648ead8a523d3045bd063a0b51281710a1 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783623237 -0500	commit: cambio de nombres y notificaciones movil
+60f105648ead8a523d3045bd063a0b51281710a1 9fadfa0f374ad1cc829d6155d356b52e374c9da5 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783702648 -0500	commit: lenguaje, notificaciones y telemetria
+9fadfa0f374ad1cc829d6155d356b52e374c9da5 e34144a2383fdf3cc8577d20b69eb9d019688952 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1783703673 -0500	commit: corrigiendo traducciones
+e34144a2383fdf3cc8577d20b69eb9d019688952 504056eb79fab30f6327f8dce7d6b8d3ced65267 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784036269 -0500	commit: modificaciones frontend
+504056eb79fab30f6327f8dce7d6b8d3ced65267 9c927ee65165f4edd69d525ddf27fd8a9a0278d6 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784049291 -0500	commit: incluyendo /me y /telefono
+9c927ee65165f4edd69d525ddf27fd8a9a0278d6 28913659572766332d1bfa319e5b89a0a199e41a AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784212414 -0500	commit: quitando redundancias del css
+28913659572766332d1bfa319e5b89a0a199e41a 071743640898ac107f5c54ded2623a8345275fc0 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784270146 -0500	commit: agregando modo oscuro a pantallas
+071743640898ac107f5c54ded2623a8345275fc0 d1986aa76f0a5562b47607a60dfed6f2354a517d AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784298555 -0500	commit: agregando modo oscuro, falta contactos
+d1986aa76f0a5562b47607a60dfed6f2354a517d 1d37b41efada56a35dee12e25bf7e4ace2ced9b9 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784372624 -0500	commit: cambios finales front
+1d37b41efada56a35dee12e25bf7e4ace2ced9b9 72474143ad4d27ca7b28ba018844c33b1b52d174 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784375289 -0500	commit: bug arreglado datetimepicker
+72474143ad4d27ca7b28ba018844c33b1b52d174 485b3b16846b8d9f5d83036330c237ca919aaac0 AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784520475 -0500	commit: cambios front
+485b3b16846b8d9f5d83036330c237ca919aaac0 563c607c61ee96db332f78bd94d932d33ccbf9be AcherPlus <enmanuel.obando@unmsm.edu.pe> 1784521058 -0500	commit: types
