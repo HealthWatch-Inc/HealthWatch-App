@@ -15,8 +15,11 @@ export interface FallEvent {
   id: string;
   time: string;
   date: string;
+<<<<<<< HEAD
   probabilidad?: number;
   notificada?: boolean;
+=======
+>>>>>>> origin/main
 }
 
 // Card de Medicamentos

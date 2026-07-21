@@ -1,4 +1,5 @@
 import { auth } from '../config/firebase';
+<<<<<<< HEAD
 import { Platform } from 'react-native';
 
 const API_BASE_URL = Platform.select({
@@ -6,6 +7,10 @@ const API_BASE_URL = Platform.select({
   ios: 'http://192.168.100.3:8000',
   web: 'http://localhost:8000',
 });
+=======
+
+const API_BASE_URL = 'https://healthwatch-backend.onrender.com';
+>>>>>>> origin/main
 
 export const apiService = {
   // GET
@@ -101,4 +106,8 @@ export const apiService = {
       throw error;
     }
   },
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> origin/main

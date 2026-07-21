@@ -35,9 +35,15 @@ export const getNotificationsStyles = (Colors: any) => StyleSheet.create({
     padding: 0
   },
   sectionTitle: {
+<<<<<<< HEAD
     marginBottom: 10,
     fontWeight: 'bold',
     marginTop: 5
+=======
+    marginBottom: 16,
+    fontWeight: 'bold',
+    marginTop: 8
+>>>>>>> origin/main
   },
   fallItem: {
     flexDirection: 'row',

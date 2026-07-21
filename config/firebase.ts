@@ -6,7 +6,10 @@ import {
   Persistence,
   ReactNativeAsyncStorage,
 } from 'firebase/auth';
+<<<<<<< HEAD
 import { getFirestore } from 'firebase/firestore';
+=======
+>>>>>>> origin/main
 
 declare module "firebase/auth" {
   export function getReactNativePersistence(
@@ -30,6 +33,10 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 
+<<<<<<< HEAD
 const db = getFirestore(app);
 
 export { auth, db };
+=======
+export { auth };
+>>>>>>> origin/main
